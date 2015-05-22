@@ -1,0 +1,13 @@
+<resources>
+    <string name="app_name">The Jones Theory</string>
+    <string name="drawer_open">Menu opened</string>
+    <string name="drawer_close">Menu closed</string>
+    <string name="action_settings">Settings</string>
+    <string name="title_activity_fetch_data">FetchDataActivity</string>
+
+    <string name="hello_world">Hello world!</string>
+    <string name="fetchData">Fetch Data</string>
+
+<!-- TODO: Remove or change this placeholder text -->
+    <string name="hello_blank_fragment">Hello blank fragment</string>
+</resources>
