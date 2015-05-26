@@ -1,4 +1,4 @@
-package me.calebjones.thejonestheory;
+package me.calebjones.thejonestheory.feed;
 
 public class FeedItem {
     private String title;

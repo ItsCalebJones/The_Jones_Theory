@@ -1,4 +1,4 @@
-package me.calebjones.thejonestheory;
+package me.calebjones.thejonestheory.drawer;
 
 
 import android.support.v7.widget.RecyclerView;
@@ -8,6 +8,8 @@ import android.view.ViewGroup;
 import android.widget.TextView;
 
 import java.util.List;
+
+import me.calebjones.thejonestheory.R;
 
 
 public class NavigationDrawerAdapter extends RecyclerView.Adapter<NavigationDrawerAdapter.ViewHolder> {

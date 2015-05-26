@@ -1,4 +1,4 @@
-package me.calebjones.thejonestheory;
+package me.calebjones.thejonestheory.feed;
 
 import android.content.Intent;
 import android.support.v7.widget.RecyclerView;
@@ -6,6 +6,8 @@ import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import me.calebjones.thejonestheory.R;
 
 public class FeedListRowHolder extends RecyclerView.ViewHolder {
     public ImageView thumbnail;

@@ -4,27 +4,14 @@ import android.app.Activity;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
-import android.support.v7.internal.widget.AdapterViewCompat;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.text.Html;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
-import android.widget.AdapterView;
-import android.widget.ArrayAdapter;
 import android.widget.Button;
-import android.widget.ListAdapter;
-import android.widget.ListView;
-import android.widget.SimpleAdapter;
 import android.widget.TextView;
-import android.app.Fragment;
-import android.support.v4.app.FragmentActivity;
-import android.support.v7.app.ActionBarActivity;
-import android.os.Bundle;
-import android.view.Menu;
-import android.view.MenuItem;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -33,46 +20,35 @@ import java.net.HttpURLConnection;
 import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Map;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.client.ClientProtocolException;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
-import android.app.Activity;
-import android.os.AsyncTask;
-import android.os.Bundle;
-import android.util.Log;
-import android.view.View;
-import android.view.View.OnClickListener;
-import android.widget.Button;
-import android.widget.TextView;
-import android.widget.Toast;
 
-import me.calebjones.thejonestheory.FeedItem;
+import android.os.AsyncTask;
+import android.util.Log;
+import android.view.View.OnClickListener;
+
+import me.calebjones.thejonestheory.feed.FeedItem;
 import me.calebjones.thejonestheory.R;
-import me.calebjones.thejonestheory.loader.MyRecyclerAdapter;
+import me.calebjones.thejonestheory.feed.MyRecyclerAdapter;
 
 /**
  * A simple {@link Fragment} subclass.
  * Activities that contain this fragment must implement the
- * {@link FetchData.OnFragmentInteractionListener} interface
+ * {@link FetchView.OnFragmentInteractionListener} interface
  * to handle interaction events.
- * Use the {@link FetchData#newInstance} factory method to
+ * Use the {@link FetchView#newInstance} factory method to
  * create an instance of this fragment.
  */
-public class FetchData extends Fragment {
+public class FetchView extends Fragment {
 
     private List<FeedItem> feedItemList = new ArrayList<FeedItem>();
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter adapter;
 
     private Button btnSubmit;
-    private final static String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
+    public final static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=1";
     /*Downloading data from below url*/
     public final String url = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?&number=20";
     private TextView tvPostCount, tvPostTitle, tvPostUrl;
@@ -80,14 +56,14 @@ public class FetchData extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    public static FetchData newInstance(String param1, String param2) {
-        FetchData fragment = new FetchData();
+    public static FetchView newInstance(String param1, String param2) {
+        FetchView fragment = new FetchView();
         Bundle args = new Bundle();
         fragment.setArguments(args);
         return fragment;
     }
 
-    public FetchData() {
+    public FetchView() {
         // Required empty public constructor
     }
 
@@ -170,7 +146,7 @@ public class FetchData extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    public class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
+    public final class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected void onPreExecute() {

@@ -1,6 +1,6 @@
 package me.calebjones.thejonestheory;
 
-import android.content.ContextWrapper;
+import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -9,10 +9,12 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.view.Window;
 import android.widget.Toast;
 
-import me.calebjones.thejonestheory.fragments.FetchData;
+import me.calebjones.thejonestheory.activity.LoginActivity;
+import me.calebjones.thejonestheory.drawer.NavigationDrawerCallbacks;
+import me.calebjones.thejonestheory.drawer.NavigationDrawerFragment;
+import me.calebjones.thejonestheory.fragments.FetchView;
 import me.calebjones.thejonestheory.fragments.WebView;
 
 
@@ -54,31 +56,28 @@ public class MainActivity extends ActionBarActivity
                 break;
             case 1: //About
                 Toast.makeText(getApplicationContext(), "About has been clicked.", Toast.LENGTH_SHORT).show();
-                fragment = getFragmentManager().findFragmentByTag(FetchData.TAG);
+                fragment = getFragmentManager().findFragmentByTag(FetchView.TAG);
                 if (fragment == null) {
-                    fragment = new FetchData();
+                    fragment = new FetchView();
                 }
                 break;
             case 2: //Gallery//todo
                 Toast.makeText(getApplicationContext(), "Gallery has been clicked.", Toast.LENGTH_SHORT).show();
-                fragment = getFragmentManager().findFragmentByTag(FetchData.TAG);
+                fragment = getFragmentManager().findFragmentByTag(FetchView.TAG);
                 if (fragment == null) {
-                    fragment = new FetchData();
+                    fragment = new FetchView();
                 }
                 break;
             case 3: //Science //todo
                 Toast.makeText(getApplicationContext(), "Science has been clicked.", Toast.LENGTH_SHORT).show();
-                fragment = getFragmentManager().findFragmentByTag(FetchData.TAG);
-                if (fragment == null) {
-                    fragment = new FetchData();
-                }
+                fragment = getFragmentManager().findFragmentByTag(FetchView.TAG);
+                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(loginIntent);
                 break;
             case 4: //Parenting//todo
                 Toast.makeText(getApplicationContext(), "Parenting has been clicked.", Toast.LENGTH_SHORT).show();
-                fragment = getFragmentManager().findFragmentByTag(WebView.TAG);
-                if (fragment == null) {
-                    fragment = new WebView();
-                }
+//                Intent fadingIntent = new Intent(getApplicationContext(), FadingActionBar.class);
+//                startActivity(fadingIntent);
                 break;
         }
         if (fragment != null) {

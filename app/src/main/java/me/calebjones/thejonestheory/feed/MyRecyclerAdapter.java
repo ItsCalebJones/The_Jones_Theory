@@ -1,4 +1,4 @@
-package me.calebjones.thejonestheory.loader;
+package me.calebjones.thejonestheory.feed;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -9,10 +9,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import com.squareup.picasso.Picasso;
 import java.util.List;
-import me.calebjones.thejonestheory.FeedItem;
-import me.calebjones.thejonestheory.FeedListRowHolder;
+
 import me.calebjones.thejonestheory.R;
-import me.calebjones.thejonestheory.fragments.FetchData;
 
 public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
 

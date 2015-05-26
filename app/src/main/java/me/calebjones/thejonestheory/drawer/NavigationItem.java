@@ -1,4 +1,4 @@
-package me.calebjones.thejonestheory;
+package me.calebjones.thejonestheory.drawer;
 
 
 import android.graphics.drawable.Drawable;
