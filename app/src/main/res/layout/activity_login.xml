@@ -27,29 +27,28 @@
         android:orientation="vertical" android:paddingBottom="@dimen/activity_vertical_margin"
         android:paddingLeft="@dimen/activity_horizontal_margin"
         android:paddingRight="@dimen/activity_horizontal_margin"
-        android:paddingTop="@dimen/activity_vertical_margin"
-            android:elevation="10dp">
+        android:paddingTop="@dimen/activity_vertical_margin">
 
     <!-- Login progress -->
-    <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
-        android:layout_width="wrap_content" android:layout_height="wrap_content"
-        android:layout_marginBottom="8dp" android:visibility="gone" />
 
-            <ScrollView android:id="@+id/login_form" android:layout_width="match_parent"
+
+            <ScrollView android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:elevation="10dp">
 
             <LinearLayout android:id="@+id/email_login_form" android:layout_width="match_parent"
                 android:layout_height="wrap_content" android:orientation="vertical">
 
-                <TextView
-                    android:layout_width="wrap_content"
+                <me.calebjones.thejonestheory.util.FontFitTextView
+                    android:layout_width="match_parent"
                     android:layout_height="wrap_content"
-                    android:textAppearance="?android:attr/textAppearanceLarge"
+                    android:fontFamily="sans-serif-condensed"
+                    android:gravity="center"
                     android:text="@string/Title"
                     android:id="@+id/textView"
                     android:layout_gravity="center_horizontal"
-                    android:textSize="42sp"
+                    android:textColor="#000000"
+                    android:textSize="60sp"
                     android:textStyle="bold" />
 
                 <TextView
@@ -61,7 +60,19 @@
                     android:layout_gravity="center_horizontal"
                     android:textStyle="bold" />
 
+                <ProgressBar android:id="@+id/login_progress" style="?android:attr/progressBarStyleLarge"
+                    android:layout_width="wrap_content" android:layout_height="wrap_content"
+                    android:layout_marginBottom="8dp" android:visibility="gone"
+                    android:layout_gravity="center_horizontal"
+                    android:elevation="15dp" />
+
+            <!--<LinearLayout android:id="@+id/email_login_form"-->
+                    <!--android:layout_height="match_parent"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:orientation="horizontal">-->
+
             <LinearLayout
+                android:id="@+id/login_form3"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:orientation="horizontal">
@@ -72,7 +83,8 @@
                     android:layout_alignParentTop="true"
                     android:layout_gravity="center_horizontal"
                     android:scaleType="fitCenter"
-                    android:src="@drawable/ic_action_email" />
+                    android:src="@drawable/ic_action_email"
+                    android:elevation="10dp" />
 
                 <AutoCompleteTextView android:id="@+id/email" android:layout_width="match_parent"
                     android:layout_height="wrap_content" android:hint="@string/prompt_email"
@@ -83,9 +95,11 @@
             </LinearLayout>
 
             <LinearLayout
+                android:id="@+id/login_form2"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                android:orientation="horizontal">
+                android:orientation="horizontal"
+                android:elevation="10dp">
 
                 <ImageView
                     android:layout_width="wrap_content"
@@ -105,6 +119,7 @@
                 </LinearLayout>
 
                 <LinearLayout
+                    android:id="@+id/login_form"
                     android:layout_width="match_parent"
                     android:layout_height="match_parent"
                     android:orientation="horizontal"
@@ -126,25 +141,24 @@
                     android:textStyle="bold"
                     android:elevation="12dp"
                     android:gravity="center" />
-
                 </LinearLayout>
 
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="Hi! I am Caleb Jones"
-                    android:id="@+id/firstPost2"
-                    android:layout_gravity="center_horizontal"
-                    android:focusable="false"
-                    android:textSize="24dp"
-                    android:paddingTop="24dp"
-                    android:paddingBottom="12dp"
-                    android:gravity="center" />
-                <TextView
-                    android:layout_width="wrap_content"
-                    android:layout_height="wrap_content"
-                    android:text="@string/aboutme"
-                    android:id="@+id/firstPost"/>
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text="Hi! I am Caleb Jones"-->
+                    <!--android:id="@+id/firstPost2"-->
+                    <!--android:layout_gravity="center_horizontal"-->
+                    <!--android:focusable="false"-->
+                    <!--android:textSize="24dp"-->
+                    <!--android:paddingTop="24dp"-->
+                    <!--android:paddingBottom="12dp"-->
+                    <!--android:gravity="center" />-->
+                <!--<TextView-->
+                    <!--android:layout_width="wrap_content"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:text="@string/aboutme"-->
+                    <!--android:id="@+id/firstPost"/>-->
                 </LinearLayout>
         </ScrollView>
     </LinearLayout>

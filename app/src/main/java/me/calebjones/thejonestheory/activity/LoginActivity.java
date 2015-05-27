@@ -17,6 +17,8 @@ import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.view.KeyEvent;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -33,6 +35,7 @@ import java.util.List;
 import me.calebjones.thejonestheory.MainActivity;
 import me.calebjones.thejonestheory.R;
 import me.calebjones.thejonestheory.fragments.FetchView;
+import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
 /**
@@ -57,6 +60,8 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
     private EditText mPasswordView;
     private View mProgressView;
     private View mLoginFormView;
+    private View mLoginFormView2;
+    private View mLoginFormView3;
     public Toolbar mToolbar2;
 
     @Override
@@ -66,8 +71,11 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         mToolbar2 = (Toolbar) findViewById(R.id.toolbar_actionbarLogin);
         setSupportActionBar(mToolbar2);
 
-
-
+        CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
+                        .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
+                        .setFontAttrId(R.attr.fontPath)
+                        .build()
+        );
         // Set up the login form.
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 //        populateAutoComplete();
@@ -92,7 +100,22 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
             }
         });
 
+        Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
+        mRegisterButton.setOnClickListener(new OnClickListener() {
+            @Override
+            public void onClick(View view) {
+                launchRegister();
+            }
+
+            private void launchRegister() {
+                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+                startActivity(intent);
+            }
+        });
+
         mLoginFormView = findViewById(R.id.login_form);
+        mLoginFormView2 = findViewById(R.id.login_form2);
+        mLoginFormView3 = findViewById(R.id.login_form3);
         mProgressView = findViewById(R.id.login_progress);
     }
 
@@ -107,6 +130,14 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         iv.requestLayout();
 
 
+    }
+
+    @Override
+    public boolean onCreateOptionsMenu(Menu menu) {
+        // Inflate the menu items for use in the action bar
+        MenuInflater inflater = getMenuInflater();
+        inflater.inflate(R.menu.login_menu, menu);
+        return super.onCreateOptionsMenu(menu);
     }
 
 
@@ -191,6 +222,22 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
                     mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
                 }
             });
+            mLoginFormView2.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView2.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLoginFormView2.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
+            mLoginFormView3.setVisibility(show ? View.GONE : View.VISIBLE);
+            mLoginFormView3.animate().setDuration(shortAnimTime).alpha(
+                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    mLoginFormView3.setVisibility(show ? View.GONE : View.VISIBLE);
+                }
+            });
 
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mProgressView.animate().setDuration(shortAnimTime).alpha(
@@ -205,6 +252,10 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
             // and hide the relevant UI components.
             mProgressView.setVisibility(show ? View.VISIBLE : View.GONE);
             mLoginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+
+            mLoginFormView2.setVisibility(show ? View.GONE : View.VISIBLE);
+
+            mLoginFormView3.setVisibility(show ? View.GONE : View.VISIBLE);
         }
     }
 

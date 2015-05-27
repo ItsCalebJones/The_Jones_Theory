@@ -30,4 +30,5 @@ dependencies {
     compile 'com.google.android.gms:play-services:7.3.0'
     compile 'in.srain.cube:ultra-ptr:1.0.9'
     compile 'com.github.navasmdc:MaterialDesign:1.5@aar'
+    compile 'uk.co.chrisjenx:calligraphy:2.1.0'
 }

@@ -16,7 +16,8 @@
     <string name="title_activity_view_pager">ViewPager</string>
     <string name="aboutme">An experienced Quality Assurance Engineer and Certified Scrum Master. Check out a little more about me and contact me via the link at the bottom.\n\n
         I am a mobility, network and technology professional.I enjoy using my knowledge and expertise to solve real world mobility problems. I see myself as a hardworking individual that is always reevaluating knowledge I have gained and looking for better ways to educate myself. I have high standards and high goals to push myself to exceed in every area of my life.\n\n
-        Working with AirWatch I am constantly gaining a multitude of managed IT service experience managing the Air-Watch platform and utilizing its deep integration with software such as Active Directory Exchange Services, SQL, Certificate Authorities and a plethora of other infrastructure software. Additionally I have gained strong Linux administration, virtualization and scripting skills while developing Linux based services for the AirWatch product.\n
+        Working with AirWatch I am constantly gaining a multitude of managed IT service experience managing the Air-Watch platform and utilizing its deep integration with software such as Active Directory Exchange Services, SQL, Certificate Authorities and a plethora of other infrastructure software. Additionally I have gained strong Linux administration, virtualization and scripting skills while developing Linux based services for the AirWatch product.\n\n
 My career goals include personal subject matter expertise of all things technology including application development, testing, automation and innovation.</string>
     <string name="register">Register</string>
+    <string name="Skip">Skip</string>
 </resources>

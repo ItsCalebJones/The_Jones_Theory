@@ -10,7 +10,6 @@ import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-
 import me.calebjones.thejonestheory.activity.LoginActivity;
 import me.calebjones.thejonestheory.drawer.NavigationDrawerCallbacks;
 import me.calebjones.thejonestheory.drawer.NavigationDrawerFragment;
@@ -71,13 +70,13 @@ public class MainActivity extends ActionBarActivity
             case 3: //Science //todo
                 Toast.makeText(getApplicationContext(), "Science has been clicked.", Toast.LENGTH_SHORT).show();
                 fragment = getFragmentManager().findFragmentByTag(FetchView.TAG);
-                Intent loginIntent = new Intent(getApplicationContext(), LoginActivity.class);
-                startActivity(loginIntent);
+                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
+                startActivity(intent);
                 break;
             case 4: //Parenting//todo
                 Toast.makeText(getApplicationContext(), "Parenting has been clicked.", Toast.LENGTH_SHORT).show();
-//                Intent fadingIntent = new Intent(getApplicationContext(), FadingActionBar.class);
-//                startActivity(fadingIntent);
+//                Intent fadingntent = new Intent(getApplicationContext(), *.class);
+//                startActivity(intent);
                 break;
         }
         if (fragment != null) {
