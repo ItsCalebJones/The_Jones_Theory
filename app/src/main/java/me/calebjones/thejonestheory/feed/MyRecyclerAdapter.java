@@ -7,6 +7,8 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+
+import com.koushikdutta.ion.Ion;
 import com.squareup.picasso.Picasso;
 import java.util.List;
 
@@ -16,7 +18,6 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
 
 
     private List<FeedItem> feedItemList;
-
     private Context mContext;
 
     public MyRecyclerAdapter(Context context, List<FeedItem> feedItemList) {
@@ -37,19 +38,29 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
         FeedItem feedItem = feedItemList.get(i);
         Log.e("TAG", "feedItem: " + feedItem);
         Log.e("TAG", "FeedListRow: " + feedListRowHolder);
-        
-        Picasso.with(mContext).load(feedItem.getThumbnail())
-                .error(R.drawable.placeholder)
-                .centerCrop()
-                .fit()
+
+
+        Ion.with(feedListRowHolder.thumbnail)
                 .placeholder(R.drawable.placeholder)
-                .into(feedListRowHolder.thumbnail);
+                .centerCrop()
+                .error(R.drawable.placeholder)
+                .load(feedItem.getThumbnail());
+
+//        Picasso.with(mContext)
+//                .load(feedItem.getThumbnail())
+//                .error(R.drawable.placeholder)
+//                .placeholder(R.drawable.placeholder)
+//                .into(feedListRowHolder.thumbnail);
+
+
 
         feedListRowHolder.title.setText(Html.fromHtml(feedItem.getTitle()));
+        feedListRowHolder.excerpt.setText(Html.fromHtml(feedItem.getExcerpt()));
     }
 
     @Override
     public int getItemCount() {
         return (null != feedItemList ? feedItemList.size() : 0);
     }
+
 }

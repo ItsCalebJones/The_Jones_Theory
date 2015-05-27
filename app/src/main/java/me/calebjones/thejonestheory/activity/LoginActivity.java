@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -28,12 +29,14 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
 
 import me.calebjones.thejonestheory.MainActivity;
 import me.calebjones.thejonestheory.R;
+import me.calebjones.thejonestheory.feed.JsonBackground;
 import me.calebjones.thejonestheory.fragments.FetchView;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
@@ -63,6 +66,7 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
     private View mLoginFormView2;
     private View mLoginFormView3;
     public Toolbar mToolbar2;
+    public final static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,10 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         mToolbar2 = (Toolbar) findViewById(R.id.toolbar_actionbarLogin);
         setSupportActionBar(mToolbar2);
+
+        new JsonBackground().execute(mURL);
+
+//        new FetchView.AsyncHttpTask().execute(url);
 
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                         .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
@@ -119,6 +127,8 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         mProgressView = findViewById(R.id.login_progress);
     }
 
+
+
     private void populateAutoComplete() {
         getLoaderManager().initLoader(0, null, this);
     }
@@ -138,6 +148,18 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.login_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.Skip:
+                launchMain();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 
@@ -357,8 +379,7 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
 
             if (success) {
                 finish();
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                launchMain();
 
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -371,6 +392,10 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
         }
+    }
+    public void launchMain(){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 }
 
