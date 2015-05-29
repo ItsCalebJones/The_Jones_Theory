@@ -36,8 +36,8 @@ import java.util.List;
 
 import me.calebjones.thejonestheory.MainActivity;
 import me.calebjones.thejonestheory.R;
-import me.calebjones.thejonestheory.feed.JsonBackground;
 import me.calebjones.thejonestheory.fragments.FetchView;
+import me.calebjones.thejonestheory.loader.PostLoader;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
@@ -75,7 +75,7 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         mToolbar2 = (Toolbar) findViewById(R.id.toolbar_actionbarLogin);
         setSupportActionBar(mToolbar2);
 
-        new JsonBackground().execute(mURL);
+        new PostLoader().execute(mURL);
 
 //        new FetchView.AsyncHttpTask().execute(url);
 
@@ -88,11 +88,11 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 //        populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = (EditText) findViewById(R.id.email);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == R.id.email || id == EditorInfo.IME_NULL) {
                     attemptLogin();
                     return true;
                 }
@@ -100,13 +100,13 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+//        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+//        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                attemptLogin();
+//            }
+//        });
 
         Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
         mRegisterButton.setOnClickListener(new OnClickListener() {
@@ -122,7 +122,6 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         });
 
         mLoginFormView = findViewById(R.id.login_form);
-        mLoginFormView2 = findViewById(R.id.login_form2);
         mLoginFormView3 = findViewById(R.id.login_form3);
         mProgressView = findViewById(R.id.login_progress);
     }

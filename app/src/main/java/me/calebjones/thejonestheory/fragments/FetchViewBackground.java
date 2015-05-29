@@ -6,12 +6,15 @@ import android.content.Context;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.os.Handler;
+import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ArrayAdapter;
 import android.widget.Button;
 import android.widget.TextView;
 import android.widget.Toast;
@@ -34,7 +37,7 @@ import java.util.List;
 import me.calebjones.thejonestheory.MainActivity;
 import me.calebjones.thejonestheory.R;
 import me.calebjones.thejonestheory.feed.FeedItem;
-import me.calebjones.thejonestheory.feed.JsonBackground;
+import me.calebjones.thejonestheory.loader.PostLoader;
 import me.calebjones.thejonestheory.feed.MyRecyclerAdapter;
 import me.calebjones.thejonestheory.util.RecyclerItemClickListener;
 
@@ -55,6 +58,7 @@ public class FetchViewBackground extends Fragment {
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter adapter;
     public List<FeedItem> feedItemList;
+    SwipeRefreshLayout mSwipeRefreshLayout;
 
     private OnFragmentInteractionListener mListener;
 
@@ -81,16 +85,11 @@ public class FetchViewBackground extends Fragment {
         final Activity c = getActivity();
 
         LayoutInflater lf = getActivity().getLayoutInflater();
-
         View view = lf.inflate(R.layout.fragment_fetch_data, container, false);
 
-//
-//        tvPostCount = (TextView) view.findViewById(R.id.txtPostCount);
-//        tvPostTitle = (TextView) view.findViewById(R.id.txtPostTitle);
-//        tvPostUrl = (TextView) view.findViewById(R.id.txtPostUrl);
+        /*Set up Pull to refresh*/
+        SwipeRefreshLayout mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
 
-//        /* Allow activity to show indeterminate progressbar */
-//        this.getActivity().requestWindowFeature(Window.FEATURE_INDETERMINATE_PROGRESS);
 
         /* Initialize recyclerview */
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
@@ -103,18 +102,48 @@ public class FetchViewBackground extends Fragment {
                     @Override
                     public void onItemClick(View view, int position) {
                         // do whatever
-                        Toast.makeText(getActivity(),  position + " has been clicked.", Toast.LENGTH_SHORT).show();
+                        Toast.makeText(getActivity(), position + " has been clicked.", Toast.LENGTH_SHORT).show();
                     }
                 })
         );
-        this.feedItemList=JsonBackground.getWords();
+        this.feedItemList= PostLoader.getWords();
 
         adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
         mRecyclerView.setAdapter(adapter);
 
+        mSwipeRefreshLayout.setOnRefreshListener(new SwipeRefreshLayout.OnRefreshListener() {
+            @Override
+            public void onRefresh() {
+                new PostLoader().execute(mURL);
+                setupAdapter();
+            }
+
+        });
+
+
+
         // Inflate the layout for this fragment
         return view;
     }
+    private void setupAdapter() {
+        mRecyclerView.setAdapter(adapter);
+        adapter.notifyDataSetChanged();
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
+
+    // fake a network operation's delayed response
+    // this is just for demonstration, not real code!
+//    private void refreshContent(){
+//        new Handler().postDelayed(new Runnable() {
+//            @Override
+//            public void run() {
+//                adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
+//                mRecyclerView.setAdapter(adapter);
+//                mSwipeRefreshLayout.setRefreshing(false);
+//            });
+//        }
+//    }
+
 
 
     // TODO: Rename method, update argument and hook method into UI event
