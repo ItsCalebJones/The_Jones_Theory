@@ -128,22 +128,25 @@
     <orderEntry type="library" exported="" name="play-services-ads-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-identity-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-wearable-7.3.0" level="project" />
+    <orderEntry type="library" exported="" name="androidasync-2.1.4" level="project" />
     <orderEntry type="library" exported="" name="MaterialDesign-1.5" level="project" />
+    <orderEntry type="library" exported="" name="ion-2.1.4" level="project" />
     <orderEntry type="library" exported="" name="play-services-safetynet-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-plus-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-base-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="calligraphy-2.1.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-appindexing-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-panorama-7.3.0" level="project" />
+    <orderEntry type="library" exported="" name="play-services-appindexing-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-location-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="palette-v7-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-analytics-7.3.0" level="project" />
-    <orderEntry type="library" exported="" name="play-services-appinvite-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="support-annotations-22.1.1" level="project" />
+    <orderEntry type="library" exported="" name="play-services-appinvite-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-nearby-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.1.1" level="project" />
+    <orderEntry type="library" exported="" name="gson-2.3" level="project" />
     <orderEntry type="library" exported="" name="play-services-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-22.1.1" level="project" />
   </component>

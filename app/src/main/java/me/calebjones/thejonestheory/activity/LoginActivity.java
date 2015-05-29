@@ -19,6 +19,7 @@ import android.text.TextUtils;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuInflater;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.View.OnClickListener;
 import android.view.inputmethod.EditorInfo;
@@ -28,6 +29,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -35,6 +37,7 @@ import java.util.List;
 import me.calebjones.thejonestheory.MainActivity;
 import me.calebjones.thejonestheory.R;
 import me.calebjones.thejonestheory.fragments.FetchView;
+import me.calebjones.thejonestheory.loader.PostLoader;
 import uk.co.chrisjenx.calligraphy.CalligraphyConfig;
 
 
@@ -63,6 +66,7 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
     private View mLoginFormView2;
     private View mLoginFormView3;
     public Toolbar mToolbar2;
+    public final static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -70,6 +74,10 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         setContentView(R.layout.activity_login);
         mToolbar2 = (Toolbar) findViewById(R.id.toolbar_actionbarLogin);
         setSupportActionBar(mToolbar2);
+
+        new PostLoader().execute(mURL);
+
+//        new FetchView.AsyncHttpTask().execute(url);
 
         CalligraphyConfig.initDefault(new CalligraphyConfig.Builder()
                         .setDefaultFontPath("fonts/Roboto-RobotoRegular.ttf")
@@ -80,11 +88,11 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         mEmailView = (AutoCompleteTextView) findViewById(R.id.email);
 //        populateAutoComplete();
 
-        mPasswordView = (EditText) findViewById(R.id.password);
+        mPasswordView = (EditText) findViewById(R.id.email);
         mPasswordView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
-                if (id == R.id.login || id == EditorInfo.IME_NULL) {
+                if (id == R.id.email || id == EditorInfo.IME_NULL) {
                     attemptLogin();
                     return true;
                 }
@@ -92,13 +100,13 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
             }
         });
 
-        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
-        mEmailSignInButton.setOnClickListener(new OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                attemptLogin();
-            }
-        });
+//        Button mEmailSignInButton = (Button) findViewById(R.id.email_sign_in_button);
+//        mEmailSignInButton.setOnClickListener(new OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                attemptLogin();
+//            }
+//        });
 
         Button mRegisterButton = (Button) findViewById(R.id.email_register_button);
         mRegisterButton.setOnClickListener(new OnClickListener() {
@@ -114,10 +122,11 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         });
 
         mLoginFormView = findViewById(R.id.login_form);
-        mLoginFormView2 = findViewById(R.id.login_form2);
         mLoginFormView3 = findViewById(R.id.login_form3);
         mProgressView = findViewById(R.id.login_progress);
     }
+
+
 
     private void populateAutoComplete() {
         getLoaderManager().initLoader(0, null, this);
@@ -138,6 +147,18 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
         MenuInflater inflater = getMenuInflater();
         inflater.inflate(R.menu.login_menu, menu);
         return super.onCreateOptionsMenu(menu);
+    }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle item selection
+        switch (item.getItemId()) {
+            case R.id.Skip:
+                launchMain();
+                return true;
+            default:
+                return super.onOptionsItemSelected(item);
+        }
     }
 
 
@@ -357,8 +378,7 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
 
             if (success) {
                 finish();
-                Intent intent = new Intent(getApplicationContext(), MainActivity.class);
-                startActivity(intent);
+                launchMain();
 
             } else {
                 mPasswordView.setError(getString(R.string.error_incorrect_password));
@@ -371,6 +391,10 @@ public class LoginActivity extends ActionBarActivity implements LoaderCallbacks<
             mAuthTask = null;
             showProgress(false);
         }
+    }
+    public void launchMain(){
+        Intent intent = new Intent(getApplicationContext(), MainActivity.class);
+        startActivity(intent);
     }
 }
 

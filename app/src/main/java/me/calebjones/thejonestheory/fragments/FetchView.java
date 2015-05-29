@@ -1,6 +1,7 @@
 package me.calebjones.thejonestheory.fragments;
 
 import android.app.Activity;
+import android.content.Context;
 import android.net.Uri;
 import android.os.Bundle;
 import android.app.Fragment;
@@ -43,7 +44,8 @@ import me.calebjones.thejonestheory.feed.MyRecyclerAdapter;
  */
 public class FetchView extends Fragment {
 
-    private List<FeedItem> feedItemList = new ArrayList<FeedItem>();
+    private static Context context;
+    public List<FeedItem> feedItemListForeground = new ArrayList<FeedItem>();
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter adapter;
 
@@ -70,8 +72,6 @@ public class FetchView extends Fragment {
     @Override
     public void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
-
     }
 
     @Override
@@ -96,17 +96,19 @@ public class FetchView extends Fragment {
         LinearLayoutManager layoutManager = new LinearLayoutManager(c);
         mRecyclerView.setLayoutManager(layoutManager);
 
+        new AsyncHttpTask().execute(url);
+
 
 //        new FetchDataTask().execute(URL);
-
-        btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
-        btnSubmit.setOnClickListener(new OnClickListener() {
-
-            @Override
-            public void onClick(View v) {
-                new AsyncHttpTask().execute(url);
-            }
-        });
+//
+//        btnSubmit = (Button) view.findViewById(R.id.btnSubmit);
+//        btnSubmit.setOnClickListener(new OnClickListener() {
+//
+//            @Override
+//            public void onClick(View v) {
+//                new AsyncHttpTask().execute(url);
+//            }
+//        });
         // Inflate the layout for this fragment
         return view;
     }
@@ -146,7 +148,7 @@ public class FetchView extends Fragment {
         public void onFragmentInteraction(Uri uri);
     }
 
-    public final class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
+    public  class AsyncHttpTask extends AsyncTask<String, Void, Integer> {
 
         @Override
         protected void onPreExecute() {
@@ -200,7 +202,7 @@ public class FetchView extends Fragment {
 
             /* Download complete. Lets update UI */
             if (result == 1) {
-                adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
+                adapter = new MyRecyclerAdapter(getActivity(), feedItemListForeground);
                 mRecyclerView.setAdapter(adapter);
             } else Log.e(TAG, "Failed to fetch data!");
         }
@@ -224,8 +226,8 @@ public class FetchView extends Fragment {
             JSONArray posts = response.optJSONArray("posts");
 
             /*Initialize array if null*/
-            if (null == feedItemList) {
-                feedItemList = new ArrayList<FeedItem>();
+            if (null == feedItemListForeground) {
+                feedItemListForeground = new ArrayList<FeedItem>();
             }
 
             for (int i = 0; i < posts.length(); i++) {
@@ -240,7 +242,7 @@ public class FetchView extends Fragment {
                 } else {
                     item.setThumbnail(post.optString("featured_image"));
                 }
-                feedItemList.add(item);
+                feedItemListForeground.add(item);
             }
         } catch (JSONException e) {
             e.printStackTrace();
