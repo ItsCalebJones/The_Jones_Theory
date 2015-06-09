@@ -18,6 +18,7 @@ import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
+import android.widget.Toast;
 
 
 import org.json.JSONArray;
@@ -108,11 +109,11 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                 new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
                     @Override
                     public void onItemClick(View view, int position) {
-                        Log.e("DEBUG", "FeedItemList: " + feedItemList.get(position));
+                        // do whatever
+                        Toast.makeText(getActivity(),  position + " has been clicked.", Toast.LENGTH_SHORT).show();
                     }
                 })
         );
-
         this.feedItemList= PostLoader.getWords();
 
         adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
