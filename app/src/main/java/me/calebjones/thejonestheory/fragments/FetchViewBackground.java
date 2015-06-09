@@ -6,10 +6,13 @@ import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
+import android.content.Intent;
+import android.content.SharedPreferences;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.preference.PreferenceManager;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
@@ -36,6 +39,7 @@ import java.util.List;
 
 import me.calebjones.thejonestheory.MainActivity;
 import me.calebjones.thejonestheory.R;
+import me.calebjones.thejonestheory.activity.PostSelected;
 import me.calebjones.thejonestheory.drawer.NavigationDrawerAdapter;
 import me.calebjones.thejonestheory.feed.FeedItem;
 import me.calebjones.thejonestheory.feed.FeedItemCallbacks;
@@ -55,7 +59,8 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
     private static Context context;
     private Button btnSubmit;
-    public final static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=2";
+    public String numPost;
+    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=";
     public static final String TAG = "stats";
     private RecyclerView mRecyclerView;
     private MyRecyclerAdapter adapter;
@@ -83,9 +88,14 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         if (feedItemList == null){
             new RefreshHttpTask().execute(mURL);
         } else {
-            feedItemList.clear();
-            new RefreshHttpTask().execute(mURL);
+//            mRecyclerView.removeAllViews();
+//            feedItemList.clear();
+//            new RefreshHttpTask().execute(mURL);
         }
+        Context hostActivity = getActivity();
+        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(hostActivity);
+        numPost = preferences.getString("pref_key_num_post", null);
+
         super.onCreate(savedInstanceState);
     }
 
@@ -110,7 +120,13 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                     @Override
                     public void onItemClick(View view, int position) {
                         // do whatever
+                        Log.d(TAG, feedItemList.get(position).getID());
                         Toast.makeText(getActivity(),  position + " has been clicked.", Toast.LENGTH_SHORT).show();
+                        Intent intent = new Intent(getActivity(), PostSelected.class);
+                        intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
+                        intent.putExtra("PostImage", feedItemList.get(position).getThumbnail());
+                        intent.putExtra("PostText", feedItemList.get(position).getContent());
+                        startActivity(intent);
                     }
                 })
         );
@@ -139,7 +155,8 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
     public void onRefresh() {
 //        new PostLoader().execute(mURL);
         showPbar = 1;
-        new RefreshHttpTask().execute(mURL);
+        String tURL = new StringBuilder().append(mURL).append(numPost).toString();
+        new RefreshHttpTask().execute(tURL);
     }
 
     private void setupAdapter() {

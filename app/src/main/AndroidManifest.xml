@@ -35,7 +35,13 @@
         </activity>
         <activity
             android:name=".activity.PostSelected"
+            android:parentActivityName=".MainActivity"
+            android:theme="@style/AppTheme.TranslucentActionBar" >
             android:label="@string/title_activity_post_selected" >
+        </activity>
+        <activity
+            android:name=".activity.SettingsActivity"
+            android:label="@string/title_activity_settings" >
         </activity>
     </application>
 
