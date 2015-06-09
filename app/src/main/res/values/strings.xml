@@ -19,4 +19,5 @@
     <string name="Skip">Skip</string>
     <string name="SubscriptionTitle">SUBSCRIBE TO MY BLOG VIA EMAIL</string>
     <string name="SubscriptionText">Enter your email address to subscribe to this blog and receive notifications of new posts.</string>
+    <string name="title_activity_post_selected">The Jones Theory</string>
 </resources>

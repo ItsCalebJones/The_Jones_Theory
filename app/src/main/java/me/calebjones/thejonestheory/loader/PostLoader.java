@@ -16,6 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 import me.calebjones.thejonestheory.feed.FeedItem;
+import me.calebjones.thejonestheory.fragments.FetchViewBackground;
 
 /**
  * Created by cjones on 5/27/15.
@@ -75,7 +76,7 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
             /* Download complete. Lets update UI */
             if (result == 1) {
 //                FetchViewBackground.setList(feedItemList);
-                Log.e(TAG, "Succeeded fetching data!");
+                Log.d(TAG, "Succeeded fetching data! - POST LOADER");
             } else Log.e(TAG, "Failed to fetch data!");
         }
 

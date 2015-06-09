@@ -1,19 +1,18 @@
 package me.calebjones.thejonestheory;
 
-import android.content.Intent;
+import android.content.DialogInterface;
 import android.graphics.BitmapFactory;
 import android.os.Bundle;
 import android.app.Fragment;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarActivity;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.widget.Toast;
-import me.calebjones.thejonestheory.activity.LoginActivity;
 import me.calebjones.thejonestheory.drawer.NavigationDrawerCallbacks;
 import me.calebjones.thejonestheory.drawer.NavigationDrawerFragment;
-import me.calebjones.thejonestheory.fragments.FetchView;
 import me.calebjones.thejonestheory.fragments.FetchViewBackground;
 import me.calebjones.thejonestheory.fragments.WebView;
 
@@ -26,6 +25,7 @@ public class MainActivity extends ActionBarActivity
      */
     private NavigationDrawerFragment mNavigationDrawerFragment;
     private Toolbar mToolbar;
+    public final static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
+
 
         mNavigationDrawerFragment = (NavigationDrawerFragment)
                 getFragmentManager().findFragmentById(R.id.fragment_drawer);
@@ -92,7 +93,23 @@ public class MainActivity extends ActionBarActivity
         if (mNavigationDrawerFragment.isDrawerOpen())
             mNavigationDrawerFragment.closeDrawer();
         else
-            super.onBackPressed();
+            new AlertDialog.Builder(this)
+                    .setTitle("Exiting Application")
+                    .setMessage("Are you sure you want to close this app? If not, try using the slide out drawer.")
+                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            finish();
+                        }
+
+                    })
+                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
+                        @Override
+                        public void onClick(DialogInterface dialog, int which) {
+                            mNavigationDrawerFragment.openDrawer();
+                        }
+                    })
+                    .show();
     }
 
 
