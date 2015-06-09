@@ -14,6 +14,7 @@
     card_view:cardElevation="100dp">
 
     <RelativeLayout
+        android:id="@+id/lnrLayout"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
         >

@@ -7,38 +7,71 @@ import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
+import android.widget.ImageView;
+
 
 import com.koushikdutta.ion.Ion;
-import com.squareup.picasso.Picasso;
 import java.util.List;
 
 import me.calebjones.thejonestheory.R;
+
 
 public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
 
 
     private List<FeedItem> feedItemList;
     private Context mContext;
+    public int position;
+
 
     public MyRecyclerAdapter(Context context, List<FeedItem> feedItemList) {
         this.feedItemList = feedItemList;
         this.mContext = context;
     }
 
-    @Override
-    public FeedListRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
-        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, null);
-        FeedListRowHolder mh = new FeedListRowHolder(v);
+//    @Override
+//    public FeedListRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+//        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, null);
+//        FeedListRowHolder mh = new FeedListRowHolder(v);
+//        return mh;
+//    }
 
-        return mh;
+    //You have several options.
+    // Putting the position in an int field inside the viewholder
+    // update it while binding
+    // then returning it on click is one.
+
+    @Override
+    public FeedListRowHolder onCreateViewHolder(ViewGroup viewGroup,
+                                                int i) {
+        View v = LayoutInflater.from(viewGroup.getContext())
+                .inflate(R.layout.list_item, null);
+
+        Log.d("TAG", "Position: " + position);
+
+        FeedListRowHolder vh = new FeedListRowHolder(v, new FeedListRowHolder.IMyViewHolderClicks() {
+            public int positionItem() {
+                Log.d("TAG", "Position: " + position);
+                return position;
+            }
+            public void onPotato(View title) {
+                Log.d("The Jones Theory","Title - Position: " +  positionItem());
+            }
+            public void onTomato(ImageView thumbnail) {
+                Log.d("The Jones Theory", "Thumbnail - Position: " + positionItem());
+            }
+        });
+        return vh;
     }
 
     @Override
     public void onBindViewHolder(FeedListRowHolder feedListRowHolder, int i) {
-        FeedItem feedItem = feedItemList.get(i);
-        Log.e("TAG", "feedItem: " + feedItem);
-        Log.e("TAG", "FeedListRow: " + feedListRowHolder);
+        final FeedItem feedItem = feedItemList.get(i);
 
+        Log.d("TAG", "feedItem: " + feedItem);
+        Log.d("TAG", "FeedListRow: " + feedListRowHolder);
+        Log.d("TAG", "Position: " + position);
+        position = i;
 
         Ion.with(feedListRowHolder.thumbnail)
                 .placeholder(R.drawable.placeholder)
@@ -46,17 +79,9 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
                 .error(R.drawable.placeholder)
                 .load(feedItem.getThumbnail());
 
-//        Picasso.with(mContext)
-//                .load(feedItem.getThumbnail())
-//                .error(R.drawable.placeholder)
-//                .placeholder(R.drawable.placeholder)
-//                .into(feedListRowHolder.thumbnail);
-
-
-
         feedListRowHolder.title.setText(Html.fromHtml(feedItem.getTitle()));
         feedListRowHolder.excerpt.setText(Html.fromHtml(feedItem.getExcerpt()));
-    }
+        }
 
     @Override
     public int getItemCount() {
