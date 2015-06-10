@@ -47,18 +47,18 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
         View v = LayoutInflater.from(viewGroup.getContext())
                 .inflate(R.layout.list_item, null);
 
-        Log.d("TAG", "Position: " + position);
+//        Log.d("TAG", "Position: " + position);
 
         FeedListRowHolder vh = new FeedListRowHolder(v, new FeedListRowHolder.IMyViewHolderClicks() {
             public int positionItem() {
-                Log.d("TAG", "Position: " + position);
+//                Log.d("TAG", "Position: " + position);
                 return position;
             }
             public void onPotato(View title) {
-                Log.d("The Jones Theory","Title - Position: " +  positionItem());
+//                Log.d("The Jones Theory","Title - Position: " +  positionItem());
             }
             public void onTomato(ImageView thumbnail) {
-                Log.d("The Jones Theory", "Thumbnail - Position: " + positionItem());
+//                Log.d("The Jones Theory", "Thumbnail - Position: " + positionItem());
             }
         });
         return vh;
@@ -68,9 +68,9 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
     public void onBindViewHolder(FeedListRowHolder feedListRowHolder, int i) {
         final FeedItem feedItem = feedItemList.get(i);
 
-        Log.d("TAG", "feedItem: " + feedItem);
-        Log.d("TAG", "FeedListRow: " + feedListRowHolder);
-        Log.d("TAG", "Position: " + position);
+//        Log.d("TAG", "feedItem: " + feedItem);
+//        Log.d("TAG", "FeedListRow: " + feedListRowHolder);
+//        Log.d("TAG", "Position: " + position);
         position = i;
 
         Ion.with(feedListRowHolder.thumbnail)

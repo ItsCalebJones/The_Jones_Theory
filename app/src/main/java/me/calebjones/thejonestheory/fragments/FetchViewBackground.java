@@ -12,12 +12,17 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
 import android.preference.PreferenceManager;
+import android.support.annotation.Nullable;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
+import android.view.ContextMenu;
 import android.view.LayoutInflater;
+import android.view.Menu;
+import android.view.MenuInflater;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
@@ -73,6 +78,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
     SwipeRefreshLayout mSwipeRefreshLayout;
     private ProgressDialog nDialog;
     private OnFragmentInteractionListener mListener;
+    private static final String BUNDLE_RECYCLER_LAYOUT = "FetchViewBackground.mRecylcerView.fragment_fetch_data";
     int showPbar = 0;
     CircleProgressBar progressbar1;
 
@@ -101,7 +107,17 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
         setHasOptionsMenu(true);
 
-        new RefreshHttpTask().execute(tURL);
+//        Log.d("SI." + TAG, "Checking if null!");
+//        if (savedInstanceState == null){
+//            new RefreshHttpTask().execute(tURL);
+//        } else {
+//            for (String key: savedInstanceState.keySet())
+//            {
+//                Log.d ("SI." + TAG, key + " is a key in the bundle");
+//            }
+//        }
+
+        this.setRetainInstance(true);
 
         super.onCreate(savedInstanceState);
     }
@@ -114,17 +130,11 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
         LayoutInflater lf = getActivity().getLayoutInflater();
 
-        if (feedItemList != null) {
-            if (feedItemList.size() > 0) {
-                Log.d(TAG, "Its not null!");
-            } else {
-                Log.d(TAG, "Its null!");
-                new RefreshHttpTask().execute(tURL);
-            }
-        }
+
 
         View view = lf.inflate(R.layout.fragment_fetch_data, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+
 
         /* Needed to tell the RecyclerView which direction to scroll */
         LinearLayoutManager layoutManager = new LinearLayoutManager(c);
@@ -137,7 +147,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                     public void onItemClick(View view, int position) {
                         // do whatever
                         Log.v(TAG, feedItemList.get(position).getID());
-                        Toast.makeText(getActivity(),  position + " has been clicked.", Toast.LENGTH_SHORT).show();
+//                        Toast.makeText(getActivity(), position + " has been clicked.", Toast.LENGTH_SHORT).show();
                         Intent intent = new Intent(getActivity(), PostSelected.class);
                         intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
                         intent.putExtra("PostImage", feedItemList.get(position).getThumbnail());
@@ -151,14 +161,31 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
         adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
         mRecyclerView.setAdapter(adapter);
-        Log.v("The Jones Theory", "mRecyclerView Adapter set!");
+//        Log.v("The Jones Theory", "mRecyclerView Adapter set!");
 
         /*Set up Pull to refresh*/
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
+        if (feedItemList != null) {
+            if (feedItemList.size() > 0) {
+                Log.d(TAG, "Its not null!");
+            } else {
+                Log.d(TAG, "Its null!");
+                new RefreshHttpTask().execute(tURL);
+            }
+        }
+
         // Inflate the layout for this fragment
         return view;
+    }
+
+    @Override
+    public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
+        // TODO Add your menu entries here
+        inflater.inflate(R.menu.menu_fetch_data, menu);
+
+        super.onCreateOptionsMenu(menu, inflater);
     }
 
     @Override
@@ -177,9 +204,9 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onResume() {
-        Log.d(TAG, "FeedItemList: " + feedItemList.size());
-        Log.d(TAG, "FeedItemList: " + adapter);
-        Log.d(TAG, "FeedItemList: " + mRecyclerView);
+//        Log.d(TAG, "FeedItemList: " + feedItemList.size());
+//        Log.d(TAG, "FeedItemList: " + adapter);
+//        Log.d(TAG, "FeedItemList: " + mRecyclerView);
 
         super.onResume();
     }
@@ -243,6 +270,27 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         public void onFragmentInteraction(Uri uri);
     }
 
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.v("SI." + TAG, "onViewStateRestored");
+        if(savedInstanceState != null)
+        {
+            Log.v("SI." + TAG, "savedInstanceState = null");
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
+        }
+    }
+
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v("SI." + TAG, "In frag's on save instance state ");
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mRecyclerView.getLayoutManager().onSaveInstanceState());
+    }
+
+
+
     public class RefreshHttpTask extends AsyncTask<String, Void, Integer> {
         private ProgressDialog dialog;
         private int progress = 0;
@@ -251,13 +299,15 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         protected void onPreExecute() {
             super.onPreExecute();
             if (showPbar == 0){
-                dialog = new ProgressDialog(getActivity());
-                dialog.setMessage("Loading " + numPost + " posts...");
-                dialog.show();
+//                dialog = new ProgressDialog(getActivity());
+//                dialog.setMessage("Loading " + numPost + " posts...");
+//                dialog.show();
             }
+
             if (feedItemList != null) {
                 feedItemList.clear();
             }
+            mSwipeRefreshLayout.setRefreshing(true);
 
         }
 
@@ -306,10 +356,11 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         @Override
         protected void onPostExecute(Integer result) {
             if (showPbar == 0 & dialog != null){
-                if (dialog.isShowing()) {
-                    dialog.dismiss();
-                }
+//                if (dialog.isShowing()) {
+//                    dialog.dismiss();
+//                }
             }
+            mSwipeRefreshLayout.setRefreshing(false);
             /* Download complete. Lets update UI */
             if (result == 1) {
 //                adapter = new MyRecyclerAdapter(getActivity(), feedItemList);

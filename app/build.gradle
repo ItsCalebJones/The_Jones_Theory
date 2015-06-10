@@ -19,6 +19,13 @@ android {
     }
 }
 
+repositories {
+    mavenCentral()
+    maven {
+        url "https://repository-achartengine.forge.cloudbees.com/snapshot/"
+    }
+}
+
 dependencies {
     compile fileTree(dir: 'libs', include: ['*.jar'])
     compile files('lib/jsoup-1.8.2.jar')
@@ -38,4 +45,6 @@ dependencies {
     compile 'com.github.manuelpeinado.fadingactionbar:fadingactionbar:3.1.2'
     compile 'com.readystatesoftware.systembartint:systembartint:1.0.3'
     compile 'com.lsjwzh:materialloadingprogressbar:0.5.5-RELEASE'
+    compile 'com.github.nirhart:parallaxscroll:1.0'
+    compile 'com.github.chrisbanes.photoview:library:1.2.3'
 }

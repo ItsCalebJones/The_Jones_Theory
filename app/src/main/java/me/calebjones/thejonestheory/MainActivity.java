@@ -33,6 +33,7 @@ public class MainActivity extends ActionBarActivity
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         setContentView(R.layout.activity_main);
         mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
         setSupportActionBar(mToolbar);
@@ -57,34 +58,34 @@ public class MainActivity extends ActionBarActivity
         Fragment fragment = null;
         switch (position) {
             case 0: //Home//todo
-                Toast.makeText(getApplicationContext(), "Home has been clicked.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Home has been clicked.", Toast.LENGTH_SHORT).show();
                 fragment = getFragmentManager().findFragmentByTag(FetchViewBackground.TAG);
                 if (fragment == null) {
                 fragment = new FetchViewBackground();
             }
                 break;
             case 1: //About
-                Toast.makeText(getApplicationContext(), "About has been clicked.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "About has been clicked.", Toast.LENGTH_SHORT).show();
                 fragment = getFragmentManager().findFragmentByTag(WebView.TAG);
                 if (fragment == null) {
                     fragment = new WebView();
                 }
                 break;
             case 2: //Gallery//todo
-                Toast.makeText(getApplicationContext(), "Gallery has been clicked.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Gallery has been clicked.", Toast.LENGTH_SHORT).show();
 //                fragment = getFragmentManager().findFragmentByTag(FetchView.TAG);
 //                if (fragment == null) {
 //                    fragment = new FetchView();
 //                }
                 break;
             case 3: //Science //todo
-                Toast.makeText(getApplicationContext(), "Science has been clicked.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Science has been clicked.", Toast.LENGTH_SHORT).show();
 //                fragment = getFragmentManager().findFragmentByTag(FetchView.TAG);
 //                Intent intent = new Intent(getApplicationContext(), LoginActivity.class);
 //                startActivity(intent);
                 break;
             case 4: //Parenting//todo
-                Toast.makeText(getApplicationContext(), "Parenting has been clicked.", Toast.LENGTH_SHORT).show();
+//                Toast.makeText(getApplicationContext(), "Parenting has been clicked.", Toast.LENGTH_SHORT).show();
 //                Intent fadingntent = new Intent(getApplicationContext(), *.class);
 //                startActivity(intent);
                 break;
@@ -144,10 +145,6 @@ public class MainActivity extends ActionBarActivity
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_settings) {
             return true;
-        }
-
-        if (id == R.id.menuRefresh){
-
         }
 
         return super.onOptionsItemSelected(item);
