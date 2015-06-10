@@ -146,6 +146,10 @@ public class MainActivity extends ActionBarActivity
             return true;
         }
 
+        if (id == R.id.menuRefresh){
+
+        }
+
         return super.onOptionsItemSelected(item);
     }
 

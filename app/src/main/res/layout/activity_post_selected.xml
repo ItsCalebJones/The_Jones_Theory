@@ -26,10 +26,14 @@
                 android:id="@+id/PostTitle"
                 android:layout_height="wrap_content"
                 android:layout_width="match_parent"
+                android:gravity="center_vertical"
+                android:textAlignment="center"
+                android:textColor="#000000"
+                android:textStyle="bold"
+                android:textSize="18dp"
                 android:background="?android:colorBackground"
                 android:padding="16dp"
                 android:text="Loading title please wait..."
-                style="?android:attr/listSeparatorTextViewStyle"
                 />
 
             <TextView

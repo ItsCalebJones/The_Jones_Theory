@@ -77,7 +77,7 @@ public class PostSelected extends ActionBarActivity implements OnScrollChangedCa
         TextView mTextView = (TextView) findViewById(R.id.PostText);
         mTextView.setText(Html.fromHtml(PostText));
         TextView mTitleView = (TextView) findViewById(R.id.PostTitle);
-        mTitleView.setText(PostTitle);
+        mTitleView.setText(Html.fromHtml(PostTitle));
 
         //Init the toolbar
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
