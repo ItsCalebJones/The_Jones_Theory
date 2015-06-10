@@ -6,17 +6,21 @@ import android.graphics.drawable.Drawable;
 import android.graphics.drawable.LevelListDrawable;
 import android.os.AsyncTask;
 import android.os.Bundle;
+import android.support.v4.view.MenuItemCompat;
 import android.support.v7.app.ActionBarActivity;
 import android.support.v7.widget.Toolbar;
+import android.text.Editable;
 import android.text.Html;
 import android.text.Spannable;
 import android.text.style.ImageSpan;
 import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
+import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koushikdutta.ion.Ion;
 import com.manuelpeinado.fadingactionbar.view.ObservableScrollable;
@@ -89,15 +93,12 @@ public class PostSelected extends ActionBarActivity implements OnScrollChangedCa
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(100);
 
-
         mStatusBarManager = new SystemBarTintManager(this);
         mStatusBarManager.setStatusBarTintEnabled(true);
         mInitialStatusBarColor = Color.BLACK;
         mFinalStatusBarColor = getResources().getColor(R.color.myPrimaryColor);
 
         mHeader = findViewById(R.id.header);
-
-
 
         ObservableScrollable scrollView = (ObservableScrollable) findViewById(R.id.scrollview);
         scrollView.setOnScrollChangedCallback(this);
@@ -107,9 +108,32 @@ public class PostSelected extends ActionBarActivity implements OnScrollChangedCa
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        getMenuInflater().inflate(R.menu.main, menu);
+        getMenuInflater().inflate(R.menu.menu_post_selected, menu);
+
         return true;
     }
+
+    @Override
+    public boolean onOptionsItemSelected(MenuItem item) {
+        // Handle action bar item clicks here. The action bar will
+        // automatically handle clicks on the Home/Up button, so long
+        // as you specify a parent activity in AndroidManifest.xml.
+        int id = item.getItemId();
+        Toast.makeText(this, "Item has been clicked.", Toast.LENGTH_SHORT).show();
+
+        if (id == R.id.menu_share){
+            Intent sendIntent = new Intent();
+            sendIntent.setAction(Intent.ACTION_SEND);
+            sendIntent.putExtra(Intent.EXTRA_TEXT, "http://calebjones.me");
+            sendIntent.setType("text/plain");
+            startActivity(sendIntent);
+            Toast.makeText(this,  "Share has been clicked.", Toast.LENGTH_SHORT).show();
+            return true;
+        } else {
+            return super.onOptionsItemSelected(item);
+        }
+    }
+
 
     @Override
     public void onScroll(int l, int scrollPosition) {

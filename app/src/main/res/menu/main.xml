@@ -2,7 +2,7 @@
     xmlns:app="http://schemas.android.com/apk/res-auto">
     <item android:id="@+id/action_settings" android:title="@string/action_settings" />
     <item android:id="@+id/menuRefresh"
-        android:icon="@drawable/ic_refresh"
+        android:icon="@drawable/ic_action_refresh"
         android:title="Refresh"
         android:alphabeticShortcut="r"
         android:orderInCategory="1"

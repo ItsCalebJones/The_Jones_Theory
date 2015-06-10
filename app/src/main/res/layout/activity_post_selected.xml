@@ -22,29 +22,38 @@
                 android:layout_width="match_parent"
                 android:adjustViewBounds="true"
                 android:src="@drawable/placeholder" />
-            <TextView
-                android:id="@+id/PostTitle"
+            <LinearLayout
+                android:orientation="vertical"
+                android:layout_width="fill_parent"
                 android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:gravity="center_vertical"
-                android:textAlignment="center"
-                android:textColor="#000000"
-                android:textStyle="bold"
-                android:textSize="18dp"
-                android:background="?android:colorBackground"
-                android:padding="16dp"
-                android:text="Loading title please wait..."
-                />
+                android:elevation="50dp"
+                >
+                <TextView
+                    android:id="@+id/PostTitle"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:gravity="center_vertical"
+                    android:textAlignment="center"
+                    android:textColor="#000000"
+                    android:textStyle="bold"
+                    android:textSize="18dp"
+                    android:background="?android:colorBackground"
+                    android:padding="16dp"
+                    android:text="Loading title please wait..."
+                    />
 
-            <TextView
-                android:id="@+id/PostText"
-                android:layout_height="wrap_content"
-                android:layout_width="match_parent"
-                android:background="?android:colorBackground"
-                android:padding="16dp"
-                android:autoLink="web"
-                android:text="Loading text please wait..."
-                />
+                <TextView
+                    android:id="@+id/PostText"
+                    android:layout_height="wrap_content"
+                    android:layout_width="match_parent"
+                    android:background="?android:colorBackground"
+                    android:padding="16dp"
+                    android:autoLink="web"
+                    android:text="Loading text please wait..."
+                    />
+
+            </LinearLayout>
+
 
         </LinearLayout>
 

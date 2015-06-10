@@ -2,4 +2,11 @@
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     tools:context="me.calebjones.thejonestheory.activity.PostSelected">
+    <item android:id="@+id/menu_share"
+        android:icon="@drawable/ic_action_share"
+        android:title="Refresh"
+        android:alphabeticShortcut="r"
+        android:orderInCategory="1"
+        app:showAsAction="always"
+        app:actionProviderClass="android.support.v7.widget.ShareActionProvider"/>
 </menu>
