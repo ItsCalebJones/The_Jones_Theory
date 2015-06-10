@@ -142,6 +142,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                         intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
                         intent.putExtra("PostImage", feedItemList.get(position).getThumbnail());
                         intent.putExtra("PostText", feedItemList.get(position).getContent());
+                        intent.putExtra("PostURL", feedItemList.get(position).getpostURL());
                         startActivity(intent);
                     }
                 })
@@ -369,6 +370,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                 item.setContent(post.optString("content"));
                 item.setExcerpt(post.optString("excerpt"));
                 item.setID(post.optString("ID"));
+                item.setpostURL(post.optString("URL"));
                 Integer ImageLength = post.optString("featured_image").length();
                 if (ImageLength == 0) {
                     Log.v(TAG, "Feature Image null");
