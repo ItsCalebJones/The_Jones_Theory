@@ -1,5 +1,9 @@
 .gradle
 .idea
+<<<<<<< HEAD
+=======
+/.idea
+>>>>>>> 3d595749d439a55bb295675140ddcced0d161fe1
 /local.properties
 /.idea/workspace.xml
 /.idea/libraries
@@ -44,4 +48,7 @@
 .Trashes
 ehthumbs.db
 Thumbs.dbs
+<<<<<<< HEAD
 
+=======
+>>>>>>> 3d595749d439a55bb295675140ddcced0d161fe1
