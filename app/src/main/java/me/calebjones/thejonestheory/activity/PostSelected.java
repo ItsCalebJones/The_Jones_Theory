@@ -43,6 +43,7 @@ public class PostSelected extends ActionBarActivity implements OnScrollChangedCa
     public String PostTitle;
     public String PostImage;
     public String PostText;
+    public String PostURL;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -54,6 +55,7 @@ public class PostSelected extends ActionBarActivity implements OnScrollChangedCa
         PostTitle = intent.getExtras().getString("PostTitle");
         PostImage = intent.getExtras().getString("PostImage");
         PostText = intent.getExtras().getString("PostText");
+        PostURL = intent.getExtras().getString("PostURL");
 
         Log.d("The Jones Theory", "Post ID = " + PostTitle + " PostImage= " + PostImage + " PostText = " + PostText);
 

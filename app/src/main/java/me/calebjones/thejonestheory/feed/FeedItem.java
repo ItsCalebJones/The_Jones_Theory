@@ -6,6 +6,7 @@ public class FeedItem {
     private String content;
     private String excerpt;
     private String ID;
+    private String postURL;
 
     public String getTitle() {
         return title;
@@ -42,8 +43,14 @@ public class FeedItem {
     public String getID(){
         return ID;
     }
-
     public void setID(String ID){
         this.ID = ID;
     }
+    public void setpostURL(String postURL){
+        this.postURL = postURL;
+    }
+    public String getpostURL(){
+        return postURL;
+    }
+
 }
