@@ -2,18 +2,19 @@
 <LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:card_view="http://schemas.android.com/apk/res-auto"
     xmlns:app="http://schemas.android.com/tools"
-    android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:paddingBottom="8dp">
+    android:layout_width="fill_parent"
+    android:layout_height="fill_parent"
+    >
 
     <android.support.v7.widget.CardView
-    android:id="@+id/card_view"
-    android:layout_width="match_parent"
-    android:layout_height="wrap_content"
-    card_view:cardPreventCornerOverlap="true"
-    card_view:cardCornerRadius="4dp"
-    card_view:cardElevation="100dp">
-
+        android:id="@+id/card_view"
+        android:layout_width="fill_parent"
+        android:layout_height="wrap_content"
+        card_view:cardElevation="8dp"
+        card_view:cardPreventCornerOverlap="true"
+        card_view:cardCornerRadius="4dp"
+        card_view:cardUseCompatPadding="true"
+        >
 
     <RelativeLayout
         android:id="@+id/lnrLayout"
@@ -33,31 +34,29 @@
         android:src="@drawable/placeholder"
         android:layout_gravity="center_horizontal" />
 
-    <!--<me.calebjones.thejonestheory.util.FontFitTextView-->
-        <!--android:id="@+id/title"-->
-        <!--android:layout_width="wrap_content"-->
-        <!--android:layout_height="wrap_content"-->
-        <!--android:fontFamily="sans-serif-condensed"-->
-        <!--android:gravity="center"-->
-        <!--android:layout_gravity="center_horizontal"-->
-        <!--android:textColor="#000000"-->
-        <!--android:textSize="60sp"-->
-        <!--android:maxLines="3" />-->
-
-    <me.calebjones.thejonestheory.util.FontFitTextView
+    <me.calebjones.blogsite.util.FontFitTextView
         android:id="@+id/title"
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:padding="16dp"
         android:text="Name"
         android:gravity="center_vertical"
         android:textColor="#000000"
-        android:fontFamily=""
         android:textStyle="bold"
-        android:textSize="14dp"
+        android:textSize="14sp"
         android:layout_below="@id/thumbnail"
-        android:layout_marginTop="10dp"/>
+        android:layout_marginTop="8dp"
+        android:layout_marginBottom="8dp"
+        android:paddingLeft="4dp"
+        android:paddingRight="4dp"/>
 
+        <View android:id="@+id/separator"
+            android:background="@color/myViewSeperators"
+            android:layout_width = "match_parent"
+            android:layout_height="1dp"
+            android:layout_marginLeft="8dp"
+            android:layout_marginRight="8dp"
+            android:layout_below="@id/title"
+            />
 
         <TextView
             android:id="@+id/excerpt"
@@ -65,8 +64,8 @@
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
             android:text="Name"
-            android:layout_below="@id/title"
-            android:layout_marginTop="10dp"/>
+            android:layout_below="@id/separator"
+            android:layout_marginTop="8dp"/>
 
         </RelativeLayout>
     </android.support.v7.widget.CardView>

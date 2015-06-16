@@ -101,6 +101,7 @@
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.google.android.gms/play-services/7.3.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/com.lsjwzh/materialloadingprogressbar/0.5.5-RELEASE/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/in.srain.cube/ultra-ptr/1.0.9/jars" />
+      <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/org.sufficientlysecure/html-textview/1.1/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/exploded-aar/uk.co.chrisjenx/calligraphy/2.1.0/jars" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/incremental" />
       <excludeFolder url="file://$MODULE_DIR$/build/intermediates/jacoco" />
@@ -123,6 +124,7 @@
     <orderEntry type="library" exported="" name="play-services-drive-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-games-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-appstate-7.3.0" level="project" />
+    <orderEntry type="library" exported="" name="html-textview-1.1" level="project" />
     <orderEntry type="library" exported="" name="play-services-fitness-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-gcm-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-maps-7.3.0" level="project" />
@@ -133,9 +135,9 @@
     <orderEntry type="library" exported="" name="play-services-identity-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="fadingactionbar-3.1.2" level="project" />
     <orderEntry type="library" exported="" name="play-services-wearable-7.3.0" level="project" />
-    <orderEntry type="library" exported="" name="androidasync-2.1.4" level="project" />
     <orderEntry type="library" exported="" name="MaterialDesign-1.5" level="project" />
-    <orderEntry type="library" exported="" name="ion-2.1.4" level="project" />
+    <orderEntry type="library" exported="" name="androidasync-2.1.6" level="project" />
+    <orderEntry type="library" exported="" name="ion-2.1.6" level="project" />
     <orderEntry type="library" exported="" name="play-services-safetynet-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="play-services-plus-7.3.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.1.1" level="project" />

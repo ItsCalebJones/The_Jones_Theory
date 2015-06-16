@@ -3,7 +3,7 @@
     android:layout_width="fill_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
-    tools:context="me.calebjones.thejonestheory.activity.LoginActivity">
+    tools:context="me.calebjones.blogsite.activity.LoginActivity">
 
     <include android:id="@+id/toolbar_actionbarLogin" layout="@layout/toolbar_default"
         android:layout_width="match_parent" android:layout_height="wrap_content" />
@@ -40,7 +40,7 @@
                 android:layout_height="wrap_content" android:orientation="vertical"
                 android:weightSum="1">
 
-                <me.calebjones.thejonestheory.util.FontFitTextView
+                <me.calebjones.blogsite.util.FontFitTextView
                     android:layout_width="310dp"
                     android:layout_height="80dp"
                     android:fontFamily="sans-serif-condensed"
@@ -147,7 +147,7 @@
                         android:layout_alignParentTop="true"
                         android:layout_gravity="center_horizontal"
                         android:scaleType="fitCenter"
-                        android:src="@drawable/ic_menu_check"
+                        android:src="@drawable/ic_action_done"
                         android:elevation="10dp" />
 
 
