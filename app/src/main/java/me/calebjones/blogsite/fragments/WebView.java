@@ -1,17 +1,14 @@
 package me.calebjones.blogsite.fragments;
 
-import android.annotation.TargetApi;
 import android.app.Activity;
 import android.net.Uri;
-import android.os.Build;
 import android.os.Bundle;
-import android.app.Fragment;
+import android.support.v4.app.Fragment;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.view.Window;
 import android.view.WindowManager;
 import android.webkit.WebChromeClient;
 import android.webkit.WebViewClient;
@@ -150,7 +147,7 @@ public class WebView extends Fragment {
             boolean enabled = getResources().getBoolean(id);
             // enabled = are translucent bars supported on this device
             // Set the status bar to dark-semi-transparentish
-            getActivity().getWindow().clearFlags(android.view.WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
+            getActivity().getWindow().clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_NAVIGATION);
 
         }
 

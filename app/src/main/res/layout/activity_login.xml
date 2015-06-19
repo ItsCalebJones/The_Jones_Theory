@@ -5,7 +5,7 @@
     android:orientation="vertical"
     tools:context="me.calebjones.blogsite.activity.LoginActivity">
 
-    <include android:id="@+id/toolbar_actionbarLogin" layout="@layout/toolbar_default"
+    <include android:id="@+id/toolbar_actionbarLogin" layout="@layout/tool_bar"
         android:layout_width="match_parent" android:layout_height="wrap_content" />
 
     <ImageView
@@ -129,7 +129,7 @@
 
 
                 <AutoCompleteTextView android:id="@+id/email" android:layout_width="match_parent"
-                    android:layout_height="wrap_content" android:hint="@string/prompt_email"
+                    android:layout_height="wrap_content"
                     android:inputType="textEmailAddress" android:maxLines="1"
                     android:singleLine="true"
                     android:elevation="10dp" />
@@ -175,7 +175,7 @@
                     android:textStyle="bold"
                     android:elevation="20dp"
                     android:gravity="center"
-                        android:theme="@style/AppTheme" />
+                        android:theme="@style/Theme.BlogSite" />
                 </LinearLayout>
 
                 </LinearLayout>

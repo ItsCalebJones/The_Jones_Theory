@@ -7,6 +7,8 @@ public class FeedItem {
     private String excerpt;
     private String ID;
     private String postURL;
+    private String category;
+    private String tags;
 
     public String getTitle() {
         return title;
@@ -51,6 +53,18 @@ public class FeedItem {
     }
     public String getpostURL(){
         return postURL;
+    }
+    public void setCategory(String category){
+        this.category = category;
+    }
+    public String getCategory(){
+        return category;
+    }
+    public void setTags(String tags){
+        this.tags = tags;
+    }
+    public String getTags() {
+        return tags;
     }
 
 }

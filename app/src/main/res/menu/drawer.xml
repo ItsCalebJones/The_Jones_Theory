@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="utf-8"?>
+<menu xmlns:android="http://schemas.android.com/apk/res/android">
+
+    <group android:checkableBehavior="single">
+
+        <item
+            android:id="@+id/home"
+            android:checked="false"
+            android:icon="@drawable/ic_home"
+            android:title="Home" />
+
+        <item
+            android:id="@+id/about"
+            android:checked="false"
+            android:icon="@drawable/ic_about"
+            android:title="About" />
+
+        <item
+            android:id="@+id/gallery"
+            android:checked="false"
+            android:icon="@drawable/ic_gallery"
+            android:title="Gallery" />
+
+        <item
+            android:id="@+id/navigation_subheader"
+            android:title="Categories">
+            <menu>
+
+                <item
+                    android:id="@+id/science"
+                    android:checked="false"
+                    android:icon="@drawable/ic_science"
+                    android:title="Science" />
+
+                <item
+                    android:id="@+id/parenting"
+                    android:checked="false"
+                    android:icon="@drawable/ic_parenting"
+                    android:title="Parenting" />
+                <item
+                    android:id="@+id/android"
+                    android:checked="false"
+                    android:icon="@drawable/ic_android"
+                    android:title="Android" />
+                <item
+                    android:id="@+id/technology"
+                    android:checked="false"
+                    android:icon="@drawable/ic_tech"
+                    android:title="Technology" />
+            </menu>
+        </item>
+    </group>
+</menu>

@@ -1,156 +1,182 @@
 package me.calebjones.blogsite;
 
-import android.content.Context;
-import android.content.DialogInterface;
-import android.content.SharedPreferences;
-import android.graphics.BitmapFactory;
 import android.os.Bundle;
-import android.app.Fragment;
-import android.preference.PreferenceManager;
+import android.support.design.widget.NavigationView;
 import android.support.v4.widget.DrawerLayout;
-import android.support.v7.app.ActionBarActivity;
-import android.support.v7.app.AlertDialog;
+import android.support.v7.app.ActionBarDrawerToggle;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.view.Menu;
 import android.view.MenuItem;
-import android.webkit.WebViewFragment;
+import android.view.View;
 import android.widget.Toast;
-import me.calebjones.blogsite.drawer.NavigationDrawerCallbacks;
-import me.calebjones.blogsite.drawer.NavigationDrawerFragment;
+
 import me.calebjones.blogsite.fragments.FetchViewBackground;
 import me.calebjones.blogsite.fragments.WebView;
 
+public class MainActivity extends AppCompatActivity {
 
-public class MainActivity extends ActionBarActivity
-        implements NavigationDrawerCallbacks {
-
-    /**
-     * Fragment managing the behaviors, interactions and presentation of the navigation drawer.
-     */
-    private NavigationDrawerFragment mNavigationDrawerFragment;
-    private Toolbar mToolbar;
-    public final static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
+    //Defining Variables
+    private Toolbar toolbar;
+    private NavigationView navigationView;
+    private DrawerLayout drawerLayout;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-
         setContentView(R.layout.activity_main);
-        mToolbar = (Toolbar) findViewById(R.id.toolbar_actionbar);
-        setSupportActionBar(mToolbar);
 
-        PreferenceManager.setDefaultValues(this, R.xml.preference, false);
+        // Initializing Toolbar and setting it as the actionbar
+        toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
+        setSupportActionBar(toolbar);
 
-        mNavigationDrawerFragment = (NavigationDrawerFragment)
-                getFragmentManager().findFragmentById(R.id.fragment_drawer);
 
-        // Set up the drawer.
-        mNavigationDrawerFragment.setup(R.id.fragment_drawer, (DrawerLayout) findViewById(R.id.drawer), mToolbar);
-        // populate the navigation drawer
-        mNavigationDrawerFragment.setUserData("Caleb Jones", "http://calebjones.me", BitmapFactory.decodeResource(getResources(), R.drawable.avatar));
-    }
-    public static String getPref(String key, Context context) {
-        SharedPreferences preferences = PreferenceManager.getDefaultSharedPreferences(context);
-        return preferences.getString("pref_key_num_post", null);
-    }
+        //Initializing NavigationView
+        navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
-    @Override
-    public void onNavigationDrawerItemSelected(int position) {
-        Fragment fragment = null;
-        switch (position) {
-            case 0: //Home//todo
-//                Toast.makeText(getApplicationContext(), "Home has been clicked.", Toast.LENGTH_SHORT).show();
-                fragment = getFragmentManager().findFragmentByTag(FetchViewBackground.TAG);
-                if (fragment == null) {
-                fragment = new FetchViewBackground();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("category", "");
-                    fragment.setArguments(bundle);
+        //Load initial Fragment
+        FetchViewBackground myBlogFragment = new FetchViewBackground();
+        android.support.v4.app.FragmentTransaction mBlogTransaction = getSupportFragmentManager().beginTransaction();
+
+        Bundle hBundle = new Bundle();
+        hBundle.putString("category", "blog");
+        myBlogFragment.setArguments(hBundle);
+
+        mBlogTransaction.replace(R.id.frame, myBlogFragment);
+        mBlogTransaction.commit();
+
+        //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
+        navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
+
+            // This method will trigger on item Click of navigation menu
+            @Override
+            public boolean onNavigationItemSelected(MenuItem menuItem) {
+
+
+                //Checking if the item is in checked state or not, if not make it in checked state
+                if(menuItem.isChecked()) menuItem.setChecked(false);
+                else menuItem.setChecked(true);
+
+                //Closing drawer on item click
+                drawerLayout.closeDrawers();
+
+                //Check to see which item was being clicked and perform appropriate action
+                switch (menuItem.getItemId()){
+
+
+                    //Replacing the main content with ContentFragment Which is our Inbox View;
+                    case R.id.home:
+                        FetchViewBackground myBlogFragment = new FetchViewBackground();
+                        android.support.v4.app.FragmentTransaction mBlogTransaction = getSupportFragmentManager().beginTransaction();
+
+                        Bundle hBundle = new Bundle();
+                        hBundle.putString("category", "blog");
+                        myBlogFragment.setArguments(hBundle);
+
+                        mBlogTransaction.replace(R.id.frame, myBlogFragment);
+                        mBlogTransaction.commit();
+                        return true;
+
+                    // For rest of the options we just show a toast on click
+
+                    case R.id.about:
+                        WebView myWebFragment = new WebView();
+                        android.support.v4.app.FragmentTransaction mWebTransaction = getSupportFragmentManager().beginTransaction();
+                        mWebTransaction.replace(R.id.frame, myWebFragment);
+                        mWebTransaction.commit();
+                        return true;
+                    case R.id.gallery:
+
+                        return true;
+                    case R.id.science:
+                        FetchViewBackground myScienceFragment = new FetchViewBackground();
+                        android.support.v4.app.FragmentTransaction mScienceTransaction = getSupportFragmentManager().beginTransaction();
+
+                        Bundle sBundle = new Bundle();
+                        sBundle.putString("category", "science");
+                        myScienceFragment.setArguments(sBundle);
+
+                        mScienceTransaction.replace(R.id.frame, myScienceFragment);
+                        mScienceTransaction.commit();
+                        return true;
+                    case R.id.parenting:
+                        FetchViewBackground myParentingFragment = new FetchViewBackground();
+                        android.support.v4.app.FragmentTransaction mParentingTransaction = getSupportFragmentManager().beginTransaction();
+
+                        Bundle pBundle = new Bundle();
+                        pBundle.putString("category", "parenting");
+                        myParentingFragment.setArguments(pBundle);
+
+                        mParentingTransaction.replace(R.id.frame, myParentingFragment);
+                        mParentingTransaction.commit();
+                        return true;
+                    case R.id.android:
+                        FetchViewBackground myAndroidFragment = new FetchViewBackground();
+                        android.support.v4.app.FragmentTransaction mAndroidTransaction = getSupportFragmentManager().beginTransaction();
+
+                        Bundle aBundle = new Bundle();
+                        aBundle.putString("category", "android");
+                        myAndroidFragment.setArguments(aBundle);
+
+                        mAndroidTransaction.replace(R.id.frame, myAndroidFragment);
+                        mAndroidTransaction.commit();
+                        return true;
+                    case R.id.technology:
+                        FetchViewBackground myTechFragment = new FetchViewBackground();
+                        android.support.v4.app.FragmentTransaction mTechTransaction = getSupportFragmentManager().beginTransaction();
+
+                        Bundle tBundle = new Bundle();
+                        tBundle.putString("category", "technology");
+                        myTechFragment.setArguments(tBundle);
+
+                        mTechTransaction.replace(R.id.frame, myTechFragment);
+                        mTechTransaction.commit();
+                        return true;
+                    default:
+                        Toast.makeText(getApplicationContext(),"Somethings Wrong",Toast.LENGTH_SHORT).show();
+                        return true;
+
+                }
             }
-                break;
-            case 1: //About
-//                Toast.makeText(getApplicationContext(), "About has been clicked.", Toast.LENGTH_SHORT).show();
-                fragment = getFragmentManager().findFragmentByTag(WebView.TAG);
-                if (fragment == null) {
-                    fragment = new WebView();
-                }
-                break;
-            case 2: //Gallery//todo
-                Toast.makeText(getApplicationContext(), "Gallery coming soon!", Toast.LENGTH_SHORT).show();
-//                fragment = getFragmentManager().findFragmentByTag(PhotoGridView.TAG);
-//                if (fragment == null) {
-//                    fragment = new PhotoGridView();
-//                }
-                break;
-            case 3: //Science //todo
-                fragment = getFragmentManager().findFragmentByTag(FetchViewBackground.TAG);
-                if (fragment == null) {
-                    fragment = new FetchViewBackground();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("category", "science");
-                    fragment.setArguments(bundle);
-                }
-                break;
-            case 4: //Parenting//todo
-                fragment = getFragmentManager().findFragmentByTag(FetchViewBackground.TAG);
-                if (fragment == null) {
-                    fragment = new FetchViewBackground();
-                    Bundle bundle = new Bundle();
-                    bundle.putString("category", "parenting");
-                    fragment.setArguments(bundle);
-                }
-                break;
-        }
-        if (fragment != null) {
-            getFragmentManager().beginTransaction().replace(R.id.container, fragment).commit();
-        }
+        });
+
+        // Initializing Drawer Layout and ActionBarToggle
+        drawerLayout = (DrawerLayout) findViewById(R.id.drawer);
+        ActionBarDrawerToggle actionBarDrawerToggle = new ActionBarDrawerToggle(this,drawerLayout,toolbar,R.string.openDrawer, R.string.closeDrawer){
+
+            @Override
+            public void onDrawerClosed(View drawerView) {
+                // Code here will be triggered once the drawer closes as we dont want anything to happen so we leave this blank
+                super.onDrawerClosed(drawerView);
+            }
+
+            @Override
+            public void onDrawerOpened(View drawerView) {
+                // Code here will be triggered once the drawer open as we dont want anything to happen so we leave this blank
+
+                super.onDrawerOpened(drawerView);
+            }
+        };
+
+        //Setting the actionbarToggle to drawer layout
+        drawerLayout.setDrawerListener(actionBarDrawerToggle);
+
+        //calling sync state is necessay or else your hamburger icon wont show up
+        actionBarDrawerToggle.syncState();
+
+
+
+
+
 
     }
-
-
-    @Override
-    public void onBackPressed() {
-
-//        WebView myWebView = (WebView)
-//                getFragmentManager().findFragmentById(R.id.webview2);
-//        if (myWebView.canGoBack()) {
-//            myWebView.goBack();
-//        } else
-        if (mNavigationDrawerFragment.isDrawerOpen())
-            mNavigationDrawerFragment.closeDrawer();
-        else
-            new AlertDialog.Builder(this)
-                    .setTitle("Exiting Application")
-                    .setMessage("Are you sure you want to close this app? If not, try using the slide out drawer.")
-                    .setPositiveButton("Yes", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            finish();
-                        }
-
-                    })
-                    .setNegativeButton("No", new DialogInterface.OnClickListener() {
-                        @Override
-                        public void onClick(DialogInterface dialog, int which) {
-                            mNavigationDrawerFragment.openDrawer();
-                        }
-                    })
-                    .show();
-    }
-
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
-        if (!mNavigationDrawerFragment.isDrawerOpen()) {
-            // Only show items in the action bar relevant to this screen
-            // if the drawer is not showing. Otherwise, let the drawer
-            // decide what to show in the action bar.
-            getMenuInflater().inflate(R.menu.main, menu);
-            return true;
-        }
-        return super.onCreateOptionsMenu(menu);
+        // Inflate the menu; this adds items to the action bar if it is present.
+        getMenuInflater().inflate(R.menu.menu_main, menu);
+        return true;
     }
-
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
@@ -166,6 +192,4 @@ public class MainActivity extends ActionBarActivity
 
         return super.onOptionsItemSelected(item);
     }
-
-
 }

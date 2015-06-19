@@ -2,7 +2,6 @@ package me.calebjones.blogsite.fragments;
 
 import android.app.Activity;
 import android.app.AlertDialog;
-import android.app.Fragment;
 import android.app.ProgressDialog;
 import android.content.Context;
 import android.content.DialogInterface;
@@ -12,7 +11,9 @@ import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
 import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
 import android.util.Log;
@@ -23,7 +24,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
 
 import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
 
@@ -43,8 +43,8 @@ import java.util.List;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.activity.PostSelected;
 import me.calebjones.blogsite.feed.FeedItem;
-import me.calebjones.blogsite.loader.PostLoader;
 import me.calebjones.blogsite.feed.MyRecyclerAdapter;
+import me.calebjones.blogsite.loader.PostLoader;
 import me.calebjones.blogsite.util.RecyclerItemClickListener;
 
 /**
@@ -60,6 +60,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
     private static Context context;
     private Button btnSubmit;
     public String numPost = "&number=15";
+    public String mCategory;
     public int num;
     public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=";
     public String tURL;
@@ -92,7 +93,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         Context hostActivity = getActivity();
 
         Bundle bundle = this.getArguments();
-        String category = bundle.getString("category", "");
+        category = bundle.getString("category", "");
         tURL = mURL + category + numPost;
         Log.d(TAG, tURL);
 
@@ -121,8 +122,6 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
         LayoutInflater lf = getActivity().getLayoutInflater();
 
-
-
         View view = lf.inflate(R.layout.fragment_fetch_data, container, false);
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
@@ -144,11 +143,12 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                         intent.putExtra("PostImage", feedItemList.get(position).getThumbnail());
                         intent.putExtra("PostText", feedItemList.get(position).getContent());
                         intent.putExtra("PostURL", feedItemList.get(position).getpostURL());
+                        intent.putExtra("PostID", feedItemList.get(position).getID());
                         startActivity(intent);
                     }
                 })
         );
-        this.feedItemList= PostLoader.getWords();
+        this.feedItemList = PostLoader.getWords();
 
         adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
         mRecyclerView.setAdapter(adapter);
@@ -160,14 +160,21 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
         if (feedItemList != null) {
             if (feedItemList.size() > 0) {
-                Log.d(TAG, "Its not null!");
+                Log.d(TAG, "FeedItemList is not null! " + category + " " + mCategory + " " + tURL);
+                if (category != mCategory){
+                    new RefreshHttpTask().execute(tURL);
+                }
             } else {
-                Log.d(TAG, "Its null!");
+                Log.d(TAG, "FeedItemList null!");
                 new RefreshHttpTask().execute(tURL);
             }
-
-            new RefreshHttpTask().execute(tURL);
         }
+
+        if (category != "" & category != null){
+            mCategory = Character.toString(category.charAt(0)).toUpperCase()+category.substring(1);
+            ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("The Jones Theory - " + mCategory);
+        }
+
 
         // Inflate the layout for this fragment
         return view;
@@ -295,7 +302,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
             if (showPbar == 0){
                 dialog = new ProgressDialog(getActivity());
                 if (category != null) {
-                    dialog.setMessage("Loading Top 15 " + category + "posts...");
+                    dialog.setMessage("Loading Top 15 " + category + " posts...");
                 } else {
                     dialog.setMessage("Loading Top 15 posts...");
                 }
@@ -401,6 +408,20 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
     }
 
+    public static String capitalizeString(String string) {
+        char[] chars = string.toLowerCase().toCharArray();
+        boolean found = false;
+        for (int i = 0; i < chars.length; i++) {
+            if (!found && Character.isLetter(chars[i])) {
+                chars[i] = Character.toUpperCase(chars[i]);
+                found = true;
+            } else if (Character.isWhitespace(chars[i]) || chars[i]=='.' || chars[i]=='\'') { // You can add other chars here
+                found = false;
+            }
+        }
+        return String.valueOf(chars);
+    }
+
     private void parseResult(String result) {
         try {
             JSONObject response = new JSONObject(result);
@@ -420,6 +441,60 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                 item.setExcerpt(post.optString("excerpt"));
                 item.setID(post.optString("ID"));
                 item.setpostURL(post.optString("URL"));
+
+                //Cuts out all the Child nodes and gets only the  tags.
+                JSONObject  Tobj = new JSONObject(post.optString("tags"));
+                JSONArray Tarray=Tobj.names();
+                String tagsList = null;
+
+                if (Tarray != null) {
+
+                    for (int c = 0; c < Tarray.length(); c++) {
+
+//                        Log.d("dThe Jones Theory", Tarray.getString(c));
+                        if (tagsList != null) {
+                            String thisTag = Tarray.getString(c);
+                            thisTag = capitalizeString(thisTag);
+//                            thisTag = Character.toString(thisTag.charAt(0)).toUpperCase()+thisTag.substring(1);
+                            tagsList = tagsList + ", " + thisTag;
+                        } else {
+                            String thisTag = Tarray.getString(c);
+                            thisTag = capitalizeString(thisTag);
+                            tagsList = thisTag;
+                        }
+                    }
+                    item.setTags("<b>Tags</b>: " + tagsList);
+                } else {
+                    item.setTags("");
+                }
+
+
+
+                //Cuts out all the Child nodes and gets only the categories.
+                JSONObject  Cobj = new JSONObject(post.optString("categories"));
+                JSONArray Carray=Cobj.names();
+                String catList = null;
+
+                if (Carray != null) {
+
+
+                    for (int d = 0; d < Carray.length(); d++) {
+
+//                        Log.e("parenttag", Carray.getString(d));
+                        if (catList != null) {
+                            catList = catList + ", " + Carray.getString(d);
+                        } else {
+                            catList = Carray.getString(d);
+                        }
+
+
+                    }
+                    item.setCategory("Category: " + catList);
+                } else {
+                    item.setCategory("Category: Unknown");
+                }
+
+
                 Integer ImageLength = post.optString("featured_image").length();
                 if (ImageLength == 0) {
                     Log.v(TAG, "Feature Image null");

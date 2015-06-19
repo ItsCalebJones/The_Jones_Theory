@@ -13,6 +13,8 @@ public class FeedListRowHolder extends RecyclerView.ViewHolder implements View.O
     public TextView title;
     public TextView content;
     public TextView excerpt;
+    public TextView category;
+    public TextView tags;
     public FeedItem feed;
     public TextView ID;
     public IMyViewHolderClicks mListener;
@@ -26,6 +28,8 @@ public class FeedListRowHolder extends RecyclerView.ViewHolder implements View.O
         this.thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
         this.title = (TextView) view.findViewById(R.id.title);
         this.excerpt = (TextView) view.findViewById(R.id.excerpt);
+//        this.category = (TextView) view.findViewById(R.id.Category);
+        this.tags = (TextView) view.findViewById(R.id.tags);
 
         thumbnail.setOnClickListener(this);
         title.setOnClickListener(this);

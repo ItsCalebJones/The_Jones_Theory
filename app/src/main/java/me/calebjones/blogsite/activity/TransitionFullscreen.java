@@ -2,7 +2,6 @@ package me.calebjones.blogsite.activity;
 
 import android.annotation.TargetApi;
 import android.app.Notification;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.app.ProgressDialog;
 import android.content.ClipData;
@@ -17,7 +16,6 @@ import android.graphics.PorterDuff;
 import android.graphics.PorterDuffXfermode;
 import android.graphics.Rect;
 import android.net.Uri;
-import android.nfc.Tag;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
@@ -235,7 +233,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
         //Setup the Notificaiton Intent
         Intent intent = new Intent();
-        intent.setAction(android.content.Intent.ACTION_VIEW);
+        intent.setAction(Intent.ACTION_VIEW);
         File dir = new File(mfile_path);
 
         //Set up the PendingIntent for the Open File action button

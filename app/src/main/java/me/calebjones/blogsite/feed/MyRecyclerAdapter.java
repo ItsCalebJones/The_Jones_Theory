@@ -8,8 +8,8 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 
-
 import com.koushikdutta.ion.Ion;
+
 import java.util.List;
 
 import me.calebjones.blogsite.R;
@@ -55,6 +55,7 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
             }
             public void onPotato(View title) {
 //                Log.d("The Jones Theory","Title - Position: " +  positionItem());
+
             }
             public void onTomato(ImageView thumbnail) {
 //                Log.d("The Jones Theory", "Thumbnail - Position: " + positionItem());
@@ -80,6 +81,8 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
 
         feedListRowHolder.title.setText(Html.fromHtml(feedItem.getTitle()));
         feedListRowHolder.excerpt.setText(Html.fromHtml(feedItem.getExcerpt()));
+//        feedListRowHolder.category.setText(Html.fromHtml(feedItem.getCategory()));
+        feedListRowHolder.tags.setText(Html.fromHtml(feedItem.getTags()));
         }
 
     @Override

@@ -2,9 +2,11 @@ package me.calebjones.blogsite.loader;
 
 import android.os.AsyncTask;
 import android.util.Log;
+
 import org.json.JSONArray;
 import org.json.JSONException;
 import org.json.JSONObject;
+
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStream;
@@ -18,7 +20,7 @@ import me.calebjones.blogsite.feed.FeedItem;
 
 public class PostLoader extends AsyncTask<String, Void, Integer> {
 
-    public static List<FeedItem> feedItemList = new ArrayList<FeedItem>();
+    public static List<FeedItem> tFeedItemList = new ArrayList<FeedItem>();
     public static final String TAG = "The Jones Theory";
 
         @Override
@@ -76,11 +78,11 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
 
     public static List<FeedItem> getWords()
     {
-        if(feedItemList == null)
+        if(tFeedItemList == null)
         {
-            feedItemList = new ArrayList<FeedItem>();
+            tFeedItemList = new ArrayList<FeedItem>();
         }
-        return feedItemList;
+        return tFeedItemList;
     }
 
 
@@ -102,8 +104,8 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
             JSONArray posts = response.optJSONArray("posts");
 
             /*Initialize array if null*/
-            if (null == feedItemList) {
-                feedItemList = new ArrayList<FeedItem>();
+            if (null == tFeedItemList) {
+                tFeedItemList = new ArrayList<FeedItem>();
             }
 
             for (int i = 0; i < posts.length(); i++) {
@@ -114,6 +116,7 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
                 item.setContent(post.optString("content"));
                 item.setExcerpt(post.optString("excerpt"));
                 item.setID(post.optString("ID"));
+                item.setTags(post.optString("tags"));
                 Integer ImageLength = post.optString("featured_image").length();
                 if (ImageLength == 0) {
                     Log.d(TAG, "It should be null!");
@@ -121,7 +124,9 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
                 } else {
                     item.setThumbnail(post.optString("featured_image"));
                 }
-                feedItemList.add(item);
+                
+                Log.i("The Jones Theory", "Title: " + item.getTitle());
+                tFeedItemList.add(item);
             }
         } catch (JSONException e) {
             e.printStackTrace();

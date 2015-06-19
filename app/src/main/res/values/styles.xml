@@ -1,58 +1,26 @@
 <resources>
 
+    <style name="Theme.BlogSite" parent="Base.Theme.BlogSite">
+    </style>
+
     <!-- Base application theme. -->
-    <style name="AppTheme" parent="Theme.AppCompat.Light.NoActionBar">
-        <!-- Customize your theme here. -->
+    <style name="Base.Theme.BlogSite" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/myPrimaryColor</item>
-        <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
+        <item name="colorPrimaryDark">@color/myPrimaryColor</item>
         <item name="colorAccent">@color/myAccentColor</item>
-        <item name="android:textColorPrimary">@color/myTextPrimaryColor</item>
-        <item name="android:navigationBarColor">@color/myPrimaryColor</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
         <item name="android:windowBackground">@color/myWindowBackground</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowNoTitle">true</item>
         <item name="windowActionBar">false</item>
-    </style>
-
-    <style name="AppThemePost" parent="Theme.AppCompat.Light">
+        <item name="windowActionModeOverlay">true</item>
+        <!--<item name="windowDrawsSystemBarBackgrounds">true</item>-->
         <!-- Customize your theme here. -->
-        <item name="colorPrimary">@color/myPrimaryColor</item>
-        <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
-        <item name="colorAccent">@color/myAccentColor</item>
-        <item name="android:textColorPrimary">@color/myTextPrimaryColor</item>
-        <item name="android:navigationBarColor">@color/myPrimaryColor</item>
-        <item name="drawerArrowStyle">@style/DrawerArrowStyle</item>
-        <item name="android:windowBackground">@color/myWindowBackground</item>
-        <item name="android:windowContentTransitions">true</item>
-        <item name="android:windowNoTitle">true</item>
-        <item name="windowActionBar">false</item>
     </style>
 
-    <style name="DrawerArrowStyle" parent="Widget.AppCompat.DrawerArrowToggle">
-        <item name="spinBars">true</item>
-        <item name="color">@android:color/white</item>
+    <style name="Widget.CardContent" parent="android:Widget">
+        <item name="android:paddingLeft">8dp</item>
+        <item name="android:paddingRight">8dp</item>
+        <item name="android:paddingTop">24dp</item>
+        <item name="android:paddingBottom">16dp</item>
+        <item name="android:orientation">vertical</item>
     </style>
 
-    <style name="ToolBarStyle" parent="">
-        <item name="android:elevation">@dimen/toolbar_elevation</item>
-        <item name="popupTheme">@style/ThemeOverlay.AppCompat.Light</item>
-        <item name="theme">@style/ThemeOverlay.AppCompat.Dark.ActionBar</item>
-    </style>
-
-    <style name="Widget" />
-
-    <style name="Widget.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid.Inverse" />
-
-    <style name="Widget.Light" />
-
-    <style name="Widget.Light.ActionBar" parent="@android:style/Widget.Holo.Light.ActionBar.Solid" />
-
-    <style name="Widget.ActionBar.Transparent">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
-
-    <style name="Widget.Light.ActionBar.Transparent">
-        <item name="android:background">@android:color/transparent</item>
-    </style>
 </resources>

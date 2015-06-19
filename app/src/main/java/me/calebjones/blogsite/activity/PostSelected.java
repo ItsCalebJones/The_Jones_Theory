@@ -8,6 +8,8 @@ import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.CollapsingToolbarLayout;
+import android.support.design.widget.FloatingActionButton;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
@@ -17,16 +19,21 @@ import android.view.MenuItem;
 import android.view.View;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
 import com.readystatesoftware.systembartint.SystemBarTintManager;
 
+import java.util.List;
+
 import me.calebjones.blogsite.R;
+import me.calebjones.blogsite.feed.FeedItem;
+import me.calebjones.blogsite.loader.PostLoader;
 import uk.co.senab.photoview.PhotoView;
 
 
-public class PostSelected extends AppCompatActivity{
+public class PostSelected extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private Drawable mActionBarBackgroundDrawable;
@@ -36,19 +43,25 @@ public class PostSelected extends AppCompatActivity{
     private int mFinalStatusBarColor;
     private SystemBarTintManager mStatusBarManager;
 
+    public String tURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
+    public String related = "/related";
     public String PostTitle;
     public String PostImage;
     public String PostText;
     public String PostURL;
+    public String PostID;
+    public List<FeedItem> feedItemList;
 
 
 
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_post_selected);
+        setContentView(R.layout.post_selected_para);
         Bundle bundle = getIntent().getExtras();
+
+
         if (bundle != null){
             //Get information about the post that was selected from FetchViewBackground
             Intent intent = getIntent();
@@ -56,15 +69,24 @@ public class PostSelected extends AppCompatActivity{
             PostImage = intent.getExtras().getString("PostImage");
             PostText = intent.getExtras().getString("PostText");
             PostURL = intent.getExtras().getString("PostURL");
+            PostID = intent.getExtras().getString("PostID");
             Log.i("The Jones Theory", "Intent!");
+
+            this.feedItemList = PostLoader.getWords();
+//            feedItemList.clear();
+//            Log.i("The Jones Theory", tURL + PostID + related);
+//            new PostLoader().execute(tURL + PostID + related);
         }
         if (savedInstanceState != null) {
-            Log.v("The Jones Theory", savedInstanceState.getString("PostTitle"));
+            Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
         }
 
-        PhotoView imgFavorite = (PhotoView)findViewById(R.id.header);
-        imgFavorite.setZoomable(false);
-        imgFavorite.setClickable(true);
+        CollapsingToolbarLayout collapsingToolbar =
+                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+
+
+        ImageView imgFavorite = (ImageView)findViewById(R.id.header);
+
 
         //Replace the header image with the Feature Image
         Ion.with(imgFavorite)
@@ -72,40 +94,58 @@ public class PostSelected extends AppCompatActivity{
                 .error(R.drawable.placeholder)
                 .load(PostImage);
 
-        imgFavorite.setOnClickListener(new View.OnClickListener() {
-            @Override
+//        imgFavorite.setOnClickListener(new View.OnClickListener() {
+//            @TargetApi(Build.VERSION_CODES.JELLY_BEAN)
+//            @Override
+//            public void onClick(View v) {
+//
+//                PhotoView imgFavorite = (PhotoView) v;
+//
+//                BitmapInfo bi = Ion.with(imgFavorite)
+//                        .getBitmapInfo();
+//
+//                Intent intent = new Intent(PostSelected.this, TransitionFullscreen.class);
+//                intent.putExtra("bitmapInfo", bi.key);
+//                intent.putExtra("PostImage", PostImage);
+//                intent.putExtra("PostURL", PostURL);
+//                intent.putExtra("PostTitle", PostTitle);
+//                intent.putExtra("PostText", PostText);
+//
+//                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelected.this, imgFavorite, "photo_hero").toBundle());
+//            }
+//        });
+
+        FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.postFab);
+        myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-
-                PhotoView imgFavorite = (PhotoView)v;
-
-                BitmapInfo bi = Ion.with(imgFavorite)
-                .getBitmapInfo();
-
-                Intent intent = new Intent(PostSelected.this, TransitionFullscreen.class);
-                intent.putExtra("bitmapInfo", bi.key);
-                intent.putExtra("PostImage", PostImage);
-                intent.putExtra("PostURL", PostURL);
-                intent.putExtra("PostTitle", PostTitle);
-                intent.putExtra("PostText", PostText);
-
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelected.this, imgFavorite, "photo_hero").toBundle());
+//                if (android.os.Build.VERSION.SDK_INT >= 21){
+//                    Toast.makeText(getApplicationContext(), "Lollipop!",
+//                            Toast.LENGTH_LONG).show();
+//                    LollipopTransition(v);
+//
+//                } else {
+//                    Toast.makeText(getApplicationContext(), "NOT LOLLIPOP!",
+//                            Toast.LENGTH_LONG).show();
+//                    Transition(v);
+//                }
+                Transition(v);
             }
         });
 
 
         //Removes HTML artifcats
         PostText = removeStyling(PostText);
+        PostTitle = stripHtml(PostTitle);
 
 
         //Setup the Title and Textview
-        TextView mTextView = (TextView) findViewById(R.id.PostText);
+        TextView mTextView = (TextView) findViewById(R.id.PostTextPara);
         mTextView.setText(Html.fromHtml(PostText));
-        TextView mTitleView = (TextView) findViewById(R.id.PostTitle);
-        mTitleView.setText(Html.fromHtml(PostTitle));
+        TextView mTitleView = (TextView) findViewById(R.id.PostTitlePara);
+        mTitleView.setText(PostTitle);
 
         //Init the toolbar
-        mToolbar = (Toolbar) findViewById(R.id.toolbar);
-//        mActionBarBackgroundDrawable = mToolbar.getBackground();
+        mToolbar = (Toolbar) findViewById(R.id.PostToolbar);
         setSupportActionBar(mToolbar);
 
         //Setup the Actionabar backbutton and elevation
@@ -113,6 +153,44 @@ public class PostSelected extends AppCompatActivity{
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
 
+        collapsingToolbar.setTitle(PostTitle);
+
+    }
+    public void Transition(View v){
+        ImageView imgFavorite = (ImageView) findViewById(R.id.header);
+
+        BitmapInfo bi = Ion.with(imgFavorite)
+                .getBitmapInfo();
+
+        Intent intent = new Intent(PostSelected.this, Fullscreen.class);
+        intent.putExtra("bitmapInfo", bi.key);
+        intent.putExtra("PostImage", PostImage);
+        intent.putExtra("PostURL", PostURL);
+        intent.putExtra("PostTitle", PostTitle);
+        intent.putExtra("PostText", PostText);
+
+        startActivity(intent);
+    }
+
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+    public void LollipopTransition(View v){
+        ImageView imgFavorite = (ImageView) findViewById(R.id.header);
+
+        BitmapInfo bi = Ion.with(imgFavorite)
+                .getBitmapInfo();
+
+        Intent intent = new Intent(PostSelected.this, TransitionFullscreen.class);
+        intent.putExtra("bitmapInfo", bi.key);
+        intent.putExtra("PostImage", PostImage);
+        intent.putExtra("PostURL", PostURL);
+        intent.putExtra("PostTitle", PostTitle);
+        intent.putExtra("PostText", PostText);
+
+        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelected.this, imgFavorite, "photo_hero").toBundle());
+    }
+
+    public String stripHtml(String html) {
+        return Html.fromHtml(html).toString();
     }
 
     private String removeStyling(String PostText) {
@@ -149,7 +227,7 @@ public class PostSelected extends AppCompatActivity{
 
     @Override
     public boolean onOptionsItemSelected(MenuItem item) {
-        Log.d("The Jones Theory", "Item has been clicked = " + PostURL);
+        Log.d("The Jones Theory", item + " has been clicked = " + PostURL);
 
         // Handle item selection
         switch (item.getItemId()) {
@@ -188,6 +266,7 @@ public class PostSelected extends AppCompatActivity{
         savedInstanceState.putString("PostImage", PostImage);
         savedInstanceState.putString("PostText", PostText);
         savedInstanceState.putString("PostURL", PostURL);
+        savedInstanceState.putString("PostID", PostID);
     }
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
@@ -196,6 +275,7 @@ public class PostSelected extends AppCompatActivity{
         PostText = savedInstanceState.getString("PostText");
         PostImage = savedInstanceState.getString("PostImage");
         PostURL = savedInstanceState.getString("PostURL");
+        PostID = savedInstanceState.getString("PostID");
     }
 
 }
