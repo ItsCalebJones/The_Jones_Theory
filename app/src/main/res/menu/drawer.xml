@@ -20,6 +20,10 @@
             android:checked="false"
             android:icon="@drawable/ic_gallery"
             android:title="Gallery" />
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_action_settings"
+            android:title="Settings" />
 
         <item
             android:id="@+id/navigation_subheader"
@@ -47,6 +51,12 @@
                     android:checked="false"
                     android:icon="@drawable/ic_tech"
                     android:title="Technology" />
+                <item
+                    android:title=""
+                    android:checkable="false"
+                    android:visible="false"
+                    android:orderInCategory="200"/>
+
             </menu>
         </item>
     </group>

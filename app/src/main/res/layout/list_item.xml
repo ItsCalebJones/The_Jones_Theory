@@ -12,6 +12,7 @@
         android:layout_marginBottom="@dimen/card_margin"
         android:layout_marginLeft="@dimen/card_margin"
         android:layout_marginRight="@dimen/card_margin"
+        android:animateLayoutChanges="true"
         card_view:cardElevation="8dp"
         card_view:cardPreventCornerOverlap="true"
         card_view:cardUseCompatPadding="true">
@@ -51,8 +52,10 @@
                     android:gravity="center_horizontal"
                     android:text="Name"
                     android:textColor="@color/myTextPrimaryColor"
-                    android:textSize="18dp"
-                    android:textStyle="bold" />
+                    android:textSize="24dp"
+                    android:textStyle="bold"
+                    android:fontFamily="sans-serif-condensed"
+                    />
 
                     <TextView
                         android:id="@+id/tags"

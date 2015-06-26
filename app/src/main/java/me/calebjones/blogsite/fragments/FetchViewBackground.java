@@ -10,12 +10,14 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
+import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
+import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -24,8 +26,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.Button;
-
-import com.lsjwzh.widget.materialloadingprogressbar.CircleProgressBar;
 
 import org.json.JSONArray;
 import org.json.JSONException;
@@ -41,6 +41,7 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.calebjones.blogsite.R;
+import me.calebjones.blogsite.activity.LoginActivity;
 import me.calebjones.blogsite.activity.PostSelected;
 import me.calebjones.blogsite.feed.FeedItem;
 import me.calebjones.blogsite.feed.MyRecyclerAdapter;
@@ -60,7 +61,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
     private static Context context;
     private Button btnSubmit;
     public String numPost = "&number=15";
-    public String mCategory;
+    public String mCategory = null;
     public int num;
     public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=";
     public String tURL;
@@ -74,7 +75,6 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
     private OnFragmentInteractionListener mListener;
     private static final String BUNDLE_RECYCLER_LAYOUT = "FetchViewBackground.mRecylcerView.fragment_fetch_data";
     int showPbar = 0;
-    CircleProgressBar progressbar1;
 
 
     public static FetchViewBackground newInstance(String param1, String param2) {
@@ -93,8 +93,8 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         Context hostActivity = getActivity();
 
         Bundle bundle = this.getArguments();
-        category = bundle.getString("category", "");
-        tURL = mURL + category + numPost;
+        mCategory = bundle.getString("category", "");
+        tURL = mURL + mCategory + numPost;
         Log.d(TAG, tURL);
 
         setHasOptionsMenu(true);
@@ -161,17 +161,21 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         if (feedItemList != null) {
             if (feedItemList.size() > 0) {
                 Log.d(TAG, "FeedItemList is not null! " + category + " " + mCategory + " " + tURL);
-                if (category != mCategory){
+                if (category == "blog" & mCategory == null){
+//                    new RefreshHttpTask().execute(tURL);
+                    Log.d(TAG, "First Launch!");
+                } else if (category != mCategory){
+                    Log.d(TAG, "I dont know");
                     new RefreshHttpTask().execute(tURL);
                 }
             } else {
-                Log.d(TAG, "FeedItemList null!");
+                Log.d(TAG, "FeedItemList null?");
                 new RefreshHttpTask().execute(tURL);
             }
         }
 
-        if (category != "" & category != null){
-            mCategory = Character.toString(category.charAt(0)).toUpperCase()+category.substring(1);
+        if (mCategory != "" & mCategory != null){
+            mCategory = Character.toString(mCategory.charAt(0)).toUpperCase()+mCategory.substring(1);
             ((AppCompatActivity) getActivity()).getSupportActionBar().setTitle("The Jones Theory - " + mCategory);
         }
 
@@ -210,6 +214,8 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
         super.onResume();
     }
+
+
 
     @Override
     public void onRefresh() {
@@ -309,8 +315,10 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                 dialog.show();
             }
 
-            if (feedItemList != null) {
-                feedItemList.clear();
+            if (feedItemList != null ) {
+                if (!mSwipeRefreshLayout.isRefreshing()){
+                    feedItemList.clear();
+                }
             }
             mSwipeRefreshLayout.setRefreshing(true);
 

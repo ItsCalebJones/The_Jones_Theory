@@ -15,7 +15,6 @@
     <android.support.v7.widget.RecyclerView
         android:layout_width="fill_parent"
         android:layout_height="fill_parent"
-        android:elevation="5dp"
         android:id="@+id/recycler_view" />
         <!--android:layout_gravity="start"-->
 

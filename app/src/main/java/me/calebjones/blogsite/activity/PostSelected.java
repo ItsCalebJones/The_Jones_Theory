@@ -23,7 +23,6 @@ import android.widget.Toast;
 
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
-import com.readystatesoftware.systembartint.SystemBarTintManager;
 
 import java.util.List;
 
@@ -41,7 +40,6 @@ public class PostSelected extends AppCompatActivity {
     private int mLastDampedScroll;
     private int mInitialStatusBarColor;
     private int mFinalStatusBarColor;
-    private SystemBarTintManager mStatusBarManager;
 
     public String tURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public String related = "/related";

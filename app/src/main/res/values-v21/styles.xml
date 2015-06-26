@@ -2,12 +2,10 @@
 <resources>
 
     <style name="Theme.BlogSite" parent="Base.Theme.BlogSite">
-        <!--<item name="android:colorPrimary">@color/myPrimaryColor</item>-->
-        <!--<item name="android:colorPrimaryDark">@color/myPrimaryDarkColor</item>-->
+
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
-        <item name="android:statusBarColor">@android:color/transparent</item>
+        <item name="android:statusBarColor">@color/myPrimaryDarkColor</item>
         <item name="android:windowTranslucentStatus">true</item>
-        <!--<item name="android:navigationBarColor">@android:color/transparent</item>-->
-        <!-- Customize your theme here. -->
+
     </style>
 </resources>
