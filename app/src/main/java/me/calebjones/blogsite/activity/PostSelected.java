@@ -126,7 +126,7 @@ public class PostSelected extends AppCompatActivity {
                             Toast.LENGTH_LONG).show();
                     Transition(v);
                 }
-                Transition(v);
+//                Transition(v);
             }
         });
 
