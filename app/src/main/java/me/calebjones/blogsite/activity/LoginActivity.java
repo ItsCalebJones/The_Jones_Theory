@@ -57,6 +57,7 @@ import me.calebjones.blogsite.loader.PostLoader;
 public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
 
     private static final String DUMMY_CREDENTIALS = "user@test.com:hello";
+    private static final String TAG = "The Jones Theory - LA";
 
     private UserLoginTask userLoginTask = null;
     private Toolbar toolbar;
@@ -164,7 +165,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         signUpTextView.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                Log.i("LoginActivity", "Sign Up Activity activated.");
+                Log.i(TAG, "Sign Up Activity activated.");
                 // this is where you should start the signup Activity
                  LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
                 // response = UserRegistrationTask("Caman9119", "caman9119@charter.net", "dd9d4bf59e", "1481");
@@ -354,7 +355,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             //http://localhost/api/user/generate_auth_cookie/?username=john&password=PASSWORD-HERE
             String result = "empty";
             StringBuilder sResult = new StringBuilder();
-            Log.v("The Jones Theory", "doinbg");
+            Log.v(TAG, "doinbg");
 
             try {
                 //Set up the Query and add in the aparamters
@@ -362,18 +363,18 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                         URLEncoder.encode(usernameStr, charset),
                         URLEncoder.encode(passwordStr, charset));
 
-                Log.v("The Jones Theory", "doInBg: Query -" + query);
+                Log.v(TAG, "doInBg: Query -" + query);
 
                 URL url = new URL("http://calebjones.me/api/user/generate_auth_cookie/");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                Log.v("The Jones Theory", urlConnection.toString());
+                Log.v(TAG, urlConnection.toString());
                 urlConnection.setRequestProperty("Content-Type",
                         "application/x-www-form-urlencoded");
                 urlConnection.setRequestProperty("Content-Length", "" +
                         Integer.toString(query.getBytes().length));
                 urlConnection.setRequestProperty("Content-Language", "en-US");
-                Log.v("The Jones Theory", "URL " + urlConnection.toString());
+                Log.v(TAG, "URL " + urlConnection.toString());
 
                 DataOutputStream wr = new DataOutputStream(
                         urlConnection.getOutputStream());
@@ -382,14 +383,14 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 wr.close();
 
                 InputStream inP = new BufferedInputStream(urlConnection.getInputStream());
-                Log.v("The Jones Theory", "InputStream: " + inP.toString());
+                Log.v(TAG, "InputStream: " + inP.toString());
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inP));
-                Log.v("The Jones Theory", "Reader: " + reader.toString());
+                Log.v(TAG, "Reader: " + reader.toString());
                 String line;
                 while ((line = reader.readLine()) != null) {
                     sResult.append(line);
-                    Log.v("The Jones Theory", "doInBg: While Line -" + line);
+                    Log.v(TAG, "doInBg: While Line -" + line);
                 }
                 result = sResult.toString();
 //                result = parseCookie(result);
@@ -401,7 +402,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
                 if (!TextUtils.isEmpty(cookie)){
-                    Log.i("The Jones Theory", "Cookie: " + cookie);
+                    Log.i(TAG, "Cookie: " + cookie);
 
                     SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyPref", 4);
                     SharedPreferences.Editor edit = prefs.edit();
@@ -412,11 +413,11 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 e.printStackTrace();
             }
             finally {
-                Log.v("The Jones Theory", "doInBg: urlConnection.disconnect();");
+                Log.v(TAG, "doInBg: urlConnection.disconnect();");
                 urlConnection.disconnect();
             }
 
-            Log.v("The Jones Theory", "doInBg: return");
+            Log.v(TAG, "doInBg: return");
             return cookie;
 
         }
@@ -431,7 +432,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
                 //  activity_login success and move to main Activity here.
                 SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyPref", 4);
                 boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-                Log.d("The Jones Theory-D", "Success = " + Boolean.toString(previouslyStarted));
+                Log.d(TAG, "Success = " + Boolean.toString(previouslyStarted));
                 if(!previouslyStarted){
                     SharedPreferences.Editor edit = prefs.edit();
                     edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
@@ -442,7 +443,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
 
             } else {
-                Log.i("The Jones Theory", "Error:" + error);
+                Log.i(TAG, "Error:" + error);
 
                 // activity_login failure
                 passwordTextView.setError(error);
@@ -480,7 +481,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
             boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-            Log.d("The Jones Theory-D", "Skip = " + Boolean.toString(previouslyStarted));
+            Log.d(TAG, "Skip = " + Boolean.toString(previouslyStarted));
             if(!previouslyStarted){
                 SharedPreferences.Editor edit = prefs.edit();
                 edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);

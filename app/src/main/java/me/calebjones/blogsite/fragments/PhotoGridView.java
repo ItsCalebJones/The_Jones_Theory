@@ -1,43 +1,54 @@
 package me.calebjones.blogsite.fragments;
 
 
+import android.annotation.TargetApi;
 import android.app.Activity;
-import android.app.Fragment;
+import android.app.ActivityOptions;
 import android.content.Context;
-import android.os.AsyncTask;
+import android.content.Intent;
+import android.os.Build;
 import android.os.Bundle;
+import android.os.Parcelable;
+import android.support.annotation.Nullable;
+import android.support.v4.app.Fragment;
+import android.support.v4.app.FragmentManager;
+import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.widget.RecyclerView;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
-import android.widget.BaseAdapter;
 import android.widget.GridView;
-import android.widget.ImageView;
 
 import com.koushikdutta.ion.Ion;
+import com.koushikdutta.ion.bitmap.BitmapInfo;
 
-import org.apache.http.HttpResponse;
-import org.apache.http.HttpStatus;
-import org.apache.http.client.HttpClient;
-import org.apache.http.client.methods.HttpGet;
-import org.apache.http.impl.client.DefaultHttpClient;
-import org.apache.http.util.EntityUtils;
-import org.json.JSONArray;
-import org.json.JSONObject;
-
-import java.util.ArrayList;
 import java.util.List;
 
+import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.feed.FeedItem;
+import me.calebjones.blogsite.activity.PostSelected;
+import me.calebjones.blogsite.activity.TransitionFullscreen;
+import me.calebjones.blogsite.gallery.ImageAdapter;
+import me.calebjones.blogsite.gallery.ImageItem;
+import me.calebjones.blogsite.loader.PhotoLoader;
+import me.calebjones.blogsite.util.MarginDecoration;
+import me.calebjones.blogsite.util.RecyclerItemClickListener;
+import uk.co.senab.photoview.PhotoView;
 
-public class PhotoGridView extends Fragment {
+public class PhotoGridView extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
 
-    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=100";
-    public List<FeedItem> mGridItemList;
+    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=25";
+    public List<ImageItem> imageList;
+    public static final String TAG = "The Jones Theory - PhG";
+
+    public SwipeRefreshLayout mSwipeRefreshLayout;
+
     private GridView mGridview;
-    ArrayList<getPhotos> arrPhotos;
+    private RecyclerView mRecyclerView;
+    private ImageAdapter adapter;
+    private static final String BUNDLE_RECYCLER_LAYOUT = "PhotoGridView.mRecylcerView.fragment_auto_fit_recycler_view.xml";
     private int i;
-    public static final String TAG = "The Jones Theory";
 
     // HOLD THE URL TO MAKE THE API CALL TO
     private String URL;
@@ -60,10 +71,28 @@ public class PhotoGridView extends Fragment {
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
+        this.setRetainInstance(true);
         super.onCreate(savedInstanceState);
-        Context hostActivity = getActivity();
-        new getPhotosData().execute();
-        arrPhotos = new ArrayList<getPhotos>();
+    }
+
+    // TODO implement onRefresh Swiperefreshlayout
+    @Override
+    public void onRefresh() {
+        startRefresh();
+        new PhotoLoader(){
+            @Override
+            protected void onPostExecute(Integer result) {
+                    /* Download complete. Lets update UI */
+                if (result == 1) {
+                    if (isRefreshing()){
+                        stopRefresh();
+                    }
+                    Log.d(TAG, "Succeeded fetching data! - POST LOADER");
+                } else Log.e(TAG, "Failed to fetch data!");
+            }
+        }.execute(mURL);
+        Log.v(TAG, "Refreshing - onRefresh method.");
+
     }
 
 
@@ -71,220 +100,108 @@ public class PhotoGridView extends Fragment {
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
         final Context context = getActivity();
+        final Activity c = getActivity();
 
+        LayoutInflater lf = getActivity().getLayoutInflater();
 
-        View v = inflater.inflate(R.layout.fragment_grid_view, container, false);
-        GridView mGridview = (GridView) v.findViewById(R.id.gridViewImage);
+        View view = lf.inflate(R.layout.fragment_auto_fit_recycler_view, container, false);
+        mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+        mRecyclerView.addItemDecoration(new MarginDecoration(getActivity()));
+        mRecyclerView.setHasFixedSize(true);
+
+        mRecyclerView.addOnItemTouchListener(
+                new RecyclerItemClickListener(context, new RecyclerItemClickListener.OnItemClickListener() {
+                    @Override
+                    public void onItemClick(View v, int position) {
+                        // do whatever
+//                        Log.v(TAG, imageList.get(position).getID());
+
+                        Intent intent = new Intent(getActivity(), PostSelected.class);
+                        intent.putExtra("PostTitle", imageList.get(position).getTitle());
+                        intent.putExtra("PostImage", imageList.get(position).getThumbnail());
+                        intent.putExtra("PostText", imageList.get(position).getContent());
+                        intent.putExtra("PostURL", imageList.get(position).getpostURL());
+                        intent.putExtra("PostID", imageList.get(position).getID());
+
+                        startActivity(intent);
+                    }
+                })
+        );
+
+        this.imageList = PhotoLoader.getWords();
+
+        Log.v(TAG, "ImageList Size: " + imageList.size());
+
+        if (imageList.size() < 1) {
+            Log.v(TAG, "imageList size is less then 1");
+            new PhotoLoader(){
+                @Override
+                protected void onPostExecute(Integer result) {
+                    /* Download complete. Lets update UI */
+                    if (result == 1) {
+                        if (isRefreshing()){
+                            stopRefresh();
+                        }
+                        Log.d(TAG, "Succeeded fetching data! - POST LOADER");
+                    } else Log.e(TAG, "Failed to fetch data!");
+                }
+            }.execute(mURL);
+        }
+
+        adapter = new ImageAdapter(getActivity(), imageList);
+        mRecyclerView.setAdapter(adapter);
+
+        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_grid_swipe_refresh_layout);
+        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         // uses the view to get the context instead of getActivity().
-        return v;
+        return view;
     }
 
+    @Override
+    public void onResume() {
+        this.imageList = PhotoLoader.getWords();
+        super.onResume();
+    }
 
-    private class getPhotosData extends AsyncTask<Void, Void, Void> {
+    public void stopRefresh(){
+        mSwipeRefreshLayout.setRefreshing(false);
+    }
 
-        @Override
-        protected Void doInBackground(Void... arg0) {
-
-            // CHANGE THE LOADING MORE STATUS TO PREVENT DUPLICATE CALLS FOR
-            // MORE DATA WHILE LOADING A BATCH
-            loadingMore = true;
-
-            // SET THE INITIAL URL TO GET THE FIRST LOT OF ALBUMS
-            URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
-
-            try {
-
-                HttpClient hc = new DefaultHttpClient();
-                HttpGet get = new HttpGet(URL);
-                HttpResponse rp = hc.execute(get);
-
-                if (rp.getStatusLine().getStatusCode() == HttpStatus.SC_OK) {
-                    String queryAlbums = EntityUtils.toString(rp.getEntity());
-
-                    JSONObject JOTemp = new JSONObject(queryAlbums);
-
-                    JSONArray JAPhotos = JOTemp.getJSONArray("data");
-
-                    // IN MY CODE, I GET THE NEXT PAGE LINK HERE
-
-                    getPhotos photos;
-
-                    for (int i = 0; i < JAPhotos.length(); i++) {
-                        JSONObject JOPhotos = JAPhotos.getJSONObject(i);
-                        // Log.e("INDIVIDUAL ALBUMS", JOPhotos.toString());
-
-                        if (JOPhotos.has("link")) {
-
-                            photos = new getPhotos();
-
-                            // GET THE ALBUM ID
-                            if (JOPhotos.has("id")) {
-                                photos.setPhotoID(JOPhotos.getString("id"));
-                            } else {
-                                photos.setPhotoID(null);
-                            }
-
-                            // GET THE ALBUM NAME
-                            if (JOPhotos.has("name")) {
-                                photos.setPhotoName(JOPhotos.getString("name"));
-                            } else {
-                                photos.setPhotoName(null);
-                            }
-
-                            // GET THE ALBUM COVER PHOTO
-                            if (JOPhotos.has("picture")) {
-                                photos.setPhotoPicture(JOPhotos
-                                        .getString("img"));
-                            } else {
-                                photos.setPhotoPicture(null);
-                            }
-
-                            // GET THE PHOTO'S SOURCE
-                            if (JOPhotos.has("source")) {
-                                photos.setPhotoSource(JOPhotos
-                                        .getString("source"));
-                            } else {
-                                photos.setPhotoSource(null);
-                            }
-
-                            arrPhotos.add(photos);
-                        }
-                    }
-                }
-            } catch (Exception e) {
-                e.printStackTrace();
-            }
-
-            return null;
-        }
-
-        @Override
-        protected void onPostExecute(Void result) {
-
-            // SET THE ADAPTER TO THE GRIDVIEW
-            mGridview.setAdapter(new PhotosAdapter(getActivity(), arrPhotos));
-
-            // CHANGE THE LOADING MORE STATUS
-            loadingMore = false;
-        }
+    public void startRefresh(){
+        mSwipeRefreshLayout.setRefreshing(true);
 
     }
 
-    public class getPhotos {
+    public boolean isRefreshing(){
+        boolean refreshing = mSwipeRefreshLayout.isRefreshing();
+        return refreshing;
+    }
 
-        String PhotoID;
-
-        String PhotoName;
-
-        String PhotoPicture;
-
-        String PhotoSource;
-
-        // SET THE PHOTO ID
-        public void setPhotoID(String PhotoID)  {
-            this.PhotoID = PhotoID;
+    public boolean swipeNull(){
+        if (mSwipeRefreshLayout == null){
+            return true;
         }
+        return false;
+    }
 
-        // GET THE PHOTO ID
-        public String getPhotoID()  {
-            return PhotoID;
-        }
-
-        // SET THE PHOTO NAME
-        public void setPhotoName(String PhotoName)  {
-            this.PhotoName = PhotoName;
-        }
-
-        // GET THE PHOTO NAME
-        public String getPhotoName()    {
-            return PhotoName;
-        }
-
-        // SET THE PHOTO PICTURE
-        public void setPhotoPicture(String PhotoPicture)    {
-            this.PhotoPicture = PhotoPicture;
-        }
-
-        // GET THE PHOTO PICTURE
-        public String getPhotoPicture() {
-            return PhotoPicture;
-        }
-
-        // SET THE PHOTO SOURCE
-        public void setPhotoSource(String PhotoSource)  {
-            this.PhotoSource = PhotoSource;
-        }
-
-        // GET THE PHOTO SOURCE
-        public String getPhotoSource()  {
-            return PhotoSource;
+    @Override
+    public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
+        super.onViewStateRestored(savedInstanceState);
+        Log.v(TAG, "onViewStateRestored");
+        if(savedInstanceState != null)
+        {
+            Log.v(TAG, "savedInstanceState = null");
+            Parcelable savedRecyclerLayoutState = savedInstanceState.getParcelable(BUNDLE_RECYCLER_LAYOUT);
+            mRecyclerView.getLayoutManager().onRestoreInstanceState(savedRecyclerLayoutState);
         }
     }
-    public static class PhotosAdapter extends BaseAdapter {
 
-        private Activity activity;
-
-        ArrayList<getPhotos> arrayPhotos;
-
-        private static LayoutInflater inflater = null;
-//        ImageLoader imageLoader;
-
-        public PhotosAdapter(Activity a, ArrayList<getPhotos> arrPhotos) {
-
-            activity = a;
-
-            arrayPhotos = arrPhotos;
-
-            inflater = (LayoutInflater)activity.getSystemService(Context.LAYOUT_INFLATER_SERVICE);
-//            imageLoader = new ImageLoader(activity.getApplicationContext());
-        }
-
-        public int getCount() {
-            return arrayPhotos.size();
-        }
-
-        public Object getItem(int position) {
-            return arrayPhotos.get(position);
-        }
-
-        public long getItemId(int position) {
-            return position;
-        }
-
-        public View getView(final int position, View convertView, ViewGroup parent) {
-
-            ViewHolder holder;
-
-            View vi = convertView;
-            if(convertView == null) {
-                vi = inflater.inflate(R.layout.fragment_grid_view, null);
-
-                holder = new ViewHolder();
-
-                holder.imgPhoto = (ImageView)vi.findViewById(R.id.gridViewImage);
-
-                vi.setTag(holder);
-            } else {
-                holder = (ViewHolder) vi.getTag();
-            }
-
-
-            if (arrayPhotos.get(position).getPhotoPicture() != null){
-//                imageLoader.DisplayImage(arrayPhotos.get(position).getPhotoPicture(), holder.imgPhoto);
-                Ion.with(holder.imgPhoto)
-                        .placeholder(R.drawable.placeholder)
-                        .centerCrop()
-                        .error(R.drawable.placeholder)
-                        .load(arrayPhotos.get(position).getPhotoPicture());
-            }
-            return vi;
-        }
-
-        static class ViewHolder {
-            ImageView imgPhoto;
-
-        }
+    @Override
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v(TAG, "In frag's on save instance state ");
+        outState.putParcelable(BUNDLE_RECYCLER_LAYOUT, mRecyclerView.getLayoutManager().onSaveInstanceState());
     }
 
 }

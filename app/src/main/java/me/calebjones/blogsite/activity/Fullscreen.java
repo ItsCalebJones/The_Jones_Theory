@@ -44,12 +44,9 @@ import me.calebjones.blogsite.R;
 import uk.co.senab.photoview.PhotoView;
 
 
-/**
- * Created by koush on 11/10/14.
- */
-@TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class Fullscreen extends AppCompatActivity {
 
+    private static final String TAG = "The Jones Theory - F";
     private Toolbar mToolbar;
     private ProgressDialog dialog;
     ProgressBar progressBar;
@@ -84,7 +81,6 @@ public class Fullscreen extends AppCompatActivity {
         //Setup the Actionabar with parameters
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setElevation(45);
         getSupportActionBar().setTitle(PostTitle);
 
         //Init the PhotoView
@@ -188,7 +184,7 @@ public class Fullscreen extends AppCompatActivity {
                             public void onCompleted(Exception e, File result) {
                                 resetDownload();
                                 if (e != null) {
-                                    Log.e("The Jones Theory", "Error downloading " + mPostTitle + " - " + e);
+                                    Log.e(TAG, "Error downloading " + mPostTitle + " - " + e);
                                     Toast.makeText(Fullscreen.this, "Error downloading file", Toast.LENGTH_LONG).show();
                                     return;
                                 }

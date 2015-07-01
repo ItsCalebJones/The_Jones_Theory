@@ -24,10 +24,6 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".fragments.FetchView"
-            android:label="@string/title_activity_post_selected" >
-        </activity>
-        <activity
             android:name=".activity.PostSelected"
             android:label="@string/title_activity_post_selected"
             android:parentActivityName=".MainActivity" >

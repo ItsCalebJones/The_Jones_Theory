@@ -21,7 +21,7 @@ import me.calebjones.blogsite.feed.FeedItem;
 public class PostLoader extends AsyncTask<String, Void, Integer> {
 
     public static List<FeedItem> tFeedItemList = new ArrayList<FeedItem>();
-    public static final String TAG = "The Jones Theory";
+    public static final String TAG = "The Jones Theory - PoL";
 
         @Override
         protected void onPreExecute() {

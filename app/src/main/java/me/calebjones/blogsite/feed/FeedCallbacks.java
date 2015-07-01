@@ -1,5 +1,5 @@
 package me.calebjones.blogsite.feed;
 
-public interface FeedItemCallbacks {
+public interface FeedCallbacks {
     void onFeedItemSelected(int position);
 }

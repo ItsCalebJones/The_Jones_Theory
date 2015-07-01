@@ -1,4 +1,4 @@
-package me.calebjones.blogsite.feed;
+package me.calebjones.blogsite.gallery;
 
 import android.content.Context;
 import android.support.v7.widget.RecyclerView;
@@ -15,23 +15,23 @@ import java.util.List;
 import me.calebjones.blogsite.R;
 
 
-public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
+public class ImageAdapter extends RecyclerView.Adapter<ImageRowHolder> {
 
 
-    private List<FeedItem> feedItemList;
+    private List<ImageItem> imageItemList;
     private Context mContext;
     public int position;
 
 
-    public MyRecyclerAdapter(Context context, List<FeedItem> feedItemList) {
-        this.feedItemList = feedItemList;
+    public ImageAdapter(Context context, List<ImageItem> imageItemList) {
+        this.imageItemList = imageItemList;
         this.mContext = context;
     }
 
 //    @Override
-//    public FeedListRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
+//    public ImageRowHolder onCreateViewHolder(ViewGroup viewGroup, int i) {
 //        View v = LayoutInflater.from(viewGroup.getContext()).inflate(R.layout.list_item, null);
-//        FeedListRowHolder mh = new FeedListRowHolder(v);
+//        ImageRowHolder mh = new ImageRowHolder(v);
 //        return mh;
 //    }
 
@@ -41,14 +41,14 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
     // then returning it on click is one.
 
     @Override
-    public FeedListRowHolder onCreateViewHolder(ViewGroup viewGroup,
+    public ImageRowHolder onCreateViewHolder(ViewGroup viewGroup,
                                                 int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.list_item, null);
+                .inflate(R.layout.image_item, null);
 
 //        Log.d("TAG", "Position: " + position);
 
-        FeedListRowHolder vh = new FeedListRowHolder(v, new FeedListRowHolder.IMyViewHolderClicks() {
+        ImageRowHolder vh = new ImageRowHolder(v, new ImageRowHolder.IMyViewHolderClicks() {
             public int positionItem() {
 //                Log.d("TAG", "Position: " + position);
                 return position;
@@ -65,29 +65,28 @@ public class MyRecyclerAdapter extends RecyclerView.Adapter<FeedListRowHolder> {
     }
 
     @Override
-    public void onBindViewHolder(FeedListRowHolder feedListRowHolder, int i) {
-        final FeedItem feedItem = feedItemList.get(i);
+    public void onBindViewHolder(ImageRowHolder imageRowHolder, int i) {
+        final ImageItem imageItem = imageItemList.get(i);
 
-//        Log.d("TAG", "feedItem: " + feedItem);
-//        Log.d("TAG", "FeedListRow: " + feedListRowHolder);
+//        Log.d("TAG", "imageItem: " + imageItem);
+//        Log.d("TAG", "FeedListRow: " + imageRowHolder);
 //        Log.d("TAG", "Position: " + position);
         position = i;
 
-        Ion.with(feedListRowHolder.thumbnail)
+        Ion.with(imageRowHolder.thumbnail)
                 .placeholder(R.drawable.placeholder)
                 .centerCrop()
                 .error(R.drawable.placeholder)
-                .load(feedItem.getThumbnail());
+                .load(imageItem.getThumbnail());
 
-        feedListRowHolder.title.setText(Html.fromHtml(feedItem.getTitle()));
-        feedListRowHolder.excerpt.setText(Html.fromHtml(feedItem.getExcerpt()));
-//        feedListRowHolder.category.setText(Html.fromHtml(feedItem.getCategory()));
-        feedListRowHolder.tags.setText(Html.fromHtml(feedItem.getTags()));
+        imageRowHolder.title.setText(Html.fromHtml(imageItem.getTitle()));
+//        imageRowHolder.excerpt.setText(Html.fromHtml(imageItem.getExcerpt()));
+//        imageRowHolder.tags.setText(Html.fromHtml(imageItem.getTags()));
         }
 
     @Override
     public int getItemCount() {
-        return (null != feedItemList ? feedItemList.size() : 0);
+        return (null != imageItemList ? imageItemList.size() : 0);
     }
 
 }

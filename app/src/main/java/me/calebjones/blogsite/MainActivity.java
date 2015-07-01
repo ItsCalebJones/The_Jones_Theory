@@ -36,25 +36,33 @@ import java.net.URLEncoder;
 import me.calebjones.blogsite.activity.LoginActivity;
 import me.calebjones.blogsite.activity.SettingsActivity;
 import me.calebjones.blogsite.fragments.FetchViewBackground;
+import me.calebjones.blogsite.fragments.PhotoGridView;
 import me.calebjones.blogsite.fragments.SettingsFragment;
 import me.calebjones.blogsite.fragments.WebView;
+import me.calebjones.blogsite.loader.PhotoLoader;
 
 public class MainActivity extends AppCompatActivity {
 
     //Defining Variables
+    private String pURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
     private doAuthValidate doAuth = null;
     private Toolbar toolbar;
     private NavigationView navigationView;
     private DrawerLayout drawerLayout;
-    int i = 0;
+
+    //Public Variables
+    public static final String TAG = "The Jones Theory - M";
     public Context context;
+
+
+    int i = 0;
+    int mCurCheckPosition = 0;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         FacebookSdk.sdkInitialize(getApplicationContext());
-        // Initialize the SDK before executing any other operations,
-        // especially, if you're using Facebook UI elements.
 
         setContentView(R.layout.activity_main);
 
@@ -66,16 +74,52 @@ public class MainActivity extends AppCompatActivity {
         //Initializing NavigationView
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
-        //Load initial Fragment
-        FetchViewBackground myBlogFragment = new FetchViewBackground();
-        android.support.v4.app.FragmentTransaction mBlogTransaction = getSupportFragmentManager().beginTransaction();
+        if (savedInstanceState == null) {
+            new PhotoLoader().execute(pURL);
 
-        Bundle hBundle = new Bundle();
-        hBundle.putString("category", "blog");
-        myBlogFragment.setArguments(hBundle);
+            //Load initial Fragment
+            FetchViewBackground myBlogFragment = new FetchViewBackground();
+            android.support.v4.app.FragmentTransaction mBlogTransaction = getSupportFragmentManager().beginTransaction();
 
-        mBlogTransaction.replace(R.id.frame, myBlogFragment);
-        mBlogTransaction.commit();
+            Bundle hBundle = new Bundle();
+            hBundle.putString("category", "blog");
+            myBlogFragment.setArguments(hBundle);
+
+            mBlogTransaction.replace(R.id.frame, myBlogFragment);
+            mBlogTransaction.commit();
+        }
+
+        if (savedInstanceState != null) {
+            // Restore last state for checked position.
+            Log.v(TAG + "-S", "onCreate: " + mCurCheckPosition);
+            mCurCheckPosition = savedInstanceState.getInt("curChoice", 0);
+
+            Log.v(TAG + "-S", "onCreate: " + mCurCheckPosition);
+
+            //Check to see which item was being clicked and perform appropriate action
+            switch (mCurCheckPosition) {
+
+                case R.id.home:
+                    homeFragment();
+                case R.id.about:
+                    webFragment();
+                case R.id.gallery:
+                    galleryFragment();
+                case R.id.science:
+                    scienceFragment();
+                case R.id.parenting:
+                    parentingFragment();
+                case R.id.android:
+                    androidFragment();
+                case R.id.technology:
+                    technologyFragment();
+                default:
+                    homeFragment();
+            }
+
+        }
+
+
 
         //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -92,36 +136,56 @@ public class MainActivity extends AppCompatActivity {
                 //Closing drawer on item click
                 drawerLayout.closeDrawers();
 
+                Log.v(TAG + "-S", "Pre_Switch = " + mCurCheckPosition);
+
                 //Check to see which item was being clicked and perform appropriate action
                 switch (menuItem.getItemId()) {
 
 
                     case R.id.home:
+                        mCurCheckPosition = R.id.home;
                         homeFragment();
+                        Log.v(TAG + "-S", "Home = " + R.id.home + " " + mCurCheckPosition);
                         return true;
                     case R.id.about:
+                        mCurCheckPosition = R.id.about;
                         webFragment();
                         return true;
                     case R.id.gallery:
-                        Toast.makeText(getApplicationContext(), "Gallery coming soon!", Toast.LENGTH_SHORT).show();
+                        Log.v(TAG + "-S", "Switch = " + mCurCheckPosition);
+                        mCurCheckPosition = R.id.gallery;
+//                        Toast.makeText(getApplicationContext(), "Gallery coming soon!", Toast.LENGTH_SHORT).show();
+                        galleryFragment();
                         return true;
                     case R.id.science:
+                        Log.v(TAG + "-S", "Science = " + R.id.science + " " + mCurCheckPosition);
+                        mCurCheckPosition = R.id.science;
                         scienceFragment();
                         return true;
                     case R.id.parenting:
+                        Log.v(TAG + "-S", "Parenting = " + R.id.parenting + " " + mCurCheckPosition);
+                        mCurCheckPosition = R.id.parenting;
+                        Log.v(TAG + "-S", "Parenting = " + R.id.parenting + " " + mCurCheckPosition);
                         parentingFragment();
                         return true;
                     case R.id.android:
+                        Log.v(TAG + "-S", "Switch = " + mCurCheckPosition);
+                        mCurCheckPosition = R.id.android;
                         androidFragment();
                         return true;
                     case R.id.technology:
+                        Log.v(TAG + "-S", "Home = " + R.id.technology + " " + mCurCheckPosition);
+                        mCurCheckPosition = R.id.technology;
                         technologyFragment();
                         return true;
                     case R.id.settings:
+                        Log.v(TAG + "-S", "Switch = " + mCurCheckPosition);
+                        mCurCheckPosition = R.id.settings;
                         Intent i = new Intent(MainActivity.this, SettingsActivity.class);
                         startActivity(i);
                     default:
                         return true;
+
 
                 }
             }
@@ -153,19 +217,24 @@ public class MainActivity extends AppCompatActivity {
     }
 
     @Override
-    public void onResume() {
-//        Log.d(TAG, "FeedItemList: " + feedItemList.size());
-//        Log.d(TAG, "FeedItemList: " + adapter);
-//        Log.d(TAG, "FeedItemList: " + mRecyclerView);
+    public void onSaveInstanceState(Bundle outState) {
+        super.onSaveInstanceState(outState);
+        Log.v(TAG + "-S", "onSaved: " + mCurCheckPosition);
+        outState.putInt("curChoice", mCurCheckPosition);
+        Log.v(TAG + "-S", "onSaved-outState: " + mCurCheckPosition);
+    }
 
+    // TODO Fix SavedInstance by getting the active fragment and making sure its set correctly.
+    @Override
+    public void onResume() {
         SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
         SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         boolean loginCheck = sharedPerf.getBoolean("prompt_logged_out", false);
-        Log.v("The Jones Theory", Boolean.toString(loginCheck));
+        Log.v(TAG, "Prompt To login: " + Boolean.toString(loginCheck));
         if (loginCheck){
             String cookie = prefs.getString("AUTH_COOKIE", "");
             if (cookie.length() > 10){
-                Log.v("The Jones Theory", "Cookie: " + cookie);
+                Log.v(TAG, "Cookie: " + cookie);
 //                Toast.makeText(getApplicationContext(), cookie, Toast.LENGTH_SHORT).show();
                 checkAuthKey(cookie);
             } else {
@@ -174,14 +243,14 @@ public class MainActivity extends AppCompatActivity {
         }
 
         boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-        Log.d("The Jones Theory-D", "Skip = " + Boolean.toString(previouslyStarted));
+        Log.d(TAG, "Previously Started = " + Boolean.toString(previouslyStarted));
         if(!previouslyStarted){
             showLogin();
         }
 
         String cookie = prefs.getString("AUTH_COOKIE", null);
         if (cookie != null){
-            Log.v("The Jones Theory", cookie);
+            Log.v(TAG, cookie);
         }
 
         if (cookie != null) {
@@ -210,6 +279,16 @@ public class MainActivity extends AppCompatActivity {
     private void showLogin() {
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
+    }
+
+    private void galleryFragment() {
+        //Set up the Fragment transaction
+        PhotoGridView photoFragment = new PhotoGridView();
+        android.support.v4.app.FragmentTransaction mPhotoTransaction = getSupportFragmentManager().beginTransaction();
+
+        //Execute the transaction
+        mPhotoTransaction.replace(R.id.frame, photoFragment);
+        mPhotoTransaction.commit();
     }
 
     private void technologyFragment() {
@@ -261,12 +340,10 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void webFragment() {
-        Log.d("The Jones Theory", "Before");
         WebView myWebFragment = new WebView();
         android.support.v4.app.FragmentTransaction mWebTransaction = getSupportFragmentManager().beginTransaction();
         mWebTransaction.replace(R.id.frame, myWebFragment);
         mWebTransaction.commit();
-        Log.d("The Jones Theory", "After");
     }
 
     private void homeFragment() {
@@ -312,7 +389,7 @@ public class MainActivity extends AppCompatActivity {
 
         doAuthValidate(String cookie) {
             cookieStr = cookie;
-            Log.v("The Jones Theory", "Constructor: " + cookieStr);
+            Log.v(TAG, "Constructor: " + cookieStr);
         }
 
         @Override
@@ -327,18 +404,18 @@ public class MainActivity extends AppCompatActivity {
                 String query = String.format("cookie=%s",
                         URLEncoder.encode(cookieStr, charset));
 
-                Log.v("The Jones Theory", "doInBg: Query -" + query);
+                Log.v(TAG, "doInBg: Query -" + query);
 
                 URL url = new URL("http://calebjones.me/api/user/validate_auth_cookie/");
                 urlConnection = (HttpURLConnection) url.openConnection();
                 urlConnection.setRequestMethod("POST");
-                Log.v("The Jones Theory", urlConnection.toString());
+                Log.v(TAG, urlConnection.toString());
                 urlConnection.setRequestProperty("Content-Type",
                         "application/x-www-form-urlencoded");
                 urlConnection.setRequestProperty("Content-Length", "" +
                         Integer.toString(query.getBytes().length));
                 urlConnection.setRequestProperty("Content-Language", "en-US");
-                Log.v("The Jones Theory", "URL " + urlConnection.toString());
+                Log.v(TAG, "URL " + urlConnection.toString());
 
                 DataOutputStream wr = new DataOutputStream(
                         urlConnection.getOutputStream());
@@ -347,10 +424,10 @@ public class MainActivity extends AppCompatActivity {
                 wr.close();
 
                 InputStream inP = new BufferedInputStream(urlConnection.getInputStream());
-                Log.v("The Jones Theory", "InputStream: " + inP.toString());
+                Log.v(TAG, "InputStream: " + inP.toString());
 
                 BufferedReader reader = new BufferedReader(new InputStreamReader(inP));
-                Log.v("The Jones Theory", "Reader: " + reader.toString());
+                Log.v(TAG, "Reader: " + reader.toString());
                 String line;
                 while ((line = reader.readLine()) != null) {
                     sResult.append(line);
@@ -376,24 +453,24 @@ public class MainActivity extends AppCompatActivity {
                 e.printStackTrace();
             }
             finally {
-                Log.v("The Jones Theory", "doInBg: urlConnection.disconnect();");
+                Log.v(TAG, "doInBg: urlConnection.disconnect();");
                 urlConnection.disconnect();
             }
 
-            Log.v("The Jones Theory", "doInBg: something happened");
+            Log.v(TAG, "doInBg: something happened");
             return false;
         }
 
         @Override
         protected void onPostExecute(Boolean result) {
             //Do something with the JSON string
-            Log.v("The Jones Theory", "onPostExecute: " + result);
+            Log.v(TAG, "onPostExecute: " + result);
             if (result){
 
             } else {
                 SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
                 boolean loginCheck = sharedPerf.getBoolean("prompt_logged_out", false);
-                Log.v("The Jones Theory", "onPostExecute: LoginCheck =" + Boolean.toString(loginCheck));
+                Log.v(TAG, "onPostExecute: LoginCheck =" + Boolean.toString(loginCheck));
                 if (loginCheck){
                     showLogin();
                 }

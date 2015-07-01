@@ -10,14 +10,12 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.os.Parcelable;
-import android.preference.PreferenceManager;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.LinearLayoutManager;
 import android.support.v7.widget.RecyclerView;
-import android.content.SharedPreferences;
 import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.Menu;
@@ -41,10 +39,9 @@ import java.util.ArrayList;
 import java.util.List;
 
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.activity.LoginActivity;
 import me.calebjones.blogsite.activity.PostSelected;
 import me.calebjones.blogsite.feed.FeedItem;
-import me.calebjones.blogsite.feed.MyRecyclerAdapter;
+import me.calebjones.blogsite.feed.FeedAdapter;
 import me.calebjones.blogsite.loader.PostLoader;
 import me.calebjones.blogsite.util.RecyclerItemClickListener;
 
@@ -58,31 +55,27 @@ import me.calebjones.blogsite.util.RecyclerItemClickListener;
  */
 public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
 
-    private static Context context;
-    private Button btnSubmit;
+    public static final String TAG = "The Jones Theory";
+    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=";
     public String numPost = "&number=15";
     public String mCategory = null;
-    public int num;
-    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=";
     public String tURL;
     public String category;
-    public static final String TAG = "The Jones Theory";
-    private RecyclerView mRecyclerView;
-    private MyRecyclerAdapter adapter;
     public List<FeedItem> feedItemList;
-    SwipeRefreshLayout mSwipeRefreshLayout;
+    public int num;
+
+
+    private Button btnSubmit;
+    private RecyclerView mRecyclerView;
+    private FeedAdapter adapter;
     private ProgressDialog nDialog;
     private OnFragmentInteractionListener mListener;
+    private static Context context;
     private static final String BUNDLE_RECYCLER_LAYOUT = "FetchViewBackground.mRecylcerView.fragment_fetch_data";
+
+    SwipeRefreshLayout mSwipeRefreshLayout;
+
     int showPbar = 0;
-
-
-    public static FetchViewBackground newInstance(String param1, String param2) {
-        FetchViewBackground fragment = new FetchViewBackground();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
 
     public FetchViewBackground() {
         // Required empty public constructor
@@ -150,7 +143,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         );
         this.feedItemList = PostLoader.getWords();
 
-        adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
+        adapter = new FeedAdapter(getActivity(), feedItemList);
         mRecyclerView.setAdapter(adapter);
 //        Log.v("The Jones Theory", "mRecyclerView DataAdapter set!");
 
@@ -158,6 +151,8 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
         mSwipeRefreshLayout.setOnRefreshListener(this);
 
+
+        // @TODO Theres a bug in this code, I dont know how to fix it yet. Still trying to add features.
         if (feedItemList != null) {
             if (feedItemList.size() > 0) {
                 Log.d(TAG, "FeedItemList is not null! " + category + " " + mCategory + " " + tURL);
@@ -169,7 +164,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
                     new RefreshHttpTask().execute(tURL);
                 }
             } else {
-                Log.d(TAG, "FeedItemList null?");
+                Log.d(TAG, "FeedItemList Size: " + feedItemList.size());
                 new RefreshHttpTask().execute(tURL);
             }
         }
@@ -186,7 +181,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // TODO Add your menu entries here
+        // TODO update menu
         inflater.inflate(R.menu.menu_fetch_data, menu);
 
         super.onCreateOptionsMenu(menu, inflater);
@@ -208,10 +203,6 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
 
     @Override
     public void onResume() {
-//        Log.d(TAG, "FeedItemList: " + feedItemList.size());
-//        Log.d(TAG, "FeedItemList: " + adapter);
-//        Log.d(TAG, "FeedItemList: " + mRecyclerView);
-
         super.onResume();
     }
 
@@ -238,27 +229,6 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
         mSwipeRefreshLayout.setRefreshing(false);
     }
 
-    // fake a network operation's delayed response
-    // this is just for demonstration, not real code!
-//    private void refreshContent(){
-//        new Handler().postDelayed(new Runnable() {
-//            @Override
-//            public void run() {
-//                adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
-//                mRecyclerView.setAdapter(adapter);
-//                mSwipeRefreshLayout.setRefreshing(false);
-//            });
-//        }
-//    }
-
-
-    // TODO: Rename method, update argument and hook method into UI event
-    public void onButtonPressed(Uri uri) {
-        if (mListener != null) {
-            mListener.onFragmentInteraction(uri);
-        }
-
-    }
 
     @Override
     public void onAttach(Activity activity) {
@@ -376,7 +346,7 @@ public class FetchViewBackground extends Fragment implements SwipeRefreshLayout.
             mSwipeRefreshLayout.setRefreshing(false);
             /* Download complete. Lets update UI */
             if (result == 1) {
-//                adapter = new MyRecyclerAdapter(getActivity(), feedItemList);
+//                adapter = new ImageAdapter(getActivity(), feedItemList);
 //                mRecyclerView.setAdapter(adapter);
                 setupAdapter();
                 closeRefreshListener();

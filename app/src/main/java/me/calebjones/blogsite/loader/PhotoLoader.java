@@ -1,6 +1,7 @@
 package me.calebjones.blogsite.loader;
 
 import android.os.AsyncTask;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -16,15 +17,21 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.calebjones.blogsite.feed.FeedItem;
+import me.calebjones.blogsite.fragments.PhotoGridView;
+import me.calebjones.blogsite.gallery.ImageItem;
 
 public class PhotoLoader extends AsyncTask<String, Void, Integer> {
 
-    public static List<FeedItem> mGridItemList = new ArrayList<FeedItem>();
-    public static final String TAG = "The Jones Theory";
+    public static List<ImageItem> mGridItemList = new ArrayList<ImageItem>();
+    public static final String TAG = "The Jones Theory - PhL";
+    private PhotoGridView photoGrid;
 
         @Override
         protected void onPreExecute() {
+
+            if (mGridItemList != null ) {
+                mGridItemList.clear();
+            }
         }
 
         @Override
@@ -72,15 +79,15 @@ public class PhotoLoader extends AsyncTask<String, Void, Integer> {
             /* Download complete. Lets update UI */
             if (result == 1) {
 //                FetchViewBackground.setList(feedItemList);
-                Log.d(TAG, "Succeeded fetching data! - POST LOADER");
+                Log.d(TAG, "Succeeded fetching data!");
             } else Log.e(TAG, "Failed to fetch data!");
         }
 
-    public static List<FeedItem> getWords()
+    public static List<ImageItem> getWords()
     {
         if(mGridItemList == null)
         {
-            mGridItemList = new ArrayList<FeedItem>();
+            mGridItemList = new ArrayList<ImageItem>();
         }
         return mGridItemList;
     }
@@ -105,13 +112,13 @@ public class PhotoLoader extends AsyncTask<String, Void, Integer> {
 
             /*Initialize array if null*/
             if (null == mGridItemList) {
-                mGridItemList = new ArrayList<FeedItem>();
+                mGridItemList = new ArrayList<ImageItem>();
             }
 
             for (int i = 0; i < posts.length(); i++) {
                 JSONObject post = posts.optJSONObject(i);
 
-                FeedItem item = new FeedItem();
+                ImageItem item = new ImageItem();
                 item.setTitle(post.optString("title"));
                 item.setContent(post.optString("content"));
                 item.setExcerpt(post.optString("excerpt"));

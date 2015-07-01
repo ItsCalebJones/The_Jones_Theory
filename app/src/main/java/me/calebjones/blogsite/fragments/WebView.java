@@ -32,22 +32,6 @@ public class WebView extends Fragment {
 
     private OnFragmentInteractionListener mListener;
 
-    /**
-     * Use this factory method to create a new instance of
-     * this fragment using the provided parameters.
-     *
-     * @param param1 Parameter 1.
-     * @param param2 Parameter 2.
-     * @return A new instance of fragment WebView.
-     */
-    // TODO: Rename and change types and number of parameters
-    public static WebView newInstance(String param1, String param2) {
-        WebView fragment = new WebView();
-        Bundle args = new Bundle();
-        fragment.setArguments(args);
-        return fragment;
-    }
-
     public WebView() {
         // Required empty public constructor
     }
@@ -155,7 +139,6 @@ public class WebView extends Fragment {
 
 
     public interface OnFragmentInteractionListener {
-        // TODO: Update argument type and name
         public void onFragmentInteraction(Uri uri);
     }
 

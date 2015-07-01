@@ -116,16 +116,16 @@ public class PostSelected extends AppCompatActivity {
         FloatingActionButton myFab = (FloatingActionButton) findViewById(R.id.postFab);
         myFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-//                if (android.os.Build.VERSION.SDK_INT >= 21){
-//                    Toast.makeText(getApplicationContext(), "Lollipop!",
-//                            Toast.LENGTH_LONG).show();
-//                    LollipopTransition(v);
-//
-//                } else {
-//                    Toast.makeText(getApplicationContext(), "NOT LOLLIPOP!",
-//                            Toast.LENGTH_LONG).show();
-//                    Transition(v);
-//                }
+                if (android.os.Build.VERSION.SDK_INT >= 21){
+                    Toast.makeText(getApplicationContext(), "Lollipop!",
+                            Toast.LENGTH_LONG).show();
+                    LollipopTransition(v);
+
+                } else {
+                    Toast.makeText(getApplicationContext(), "NOT LOLLIPOP!",
+                            Toast.LENGTH_LONG).show();
+                    Transition(v);
+                }
                 Transition(v);
             }
         });
@@ -199,19 +199,6 @@ public class PostSelected extends AppCompatActivity {
         PostText = PostText.replaceAll("<img.+/(img)*>", "");
 
         return PostText;
-    }
-
-    private void showImgDialog() {
-        Dialog dialog = new Dialog(this);
-        dialog.setContentView(R.layout.custom_dialog);
-
-
-        dialog.show();
-        //Replace the header image with the Feature Image
-//        Ion.with((ImageView) findViewById(R.id.image))
-//                .placeholder(R.drawable.placeholder)
-//                .error(R.drawable.placeholder)
-//                .load(PostImage);
     }
 
     @Override
