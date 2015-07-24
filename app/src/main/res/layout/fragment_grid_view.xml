@@ -12,10 +12,20 @@
         android:layout_width="fill_parent"
         android:layout_height="fill_parent">
 
+        <ProgressBar
+            android:id="@+id/grid_mProgress"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            style="@android:style/Widget.ProgressBar.Large"
+            android:background="@color/myPrimaryColor"
+            android:layout_marginRight="5dp" />
+
         <android.support.v7.widget.RecyclerView
+            android:padding="4dp"
             android:layout_width="fill_parent"
             android:layout_height="fill_parent"
-            android:id="@+id/grid_view" />
+            android:id="@+id/grid_view"
+            android:clipToPadding="false"/>
         <!--android:layout_gravity="start"-->
 
     </android.support.v4.widget.SwipeRefreshLayout>

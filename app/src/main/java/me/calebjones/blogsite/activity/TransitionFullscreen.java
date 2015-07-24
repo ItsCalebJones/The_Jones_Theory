@@ -22,11 +22,15 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.transition.Explode;
+import android.transition.Fade;
 import android.transition.Transition;
 import android.util.Log;
 import android.view.View;
+import android.view.Window;
 import android.widget.ImageView;
 import android.widget.ProgressBar;
 import android.widget.Toast;
@@ -52,6 +56,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private ProgressDialog dialog;
+
     ProgressBar progressBar;
     public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
             "/TheJonesTheory/temp";
@@ -63,9 +68,15 @@ public class TransitionFullscreen extends AppCompatActivity {
     public String PostText;
     public String PostURL;
     public BitmapInfo bi;
+    public Bitmap bitmap;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            getWindow().setExitTransition(new Fade());
+        }
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fullscreen);
 
@@ -84,13 +95,10 @@ public class TransitionFullscreen extends AppCompatActivity {
         //Setup the Actionabar with parameters
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setElevation(45);
         getSupportActionBar().setTitle(Html.fromHtml(PostTitle));
 
         //Init the PhotoView
         final PhotoView photoView = (PhotoView)findViewById(R.id.image);
-        photoView.setMaximumScale(16);
-
         //Set up the bottom bar icons
         final ImageView shareView = (ImageView)findViewById(R.id.shareFooter);
         final ImageView downloadView = (ImageView)findViewById(R.id.downloadFooter);
@@ -127,21 +135,33 @@ public class TransitionFullscreen extends AppCompatActivity {
             }
         };
 
-
         shareView.setOnClickListener(sClickListener);
         downloadView.setOnClickListener(dClickListener);
         browserView.setOnClickListener(bClickListener);
         copyView.setOnClickListener(cClickListener);
 
         // Load the bitmap from the intent
-        bitmapKey = getIntent().getStringExtra("bitmapInfo");
+        byte[] byteArray = getIntent().getByteArrayExtra("bitmap");
         PostURL = getIntent().getStringExtra("PostURL");
+
+        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
         //Downloads bitmap to cache
         bi = Ion.getDefault(this)
                 .getBitmapCache()
                 .get(bitmapKey);
-        photoView.setImageBitmap(bi.bitmap);
+        photoView.setImageBitmap(bitmap);
+        photoView.setMaximumScale(16);
+
+        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
+                                public void onGenerated(Palette palette) {
+                                    Palette.Swatch Swatch = palette.getDarkMutedSwatch();
+                                    if (Swatch != null) {
+                                        photoView.setBackgroundColor(Swatch.getRgb());
+
+                                    }
+                                }
+                            });
 
         try {
             bitMapToFile();
@@ -257,7 +277,7 @@ public class TransitionFullscreen extends AppCompatActivity {
         File file = new File(dir, mPostTitle + ".png");
         intent.setDataAndType(Uri.fromFile(file), "image/*");
 
-        Bitmap mBitmap = getCroppedBitmap(bi.bitmap);
+        Bitmap mBitmap = getCroppedBitmap(bitmap);
 
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.BigPictureStyle bNoti = new NotificationCompat.BigPictureStyle();
@@ -271,7 +291,7 @@ public class TransitionFullscreen extends AppCompatActivity {
                 R.mipmap.ic_launcher);
 
         bNoti.setBigContentTitle("Download Completed")
-                .bigPicture(bi.bitmap)
+                .bigPicture(bitmap)
                 .bigLargeIcon(srcBitmapLocal)
                 .setSummaryText(mPostTitle);
 
@@ -342,7 +362,7 @@ public class TransitionFullscreen extends AppCompatActivity {
         File file = new File(dir, "temp.png");
         FileOutputStream fOut = new FileOutputStream(file);
 
-        bi.bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
         fOut.flush();
         fOut.close();
     }

@@ -1,0 +1,63 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical"
+    android:fitsSystemWindows="true"
+    tools:context="me.calebjones.blogsite.activity.PostComments">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/regi_toolbar"
+        android:layout_width="match_parent"
+        android:elevation="4dp"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:background="@color/myPrimaryColor"
+        android:fitsSystemWindows="true"
+        />
+
+    <android.support.v7.widget.CardView
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content"
+    android:layout_margin="@dimen/card_margin">
+
+        <LinearLayout
+            android:id="@+id/CommentBox"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="vertical">
+
+        <TextView
+        android:id="@+id/CommentBoxTitle"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:layout_margin="8dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="8dp"
+        android:gravity="start"
+        android:text="Please feel free to leave a comment below!"
+        android:textColor="@color/myTextPrimaryColor"
+        android:textSize="18sp"
+        android:fontFamily="sans-serif-condensed"
+        />
+        <EditText
+        android:layout_width="match_parent"
+        android:layout_height="match_parent"
+        android:inputType="textMultiLine"
+        android:scrollbars="vertical"
+        android:lines="8"
+        android:minLines="6"
+        android:maxLines="10"/>
+
+        </LinearLayout>
+
+    </android.support.v7.widget.CardView>
+
+    <android.support.v7.widget.RecyclerView
+        xmlns:android="http://schemas.android.com/apk/res/android"
+        android:id="@+id/comment_view"
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"/>
+
+</LinearLayout>

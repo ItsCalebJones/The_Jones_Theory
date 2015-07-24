@@ -27,6 +27,7 @@
 
             <ImageView
                 android:id="@+id/header"
+                android:transitionName="photo_hero"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 android:scaleType="centerCrop"
@@ -47,41 +48,40 @@
     </android.support.design.widget.AppBarLayout>
 
     <android.support.v4.widget.NestedScrollView
+        android:id="@+id/nested_content"
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         app:layout_behavior="@string/appbar_scrolling_view_behavior">
 
+
         <LinearLayout
             android:layout_width="match_parent"
             android:layout_height="match_parent"
-            android:orientation="vertical"
-            android:paddingTop="24dp">
+            android:orientation="vertical">
 
-            <android.support.v7.widget.CardView
+                <!--<LinearLayout-->
+                    <!--android:id="@+id/content_title"-->
+                    <!--android:layout_width="match_parent"-->
+                    <!--android:layout_height="wrap_content"-->
+                    <!--android:orientation="vertical">-->
+
+                    <!--<TextView-->
+                        <!--android:id="@+id/PostTitlePara"-->
+                        <!--android:layout_width="match_parent"-->
+                        <!--android:layout_height="wrap_content"-->
+                        <!--android:text="Info"-->
+                        <!--android:layout_margin="8dp"-->
+                        <!--android:fontFamily="sans-serif-condensed"-->
+                        <!--android:textAppearance="@style/TextAppearance.AppCompat.Title" />-->
+
+                    <!--</LinearLayout>-->
+
+
+            <LinearLayout
+                android:id="@+id/selected_content"
                 android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:layout_margin="@dimen/card_margin">
-
-                <LinearLayout
-                    style="@style/Widget.CardContent"
-                    android:layout_width="match_parent"
-                    android:layout_height="wrap_content">
-
-                    <TextView
-                        android:id="@+id/PostTitlePara"
-                        android:layout_width="match_parent"
-                        android:layout_height="wrap_content"
-                        android:text="Info"
-                        android:layout_margin="8dp"
-                        android:fontFamily="sans-serif-condensed"
-                        android:textAppearance="@style/TextAppearance.AppCompat.Title" />+
-
-                    <View
-                        android:id="@+id/separator"
-                        android:layout_width="match_parent"
-                        android:layout_height="1dp"
-                        android:layout_below="@id/PostTitlePara"
-                        android:background="@color/myViewSeperators" />
+                android:layout_height="match_parent"
+                android:orientation="vertical">
 
                     <TextView
                         android:id="@+id/PostTextPara"
@@ -90,11 +90,34 @@
                         android:layout_height="wrap_content"
                         android:text="@string/lorem_ipsum" />
 
+                    <View
+                        android:id="@+id/separator2"
+                        android:layout_width="match_parent"
+                        android:layout_height="1dp"
+                        android:layout_below="@id/CommentName"
+                        android:layout_marginLeft="8dp"
+                        android:layout_marginRight="8dp"
+                        android:background="@color/myViewSeperators" />
+
+                    <TextView
+                        android:id="@+id/CommentTextPara"
+                        android:layout_margin="8dp"
+                        android:layout_width="match_parent"
+                        android:layout_height="wrap_content"
+                        android:textColor="@color/icons"
+                        android:text="Let your voice be heard! Sign in to comment." />
+
+
                 </LinearLayout>
 
+
+            <android.support.v7.widget.CardView
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"
+                android:layout_margin="@dimen/card_margin">
+
+
             </android.support.v7.widget.CardView>
-
-
 
         </LinearLayout>
 
@@ -109,5 +132,16 @@
     android:src="@drawable/ic_fullscreen"
     android:layout_margin="@dimen/fab_margin"
     android:clickable="true"/>
+
+    <android.support.design.widget.FloatingActionButton
+        android:id="@+id/commentFab"
+        android:layout_height="wrap_content"
+        android:layout_width="wrap_content"
+        app:layout_anchor="@id/selected_content"
+        app:layout_anchorGravity="bottom|right|end"
+        app:backgroundTint="@color/myPrimaryDarkColor"
+        android:src="@drawable/ic_action_comment"
+        android:layout_margin="@dimen/fab_margin"
+        android:clickable="true"/>
 
 </android.support.design.widget.CoordinatorLayout>

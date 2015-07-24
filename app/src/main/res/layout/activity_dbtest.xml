@@ -1,0 +1,129 @@
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    tools:context="me.calebjones.blogsite.activity.DBTest"
+    android:fitsSystemWindows="true"
+    android:orientation="vertical">
+
+    <android.support.v7.widget.Toolbar
+        android:id="@+id/regi_toolbar"
+        android:layout_width="match_parent"
+        android:elevation="4dp"
+        android:layout_height="@dimen/abc_action_bar_default_height_material"
+        android:minHeight="?attr/actionBarSize"
+        android:theme="@style/ThemeOverlay.AppCompat.Dark.ActionBar"
+        android:background="@color/myPrimaryColor"
+        android:fitsSystemWindows="true"
+        />
+
+
+    <TextView
+        android:id="@+id/title"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:gravity="center"
+        android:paddingTop="32dp"
+        android:paddingLeft="16dp"
+        android:paddingRight="16dp"
+        android:textAppearance="@style/TextAppearance.AppCompat.Headline"
+        android:textColor="@color/myTextPrimaryColor"
+        tools:text="Download all the things!" />
+
+    <FrameLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content">
+
+        <LinearLayout
+            android:id="@+id/download_ui"
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:paddingLeft="32dp"
+            android:paddingRight="32dp"
+            android:gravity="center"
+            android:orientation="vertical">
+
+            <ProgressBar
+                android:id="@+id/progressBar"
+                style="?android:attr/progressBarStyleHorizontal"
+                android:layout_width="match_parent"
+                android:layout_height="wrap_content"/>
+
+            <TextView
+                android:id="@+id/progress"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Body2"
+                android:textColor="@color/myPrimaryColor"
+                tools:text="3.5646423%" />
+
+            <TextView
+                android:id="@+id/titles"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_margin="16dp"
+                android:textAppearance="@style/TextAppearance.AppCompat.Caption"
+                tools:text="API" />
+
+        </LinearLayout>
+
+        <Button
+            android:id="@+id/start_download"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Start Download!"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:backgroundTint="@color/myPrimaryDarkColor"
+            android:textColor="@android:color/white"
+            style="@style/Base.Widget.AppCompat.Button" />
+
+
+
+    </FrameLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/updateButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Update Size"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:backgroundTint="@color/myPrimaryDarkColor"
+            android:textColor="@android:color/white"
+            style="@style/Base.Widget.AppCompat.Button" />
+        <TextView
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:id="@+id/databaseSize"
+            android:gravity="center_vertical"
+            android:text="Database Size = "/>
+    </LinearLayout>
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:paddingLeft="32dp"
+        android:paddingRight="32dp"
+        android:orientation="horizontal">
+        <Button
+            android:id="@+id/deleteButton"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_gravity="center"
+            android:text="Backup DP to SD"
+            android:textAppearance="@style/TextAppearance.AppCompat.Button"
+            android:backgroundTint="@color/myPrimaryDarkColor"
+            android:textColor="@android:color/white"
+            style="@style/Base.Widget.AppCompat.Button" />
+
+    </LinearLayout>
+
+</LinearLayout>

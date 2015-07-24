@@ -6,6 +6,11 @@
         <item name="android:windowDrawsSystemBarBackgrounds">true</item>
         <item name="android:statusBarColor">@color/myPrimaryDarkColor</item>
         <item name="android:windowTranslucentStatus">true</item>
+        <item name="android:windowActivityTransitions">true</item>
+
+        <!-- enable overlap of transitions -->
+        <item name="android:windowAllowEnterTransitionOverlap">true</item>
+        <item name="android:windowAllowReturnTransitionOverlap">true</item>
 
     </style>
 </resources>

@@ -105,15 +105,19 @@
     <orderEntry type="library" exported="" name="bolts-android-1.2.0" level="project" />
     <orderEntry type="library" exported="" name="recyclerview-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="cardview-v7-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="picasso-2.5.2" level="project" />
     <orderEntry type="library" exported="" name="ultra-ptr-1.0.9" level="project" />
     <orderEntry type="library" exported="" name="palette-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="parallaxscroll-1.0" level="project" />
+    <orderEntry type="library" exported="" name="okhttp-2.4.0" level="project" />
     <orderEntry type="library" exported="" name="androidasync-2.1.6" level="project" />
     <orderEntry type="library" exported="" name="facebook-android-sdk-4.1.0" level="project" />
     <orderEntry type="library" exported="" name="ion-2.1.6" level="project" />
     <orderEntry type="library" exported="" name="support-v4-22.2.0" level="project" />
+    <orderEntry type="library" exported="" name="universal-image-loader-1.9.4" level="project" />
     <orderEntry type="library" exported="" name="appcompat-v7-22.2.0" level="project" />
     <orderEntry type="library" exported="" name="gson-2.3" level="project" />
     <orderEntry type="library" exported="" name="calligraphy-2.1.0" level="project" />
+    <orderEntry type="library" exported="" name="okio-1.4.0" level="project" />
   </component>
 </module>

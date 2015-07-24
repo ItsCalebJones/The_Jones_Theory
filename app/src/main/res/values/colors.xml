@@ -25,5 +25,8 @@
     <color name="icons">#FFFFFF</color>
     <color name="myViewSeperators">#B6B6B6</color>
     <color name="myWindowBackground">#FFF</color>
+    <color name="refresh_progress_1">#BBDEFB</color>
+    <color name="refresh_progress_2">#FFD740</color>
+    <color name="refresh_progress_3">#FFE57F</color>
 
 </resources>

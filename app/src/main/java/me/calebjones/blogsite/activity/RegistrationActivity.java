@@ -20,6 +20,7 @@ import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
@@ -62,8 +63,8 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
     private Toolbar toolbar;
     private View regiFormView;
     private View progressView;
-    private AutoCompleteTextView emailTextView;
-    private EditText usernameTextView;
+    private AutoCompleteTextView usernameTextView;
+    private EditText confirmUserTextView;
     private EditText passwordTextView;
     private EditText confirmTextView;
     private doRegister doRegisterTask = null;
@@ -87,18 +88,18 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
         toolbar = (Toolbar) findViewById(R.id.regi_toolbar);
         setSupportActionBar(toolbar);
 
-        emailTextView = (AutoCompleteTextView) findViewById(R.id.registerEmail);
+        usernameTextView = (AutoCompleteTextView) findViewById(R.id.registerEmail);
         loadAutoComplete();
 
 
 
-        usernameTextView = (EditText) findViewById(R.id.registerUsername);
-        usernameTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
+        confirmUserTextView = (EditText) findViewById(R.id.registerUsername);
+        confirmUserTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_NULL) {
                     try {
-                        initLogin();
+                        initRegister();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -110,12 +111,13 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 
         //Checks password field.
         passwordTextView = (EditText) findViewById(R.id.registerPassword);
+        passwordTextView.setTransformationMethod(new PasswordTransformationMethod());
         passwordTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_NULL) {
                     try {
-                        initLogin();
+                        initRegister();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -127,12 +129,13 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 
         //Checks EditText
         confirmTextView = (EditText) findViewById(R.id.confirmPassword);
+        confirmTextView.setTransformationMethod(new PasswordTransformationMethod());
         confirmTextView.setOnEditorActionListener(new TextView.OnEditorActionListener() {
             @Override
             public boolean onEditorAction(TextView textView, int id, KeyEvent keyEvent) {
                 if (id == EditorInfo.IME_NULL) {
                     try {
-                        initLogin();
+                        initRegister();
                     } catch (Exception e) {
                         e.printStackTrace();
                     }
@@ -148,8 +151,8 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             @Override
             public void onClick(View view) {
                 try {
-                    initLogin();
-                    Toast.makeText(getApplicationContext(), "Submit!", Toast.LENGTH_SHORT).show();
+                    initRegister();
+//                    Toast.makeText(getApplicationContext(), "Submit!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -162,7 +165,8 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             @Override
             public void onClick(View view) {
                 try {
-                    Toast.makeText(getApplicationContext(), "Recover!", Toast.LENGTH_SHORT).show();
+                    initReset();
+//                    Toast.makeText(getApplicationContext(), "Recover!", Toast.LENGTH_SHORT).show();
                 } catch (Exception e) {
                     e.printStackTrace();
                 }
@@ -182,21 +186,53 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 
     }
 
+    private void initReset() {
+
+        usernameTextView.setError(null);
+
+        String username = usernameTextView.getText().toString();
+
+        boolean cancelLogin = false;
+        View focusView = null;
+
+        if (TextUtils.isEmpty(username)) {
+            usernameTextView.setError(getString(R.string.field_required));
+            focusView = usernameTextView;
+            cancelLogin = true;
+        } else if (!isEmailValid(username)) {
+            usernameTextView.setError(getString(R.string.invalid_email));
+            focusView = usernameTextView;
+            cancelLogin = true;
+        }
+        if (cancelLogin) {
+            // error in activity_login
+            focusView.requestFocus();
+        } else {
+            // show progress spinner, and start background task to activity_login
+            showProgress(true);
+            doPassword doPasswordTask = new doPassword(username);
+            doPasswordTask.execute();
+        }
+    }
+
     /**
      * Validate Login form and authenticate.
      */
-    public void initLogin() throws Exception {
+    public void initRegister() throws Exception {
         if (doRegisterTask != null) {
             return;
         }
 
-        emailTextView.setError(null);
+        usernameTextView.setError(null);
+        confirmUserTextView.setError(null);
+
         passwordTextView.setError(null);
         confirmTextView.setError(null);
-        usernameTextView.setError(null);
 
-        String email = emailTextView.getText().toString();
+
         String username = usernameTextView.getText().toString();
+        String confirmUsername = confirmUserTextView.getText().toString();
+
         String password = passwordTextView.getText().toString();
         String confword = confirmTextView.getText().toString();
 
@@ -212,24 +248,24 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             focusView = passwordTextView;
             cancelLogin = true;
         }
+        if (TextUtils.isEmpty(confirmUsername)) {
+            Log.i("The Jones Theory", confirmUsername);
+            confirmUserTextView.setError(getString(R.string.field_required));
+            focusView = confirmUserTextView;
+            cancelLogin = true;
+        } else if (!isUsernameValid(confirmUsername)) {
+            Log.i("The Jones Theory", "Skipped: " + confirmUsername);
+            confirmUserTextView.setError(getString(R.string.invalid_username));
+            focusView = confirmUserTextView;
+            cancelLogin = true;
+        }
         if (TextUtils.isEmpty(username)) {
-            Log.i("The Jones Theory", username);
             usernameTextView.setError(getString(R.string.field_required));
             focusView = usernameTextView;
             cancelLogin = true;
-        } else if (!isUsernameValid(username)) {
-            Log.i("The Jones Theory", "Skipped: " + username);
-            usernameTextView.setError(getString(R.string.invalid_username));
+        } else if (!isEmailValid(username)) {
+            usernameTextView.setError(getString(R.string.invalid_email));
             focusView = usernameTextView;
-            cancelLogin = true;
-        }
-        if (TextUtils.isEmpty(email)) {
-            emailTextView.setError(getString(R.string.field_required));
-            focusView = emailTextView;
-            cancelLogin = true;
-        } else if (!isEmailValid(email)) {
-            emailTextView.setError(getString(R.string.invalid_email));
-            focusView = emailTextView;
             cancelLogin = true;
         }
         if (TextUtils.isEmpty(confword)){
@@ -251,11 +287,12 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             // show progress spinner, and start background task to activity_login
             showProgress(true);
 //            hideSoftKeyboard(RegistrationActivity.this);
-            doRegisterTask = new doRegister(username, email, uNonce, password);
+            doRegisterTask = new doRegister(confirmUsername, username, uNonce, password);
             doRegisterTask.execute();
             Toast.makeText(getApplicationContext(), "Login!", Toast.LENGTH_SHORT).show();
         }
     }
+
 
     private boolean isEmailValid(String email) {
         //add your own logic
@@ -316,7 +353,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
                 new ArrayAdapter<String>(RegistrationActivity.this,
                         android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
 
-        emailTextView.setAdapter(adapter);
+        usernameTextView.setAdapter(adapter);
     }
 
     private interface ProfileQuery {
@@ -545,16 +582,16 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 
             if (!TextUtils.isEmpty(error)){
                 if (error.contains("E-mail")){
-                    emailTextView.setError(error);
-                } else if (error.toLowerCase().contains("username")){
                     usernameTextView.setError(error);
+                } else if (error.toLowerCase().contains("username")){
+                    confirmUserTextView.setError(error);
                 } else if (error.toLowerCase().contains("password")){
                     passwordTextView.setError(error);
                     confirmTextView.setError(error);
                 } else {
-                    emailTextView.setText("");
-                    emailTextView.requestFocus();
                     usernameTextView.setText("");
+                    usernameTextView.requestFocus();
+                    confirmUserTextView.setText("");
                     passwordTextView.setText("");
                     confirmTextView.setText("");
                 }
@@ -581,6 +618,96 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
                 e.printStackTrace();
             }
             return Nonce;
+        }
+    }
+
+    public class doPassword extends AsyncTask<String, Void, String> {
+        HttpURLConnection urlConnection;
+
+        public String msg;
+        public String status;
+        public final String usernameStr;
+        public final String charset = "UTF-8";
+        public String Nonce = null;
+        public String error;
+
+        doPassword(String username) {
+            usernameStr = username;
+        }
+
+        @Override
+        protected String doInBackground(String... args) {
+
+            String result = "empty";
+            StringBuilder sResult = new StringBuilder();
+
+            try {
+                //Set up the Query and add in the aparamters
+                String query = String.format("user_login=%s",
+                        URLEncoder.encode(usernameStr, charset));
+
+                Log.v("The Jones Theory", "doInBg: Query -" + query);
+
+                URL url = new URL("http://calebjones.me/api/user/retrieve_password/");
+                urlConnection = (HttpURLConnection) url.openConnection();
+                urlConnection.setRequestMethod("POST");
+                Log.v("The Jones Theory", urlConnection.toString());
+                urlConnection.setRequestProperty("Content-Type",
+                        "application/x-www-form-urlencoded");
+                urlConnection.setRequestProperty("Content-Length", "" +
+                        Integer.toString(query.getBytes().length));
+                urlConnection.setRequestProperty("Content-Language", "en-US");
+                Log.v("The Jones Theory", "URL " + urlConnection.toString());
+
+                DataOutputStream wr = new DataOutputStream(
+                        urlConnection.getOutputStream());
+                wr.writeBytes(query);
+                wr.flush();
+                wr.close();
+
+                InputStream inP = new BufferedInputStream(urlConnection.getInputStream());
+                Log.v("The Jones Theory", "InputStream: " + inP.toString());
+
+                BufferedReader reader = new BufferedReader(new InputStreamReader(inP));
+                Log.v("The Jones Theory", "Reader: " + reader.toString());
+                String line;
+                while ((line = reader.readLine()) != null) {
+                    sResult.append(line);
+                    Log.v("The Jones Theory", "doInBg: While Line -" + line);
+                }
+                result = sResult.toString();
+//                result = parseCookie(result);
+
+                JSONObject response = new JSONObject(result);
+                status = response.optString("status");
+                msg = response.optString("msg");
+                error = response.optString("error");
+
+                SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyPref", 4);
+                SharedPreferences.Editor edit = prefs.edit();
+                edit.putString("AUTH_COOKIE", Nonce);
+                edit.apply();
+            }catch( Exception e) {
+                e.printStackTrace();
+            }
+            finally {
+                Log.v("The Jones Theory", "doInBg: urlConnection.disconnect();");
+                urlConnection.disconnect();
+            }
+
+            Log.v("The Jones Theory", "doInBg: return");
+            return Nonce;
+        }
+
+        @Override
+        protected void onPostExecute(String result) {
+            //Do something with the JSON string
+            showProgress(false);
+            if (!status.equals("ok")){
+                usernameTextView.setError(error);
+            } else {
+                Toast.makeText(getApplicationContext(), msg, Toast.LENGTH_SHORT).show();
+            }
         }
     }
 

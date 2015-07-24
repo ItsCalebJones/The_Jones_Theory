@@ -1,0 +1,40 @@
+Activity Resolver Table:
+  Non-Data Actions:
+      android.intent.action.MAIN:
+        6dd0dd0 me.calebjones.blogsite/.MainActivity
+
+Key Set Manager:
+  [me.calebjones.blogsite]
+      Signing KeySets: 157
+
+Packages:
+  Package [me.calebjones.blogsite] (afe8935):
+    userId=10057 gids=[3003, 1028, 1015]
+    pkg=Package{53471c9 me.calebjones.blogsite}
+    codePath=/data/app/me.calebjones.blogsite-1
+    resourcePath=/data/app/me.calebjones.blogsite-1
+    legacyNativeLibraryDir=/data/app/me.calebjones.blogsite-1/lib
+    primaryCpuAbi=null
+    secondaryCpuAbi=null
+    versionCode=6 targetSdk=22
+    versionName=2.2.2
+    splits=[base]
+    applicationInfo=ApplicationInfo{3c75e0ce me.calebjones.blogsite}
+    flags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    dataDir=/data/data/me.calebjones.blogsite
+    supportsScreens=[small, medium, large, xlarge, resizeable, anyDensity]
+    timeStamp=2015-07-21 16:31:37
+    firstInstallTime=2015-06-26 12:35:48
+    lastUpdateTime=2015-07-21 16:31:38
+    signatures=PackageSignatures{189f1658 [1603abef]}
+    permissionsFixed=true haveGids=true installStatus=1
+    pkgFlags=[ DEBUGGABLE HAS_CODE ALLOW_CLEAR_USER_DATA ALLOW_BACKUP ]
+    User 0:  installed=true hidden=false stopped=false notLaunched=false enabled=0
+    grantedPermissions:
+      android.permission.READ_PROFILE
+      android.permission.INTERNET
+      android.permission.READ_EXTERNAL_STORAGE
+      android.permission.GET_ACCOUNTS
+      android.permission.WRITE_EXTERNAL_STORAGE
+      android.permission.VIBRATE
+      android.permission.READ_CONTACTS

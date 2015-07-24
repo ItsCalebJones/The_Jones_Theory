@@ -7,9 +7,9 @@
     android:layout_height="wrap_content">
 
     <include
-        android:id="@+id/toolbar"
-        layout="@layout/tool_bar"
-        />
+    android:id="@+id/toolbar"
+    layout="@layout/tool_bar"
+    />
 
             <com.nirhart.parallaxscroll.views.ParallaxScrollView
                 android:layout_width="match_parent"
@@ -23,6 +23,7 @@
 
                 <uk.co.senab.photoview.PhotoView
                     android:id="@+id/header"
+                    android:transitionName="photo_hero"
                     android:layout_height="wrap_content"
                     android:layout_width="fill_parent"
                     android:adjustViewBounds="true"
@@ -76,16 +77,16 @@
                         android:autoLink="web"
                         android:text="Loading text please wait..."
                         />
-                        <!--<org.sufficientlysecure.htmltextview.HtmlTextView-->
-                            <!--android:id="@+id/html_text"-->
-                            <!--android:layout_width="wrap_content"-->
-                            <!--android:layout_height="match_parent"-->
-                            <!--android:background="?android:colorBackground"-->
-                            <!--android:textColor="@color/myTextPrimaryColor"-->
-                            <!--android:fontFamily="sans-serif-condensed"-->
-                            <!--android:padding="24dp" />-->
                     </LinearLayout>
                 </android.support.v7.widget.CardView>
+
+                <me.calebjones.blogsite.util.AutofitRecyclerView
+                    xmlns:android="http://schemas.android.com/apk/res/android"
+                    android:id="@+id/comment_view"
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:columnWidth="@dimen/column_width_fetch"
+                    android:clipToPadding="false"/>
             </LinearLayout>
 
         </com.nirhart.parallaxscroll.views.ParallaxScrollView>

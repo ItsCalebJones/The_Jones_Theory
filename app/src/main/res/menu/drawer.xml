@@ -9,26 +9,28 @@
             android:icon="@drawable/ic_home"
             android:title="Home" />
 
-        <item
-            android:id="@+id/about"
-            android:checked="false"
-            android:icon="@drawable/ic_about"
-            android:title="About" />
 
         <item
             android:id="@+id/gallery"
             android:checked="false"
             android:icon="@drawable/ic_gallery"
             android:title="Gallery" />
-        <item
-            android:id="@+id/settings"
-            android:icon="@drawable/ic_action_settings"
-            android:title="Settings" />
 
         <item
-            android:id="@+id/navigation_subheader"
+            android:id="@+id/random"
+            android:checked="false"
+            android:icon="@drawable/ic_action_autorenew"
+            android:title="Random" />
+
+        <item
+            android:id="@+id/navigation_sub"
             android:title="Categories">
             <menu>
+                <item
+                    android:id="@+id/blog"
+                    android:checked="false"
+                    android:icon="@drawable/ic_about"
+                    android:title="Blog" />
 
                 <item
                     android:id="@+id/science"
@@ -59,5 +61,11 @@
 
             </menu>
         </item>
+    </group>
+    <group android:id="@+id/grp2">
+        <item
+            android:id="@+id/settings"
+            android:icon="@drawable/ic_action_settings"
+            android:title="Settings" />
     </group>
 </menu>

@@ -58,5 +58,14 @@ Donec in mauris sit amet magna maximus facilisis ac in dolor. Cras fermentum arc
     <string name="password_reset_hint">If you are resetting your password only enter your email address before clicking \'Reset\'.</string>
     <string name="submit">Submit</string>
     <string name="recover">Recover</string>
+    <string name="action_login">Login</string>
+    <string name="action_search">Search</string>
+    <string name="confirm_username">Confirm Username / Email</string>
+    <string name="prompt_email">Enter Email</string>
+    <string name="example_name">Caleb Jones</string>
+    <string name="lorem_ipsum_comment">Lorem ipsum dolor sit amet, consectetur adipiscing elit. Nulla molestie semper lobortis. Pellentesque elementum vehicula velit vel semper. Nullam ac turpis varius, mollis diam id, volutpat tellus. Duis luctus hendrerit ultricies. Quisque interdum pulvinar bibendum. Duis sollicitudin suscipit purus, vel cursus lacus ultrices nec. In blandit porttitor augue, in imperdiet turpis ultricies fermentum.\n\n
+</string>
+    <string name="title_activity_post_comments">PostComments</string>
+    <string name="title_activity_dbtest">DBTest</string>
 
 </resources>

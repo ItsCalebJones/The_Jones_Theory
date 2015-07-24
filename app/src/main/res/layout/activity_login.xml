@@ -85,7 +85,7 @@
         android:text="@string/aboutme"
         android:id="@+id/AboutMe"
         android:textStyle="italic"
-        android:layout_gravity="center_horizontal"
+        android:gravity="center"
         android:layout_margin="16dp"/>
 
 
@@ -123,7 +123,7 @@
                     android:layout_height="wrap_content"
                     android:orientation="vertical">
 
-                    <AutoCompleteTextView
+                    <EditText
                         android:id="@+id/email"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
@@ -140,10 +140,9 @@
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:hint="@string/prompt_password"
-                        android:imeActionLabel="@string/action_sign_in"
                         android:imeOptions="actionUnspecified"
-                        android:inputType="textPassword"
-                        android:maxLines="1" android:singleLine="true"
+                        android:maxLines="1"
+                        android:singleLine="true"
                         android:layout_marginBottom="10dp"
                         android:textColorHint="@color/myTextSecondaryColor"
                         android:textColor="@color/myTextPrimaryColor" />
@@ -155,45 +154,48 @@
                         android:baselineAligned="false"
                         android:weightSum="1">
 
-                            <Button android:id="@+id/email_sign_in_button" style="@style/Base.Widget.AppCompat.Button"
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            <Button android:id="@+id/email_sign_in_button"
+                                style="@style/Base.Widget.AppCompat.Button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
                                 android:text="@string/action_sign_in"
                                 android:textStyle="bold"
                                 android:textColor="#ffffffff"
                                 android:elevation="10dp"
                                 android:backgroundTint="@color/myPrimaryDarkColor"
-                                android:layout_gravity="center|top"/>
+                                android:layout_gravity="center_horizontal"/>
 
-                            <Button android:id="@+id/email_facebook" style="@style/Base.Widget.AppCompat.Button"
-                                android:layout_width="wrap_content" android:layout_height="wrap_content"
+                            <Button android:id="@+id/email_register"
+                                style="@style/Base.Widget.AppCompat.Button"
+                                android:layout_width="wrap_content"
+                                android:layout_height="wrap_content"
                                 android:layout_marginTop="16dp"
-                                android:text="facebook"
+                                android:text="Register"
                                 android:textStyle="bold"
                                 android:textColor="#ffffffff"
                                 android:elevation="10dp"
-                                android:backgroundTint="#3b5998"
-                                android:layout_gravity="center|top"
-                                android:layout_marginLeft="16dp" />
-            </LinearLayout>
+                                android:backgroundTint="@color/myAccentColor"
+                                android:layout_gravity="center_horizontal"
+                                android:layout_marginLeft="8dp" />
+
+                    </LinearLayout>
                     <LinearLayout
-                        android:id="@+id/ll3"
+                        android:id="@+id/Facebook_frame"
                         android:layout_width="match_parent"
                         android:layout_height="wrap_content"
                         android:layout_weight="1"
                         android:orientation="vertical"
                         android:gravity="bottom|center_horizontal">
 
-                        <Button android:id="@+id/email_register"
-                            style="@style/Base.Widget.AppCompat.Button.Borderless"
-                            android:layout_width="320dp" android:layout_height="wrap_content"
+                        <com.facebook.login.widget.LoginButton
+                            android:id="@+id/login_button"
+                            android:layout_width="wrap_content"
+                            android:layout_height="wrap_content"
+                            android:layout_gravity="center_horizontal"
                             android:layout_marginTop="8dp"
-                            android:layout_margin="16dp"
-                            android:text="@string/register_password"
-                            android:textStyle="bold"
-                            android:textColor="@color/myTextSecondaryColor"
-                            android:elevation="10dp"
-                            android:layout_gravity="center" />
+                            android:layout_marginBottom="30dp" />
+
                             </LinearLayout>
                     <Space
                         android:layout_width="1dp"

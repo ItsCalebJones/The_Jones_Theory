@@ -1,7 +1,6 @@
 package me.calebjones.blogsite.loader;
 
 import android.os.AsyncTask;
-import android.provider.ContactsContract;
 import android.util.Log;
 
 import org.json.JSONArray;
@@ -17,14 +16,14 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.calebjones.blogsite.fragments.PhotoGridView;
+import me.calebjones.blogsite.fragments.PhotoFragment;
 import me.calebjones.blogsite.gallery.ImageItem;
 
 public class PhotoLoader extends AsyncTask<String, Void, Integer> {
 
     public static List<ImageItem> mGridItemList = new ArrayList<ImageItem>();
     public static final String TAG = "The Jones Theory - PhL";
-    private PhotoGridView photoGrid;
+    private PhotoFragment photoGrid;
 
         @Override
         protected void onPreExecute() {
@@ -78,7 +77,7 @@ public class PhotoLoader extends AsyncTask<String, Void, Integer> {
         protected void onPostExecute(Integer result) {
             /* Download complete. Lets update UI */
             if (result == 1) {
-//                FetchViewBackground.setList(feedItemList);
+//                BlogFragment.setList(feedItemList);
                 Log.d(TAG, "Succeeded fetching data!");
             } else Log.e(TAG, "Failed to fetch data!");
         }
@@ -123,6 +122,7 @@ public class PhotoLoader extends AsyncTask<String, Void, Integer> {
                 item.setContent(post.optString("content"));
                 item.setExcerpt(post.optString("excerpt"));
                 item.setID(post.optString("ID"));
+                item.setpostURL(post.optString("URL"));
                 Integer ImageLength = post.optString("featured_image").length();
                 if (ImageLength == 0) {
                     Log.d(TAG, "It should be null!");

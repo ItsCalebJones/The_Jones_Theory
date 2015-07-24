@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.calebjones.blogsite.feed.FeedItem;
+import me.calebjones.blogsite.models.FeedItem;
 
 public class PostLoader extends AsyncTask<String, Void, Integer> {
 
@@ -71,7 +71,7 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
         protected void onPostExecute(Integer result) {
             /* Download complete. Lets update UI */
             if (result == 1) {
-//                FetchViewBackground.setList(feedItemList);
+//                BlogFragment.setList(feedItemList);
                 Log.d(TAG, "Succeeded fetching data! - POST LOADER");
             } else Log.e(TAG, "Failed to fetch data!");
         }
@@ -115,8 +115,9 @@ public class PostLoader extends AsyncTask<String, Void, Integer> {
                 item.setTitle(post.optString("title"));
                 item.setContent(post.optString("content"));
                 item.setExcerpt(post.optString("excerpt"));
-                item.setID(post.optString("ID"));
+                item.setPostID(post.optString("ID"));
                 item.setTags(post.optString("tags"));
+                item.setpostURL(post.optString("URL"));
                 Integer ImageLength = post.optString("featured_image").length();
                 if (ImageLength == 0) {
                     Log.d(TAG, "It should be null!");

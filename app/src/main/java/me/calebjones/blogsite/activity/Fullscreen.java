@@ -22,6 +22,7 @@ import android.os.Environment;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
 import android.transition.Transition;
@@ -64,6 +65,9 @@ public class Fullscreen extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+            getWindow().setSharedElementsUseOverlay(false);
+        }
         setContentView(R.layout.fullscreen);
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
@@ -138,6 +142,16 @@ public class Fullscreen extends AppCompatActivity {
                 .getBitmapCache()
                 .get(bitmapKey);
         photoView.setImageBitmap(bi.bitmap);
+
+        Palette.from(bi.bitmap).generate(new Palette.PaletteAsyncListener() {
+            public void onGenerated(Palette palette) {
+                Palette.Swatch Swatch = palette.getDarkMutedSwatch();
+                if (Swatch != null) {
+                    photoView.setBackgroundColor(Swatch.getRgb());
+
+                }
+            }
+        });
 
         try {
             bitMapToFile();

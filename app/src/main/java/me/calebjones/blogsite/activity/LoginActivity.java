@@ -3,39 +3,38 @@ package me.calebjones.blogsite.activity;
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
-import android.app.LoaderManager.LoaderCallbacks;
 import android.content.Context;
-import android.content.CursorLoader;
 import android.content.Intent;
-import android.content.Loader;
 import android.content.SharedPreferences;
-import android.database.Cursor;
-import android.graphics.Paint;
-import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
-import android.provider.ContactsContract;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
-import android.text.util.Linkify;
+import android.text.method.PasswordTransformationMethod;
 import android.util.Log;
 import android.view.KeyEvent;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
 import android.view.inputmethod.EditorInfo;
-import android.widget.ArrayAdapter;
-import android.widget.AutoCompleteTextView;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
+
+import com.facebook.*;
+import com.facebook.CallbackManager;
+import com.facebook.FacebookCallback;
+import com.facebook.FacebookException;
+import com.facebook.login.LoginManager;
+import com.facebook.login.LoginResult;
+import com.facebook.login.widget.LoginButton;
 
 import org.json.JSONObject;
 
@@ -47,29 +46,35 @@ import java.io.InputStreamReader;
 import java.net.HttpURLConnection;
 import java.net.URL;
 import java.net.URLEncoder;
-import java.util.ArrayList;
-import java.util.List;
+import java.util.Arrays;
 
 import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.loader.PostLoader;
+import me.calebjones.blogsite.util.AuthValidate;
+import me.calebjones.blogsite.util.FBConnect;
 
-public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<Cursor> {
+public class LoginActivity extends AppCompatActivity {
 
     private static final String DUMMY_CREDENTIALS = "user@test.com:hello";
     private static final String TAG = "The Jones Theory - LA";
+
+    CallbackManager callbackManager;
 
     private UserLoginTask userLoginTask = null;
     private Toolbar toolbar;
     private View loginFormView;
     private View progressView;
-    private AutoCompleteTextView usernameTextView;
+    private EditText usernameTextView;
     private EditText passwordTextView;
-    private TextView signUpTextView;
-    public final CollapsingToolbarLayout collapsingToolbar= null;
+    private TextView signupButton;
+    public Button loginButton;
+    public LoginButton FaceBookButton;
+    public final CollapsingToolbarLayout collapsingToolbar = null;
     public AppBarLayout appBarLayout;
     public CoordinatorLayout coordinatorLayout;
     public Context context;
+    public String cookie;
     public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=blog&number=15";
 
     @Override
@@ -77,7 +82,68 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_login);
 
-        CollapsingToolbarLayout collapsingToolbar =
+        callbackManager = CallbackManager.Factory.create();
+
+        FaceBookButton = (LoginButton) findViewById(R.id.login_button);
+        FaceBookButton.setReadPermissions(Arrays.asList("email"));
+        // Other app specific specialization
+
+        // Callback registration
+        FaceBookButton.registerCallback(callbackManager, new FacebookCallback<LoginResult>() {
+            @Override
+            public void onSuccess(LoginResult loginResult) {
+                // App code
+
+                AccessToken token = AccessToken.getCurrentAccessToken();
+                //GET AUTH COOKIE
+
+                if (token != null) {
+                    showProgress(true);
+                    FBConnect fbAuth = new FBConnect(token.getToken()) {
+                        @Override
+                        protected void onPostExecute(Boolean result) {
+                            //Do something with the JSON string
+                            Log.v(TAG, "onPostExecute: " + result);
+
+                            showProgress(false);
+
+                            if (result) {
+                                //DO THIS
+                                SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyPref", 4);
+                                SharedPreferences.Editor edit = prefs.edit();
+                                edit.putString("AUTH_COOKIE", cookieStr);
+                                edit.apply();
+                            } else {
+                                //DO THAT
+                                LoginManager.getInstance().logOut();
+                                Toast.makeText(getApplicationContext(), "Sorry, something happened please log back in.", Toast.LENGTH_SHORT).show();
+                            }
+                        }
+                    };
+                    fbAuth.execute();
+                }
+                Log.d(TAG, "Facebook: onSuccess - Stored: " + cookie + " new = " + token.getToken());
+
+                LoginActivity.this.startActivity(new Intent(LoginActivity.this, MainActivity.class));
+            }
+
+            @Override
+            public void onCancel() {
+                // App code
+                Log.d(TAG, "Facebook: onCancel");
+                LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
+            }
+
+            @Override
+            public void onError(FacebookException exception) {
+                // App code
+                Log.d(TAG, "Facebook: onError - " + exception);
+                Toast.makeText(getApplicationContext(), "Error", Toast.LENGTH_SHORT).show();
+                LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
+            }
+        });
+
+        final CollapsingToolbarLayout collapsingToolbar =
                 (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
 
         collapsingToolbar.setTitle("Sign In");
@@ -92,7 +158,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
         toolbar = (Toolbar) findViewById(R.id.login_toolbar);
         setSupportActionBar(toolbar);
 
-        usernameTextView = (AutoCompleteTextView) findViewById(R.id.email);
+        usernameTextView = (EditText) findViewById(R.id.email);
         usernameTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
@@ -102,14 +168,13 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
             }
         });
-        loadAutoComplete();
 
         passwordTextView = (EditText) findViewById(R.id.password);
+        passwordTextView.setTransformationMethod(new PasswordTransformationMethod());
         passwordTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus == true)
-                {
+                if (hasFocus == true) {
                     collapseToolbar();
                 }
 
@@ -130,7 +195,7 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button loginButton = (Button) findViewById(R.id.email_sign_in_button);
+        loginButton = (Button) findViewById(R.id.email_sign_in_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View view) {
@@ -142,48 +207,101 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             }
         });
 
-        Button faceButton = (Button) findViewById(R.id.email_facebook);
-        faceButton.setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View view) {
-                try {
-                    Toast.makeText(getApplicationContext(), "Not available yet! =(", Toast.LENGTH_SHORT).show();
-                } catch (Exception e) {
-                    e.printStackTrace();
-                }
-            }
-        });
+//        Button faceButton = (Button) findViewById(R.id.login_button);
+//        faceButton.setOnClickListener(new View.OnClickListener() {
+//            @Override
+//            public void onClick(View view) {
+//                try {
+//                    Toast.makeText(getApplicationContext(), "Not available yet! =(", Toast.LENGTH_SHORT).show();
+//                } catch (Exception e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        });
 
         loginFormView = findViewById(R.id.login_form);
         progressView = findViewById(R.id.login_progress);
 
         //adding underline and link to signup textview
-        signUpTextView = (TextView) findViewById(R.id.email_register);
-        signUpTextView.setPaintFlags(signUpTextView.getPaintFlags() | Paint.UNDERLINE_TEXT_FLAG);
-        Linkify.addLinks(signUpTextView, Linkify.ALL);
+        signupButton = (TextView) findViewById(R.id.email_register);
 
-        signUpTextView.setOnClickListener(new View.OnClickListener() {
+        signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Sign Up Activity activated.");
                 // this is where you should start the signup Activity
-                 LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
+                LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
                 // response = UserRegistrationTask("Caman9119", "caman9119@charter.net", "dd9d4bf59e", "1481");
 
             }
         });
+
+        SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
+        if (!prefs.getString("AUTH_COOKIE", "").equals("")) {
+            showProgress(true);
+            AuthValidate doAuth = new AuthValidate(prefs.getString("AUTH_COOKIE", "")) {
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    //Do something with the JSON string
+                    Log.v(TAG, "onPostExecute: " + result);
+                    showProgress(false);
+                    if (result) {
+                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
+                        usernameTextView.setVisibility(View.GONE);
+                        passwordTextView.setVisibility(View.GONE);
+                        loginButton.setVisibility(View.GONE);
+                        signupButton.setVisibility(View.GONE);
+                    } else {
+                        //DO THAT
+                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+            doAuth.execute();
+        }
+
+    }
+
+    @Override
+    public void onResume() {
+        SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
+        if (!prefs.getString("AUTH_COOKIE", "").equals("")) {
+            showProgress(true);
+            AuthValidate doAuth = new AuthValidate(prefs.getString("AUTH_COOKIE", "")) {
+                @Override
+                protected void onPostExecute(Boolean result) {
+                    //Do something with the JSON string
+                    Log.v(TAG, "onPostExecute: " + result);
+                    showProgress(false);
+                    if (result) {
+                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
+                        usernameTextView.setVisibility(View.GONE);
+                        passwordTextView.setVisibility(View.GONE);
+                        loginButton.setVisibility(View.GONE);
+                        signupButton.setVisibility(View.GONE);
+                    } else {
+                        //DO THAT
+                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
+                    }
+                }
+            };
+            doAuth.execute();
+        }
+        super.onResume();
+    }
+
+    @Override
+    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
+        super.onActivityResult(requestCode, resultCode, data);
+        callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
     public void collapseToolbar(){
         CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
         AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) params.getBehavior();
-        if(behavior!=null) {
-            behavior.onNestedFling(coordinatorLayout, appBarLayout, null, 0, 10000, true);
+        if (behavior != null) {
+            behavior.onNestedFling(coordinatorLayout, appBarLayout, null, 0, 15000, true);
         }
-    }
-
-    private void loadAutoComplete() {
-        getLoaderManager().initLoader(0, null, this);
     }
 
     /**
@@ -274,60 +392,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
             progressView.setVisibility(show ? View.VISIBLE : View.GONE);
             loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
         }
-    }
-
-    @Override
-    public Loader<Cursor> onCreateLoader(int i, Bundle bundle) {
-        return new CursorLoader(this,
-                // Retrieve data rows for the device user's 'profile' contact.
-                Uri.withAppendedPath(ContactsContract.Profile.CONTENT_URI,
-                        ContactsContract.Contacts.Data.CONTENT_DIRECTORY), ProfileQuery.PROJECTION,
-
-                // Select only email addresses.
-                ContactsContract.Contacts.Data.MIMETYPE +
-                        " = ?", new String[]{ContactsContract.CommonDataKinds.Email
-                .CONTENT_ITEM_TYPE},
-
-                // Show primary email addresses first. Note that there won't be
-                // a primary email address if the user hasn't specified one.
-                ContactsContract.Contacts.Data.IS_PRIMARY + " DESC");
-    }
-
-    @Override
-    public void onLoadFinished(Loader<Cursor> cursorLoader, Cursor cursor) {
-        List<String> emails = new ArrayList<String>();
-        cursor.moveToFirst();
-        while (!cursor.isAfterLast()) {
-            emails.add(cursor.getString(ProfileQuery.ADDRESS));
-            cursor.moveToNext();
-        }
-
-        addEmailsToAutoComplete(emails);
-    }
-
-    @Override
-    public void onLoaderReset(Loader<Cursor> cursorLoader) {
-
-    }
-
-    private void addEmailsToAutoComplete(List<String> emailAddressCollection) {
-        //Create adapter to tell the AutoCompleteTextView what to show in its dropdown list.
-        ArrayAdapter<String> adapter =
-                new ArrayAdapter<String>(LoginActivity.this,
-                        android.R.layout.simple_dropdown_item_1line, emailAddressCollection);
-
-        usernameTextView.setAdapter(adapter);
-    }
-
-
-    private interface ProfileQuery {
-        String[] PROJECTION = {
-                ContactsContract.CommonDataKinds.Email.ADDRESS,
-                ContactsContract.CommonDataKinds.Email.IS_PRIMARY,
-        };
-
-        int ADDRESS = 0;
-        int IS_PRIMARY = 1;
     }
 
     /**
@@ -495,4 +559,6 @@ public class LoginActivity extends AppCompatActivity implements LoaderCallbacks<
 
         return super.onOptionsItemSelected(item);
     }
+
+
 }
