@@ -162,7 +162,6 @@ public class TransitionFullscreen extends AppCompatActivity {
                                     }
                                 }
                             });
-
         try {
             bitMapToFile();
         } catch (IOException e) {

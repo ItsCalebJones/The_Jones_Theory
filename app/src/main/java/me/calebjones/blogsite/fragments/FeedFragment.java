@@ -54,6 +54,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public View mainView;
     public View view;
 
+    private View noPost;
     private DatabaseManager databaseManager;
     private RecyclerView mRecyclerView;
     private FeedAdapter adapter;
@@ -126,6 +127,20 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         }
         mRecyclerView.setLayoutManager(layoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int topRowVerticalPostion = (mRecyclerView == null || mRecyclerView.getChildCount() == 0) ? 0 : mRecyclerView.getChildAt(0).getTop();
+                mSwipeRefreshLayout.setEnabled(dx == 0 && topRowVerticalPostion >= 0);
+            }
+        });
         mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(layoutManager) {
             @Override
             public void onLoadMore(int current_page) {
@@ -145,6 +160,8 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 R.color.myPrimaryColor,
                 R.color.myTextPrimaryColor,
                 R.color.myAccentColor);
+
+        noPost = view.findViewById(R.id.no_Post);
 
         // Inflate the layout for this fragment
         return view;
@@ -182,11 +199,17 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             Log.d("The Jones Theory", "FeedFragment: -onResume " + mCategory);
             adapter.addItems(databaseManager.getFeed(mCategory));
             mRecyclerView.setAdapter(adapter);
+            noPost.setVisibility(View.GONE);
+        }
+        if (mRecyclerView.getAdapter().getItemCount() == 0) {
+            mRecyclerView.setVisibility(View.GONE);
+            noPost.setVisibility(View.VISIBLE);
         }
         revealView();
     }
 
     public void changeFeed(String category){
+        exitReveal();
         mCategory = category;
         Log.d("The Jones Theory", "FeedFragment: -changeFeed " + mCategory);
         setRefreshing();
@@ -194,6 +217,15 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         adapter.addItems(databaseManager.getFeed(mCategory));
         adapter.notifyDataSetChanged();
         stopRefreshing();
+        final Handler handler = new Handler();
+        handler.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                //Do something after 100ms
+                handler.postDelayed(this, 1000);
+                revealView();
+            }
+        }, 250);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -251,17 +283,24 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onRefresh() {
         setRefreshing();
-
         if (mRecyclerView.getAdapter() == null) {
             adapter = new FeedAdapter();
             Log.d("The Jones Theory", "FeedFragment: -onRefresh " + mCategory);
             adapter.addItems(databaseManager.getFeed(mCategory));
             mRecyclerView.setAdapter(adapter);
         }
-        refreshPost();
+
+        if (databaseManager.getCount() > 0){
+            refreshPost();
+        } else {
+            Intent intent = new Intent(getActivity(), PostDownloader.class);
+            intent.setAction(PostDownloader.DOWNLOAD_ALL);
+            getActivity().startService(intent);
+        }
         Log.v(TAG, "Refreshing - onRefresh method.");
     }
 
+    //TODO Neeed to check if all data is missing first
     private void refreshPost() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PostDownloader.DOWNLOAD_SUCCESS);

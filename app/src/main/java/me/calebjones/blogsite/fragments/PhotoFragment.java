@@ -34,6 +34,8 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     private ImageAdapter adapter;
     private DatabaseManager databaseManager;
     private Menu menu;
+    private View noPost;
+
 
     public PhotoFragment() {
         // Required empty public constructor
@@ -63,6 +65,7 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         LayoutInflater lf = getActivity().getLayoutInflater();
 
         View view = lf.inflate(R.layout.fragment_auto_fit_recycler_view, container, false);
+        noPost = view.findViewById(R.id.no_Post);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
         if (getResources().getBoolean(R.bool.landscape)) {
@@ -73,6 +76,20 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
         mRecyclerView.setLayoutManager(mStaggeredLayoutManager);
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
+        mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
+            @Override
+            public void onScrollStateChanged(RecyclerView recyclerView, int newState) {
+                super.onScrollStateChanged(recyclerView, newState);
+            }
+
+            @Override
+            public void onScrolled(RecyclerView recyclerView, int dx, int dy) {
+                super.onScrolled(recyclerView, dx, dy);
+
+                int topRowVerticalPostion = (mRecyclerView == null || mRecyclerView.getChildCount() == 0) ? 0 : mRecyclerView.getChildAt(0).getTop();
+                mSwipeRefreshLayout.setEnabled(dx == 0 && topRowVerticalPostion >= 0);
+            }
+        });
         mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mStaggeredLayoutManager) {
             @Override
             public void onLoadMore(int current_page) {
@@ -127,6 +144,7 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             item.setTitle("Show as grid");
             isListView = true;
         }
+
     }
 
     @Override
@@ -139,6 +157,10 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             adapter = new ImageAdapter(getActivity());
             adapter.addItems(databaseManager.getFeed(""));
             mRecyclerView.setAdapter(adapter);
+        }
+        if (mRecyclerView.getAdapter().getItemCount() == 0) {
+            mRecyclerView.setVisibility(View.GONE);
+            noPost.setVisibility(View.VISIBLE);
         }
         super.onResume();
     }

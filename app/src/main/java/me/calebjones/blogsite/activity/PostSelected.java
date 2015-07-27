@@ -38,7 +38,9 @@ import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
 
 import java.io.ByteArrayOutputStream;
+import java.io.IOException;
 import java.util.List;
+import java.util.zip.Deflater;
 
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.comments.CommentAdapter;
@@ -141,6 +143,22 @@ public class PostSelected extends AppCompatActivity {
                                 public void run() {
                                     mApplyPalette(mPalette);
                                     revealView(mainView);
+                                    if (commentFab.getVisibility() == View.INVISIBLE) {
+                                        commentFab.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                revealView(commentFab);
+                                            }
+                                        }, 250);
+                                    }
+                                    if (fullscreenFab.getVisibility() == View.INVISIBLE) {
+                                        fullscreenFab.postDelayed(new Runnable() {
+                                            @Override
+                                            public void run() {
+                                                revealView(fullscreenFab);
+                                            }
+                                        }, 500);
+                                    }
                                 }
                             }, 100);
                         }
@@ -154,7 +172,11 @@ public class PostSelected extends AppCompatActivity {
         fullscreenFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (android.os.Build.VERSION.SDK_INT >= 21){
-                    LollipopTransition(v);
+                    try {
+                        LollipopTransition(v);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 } else {
                     Transition(v);
                 }
@@ -277,6 +299,7 @@ public class PostSelected extends AppCompatActivity {
         startActivity(intent);
     }
 
+    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     private void exitReveal() {
         final View mainView = findViewById(R.id.main_content);
 
@@ -391,26 +414,28 @@ public class PostSelected extends AppCompatActivity {
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public void LollipopTransition(View v){
+    public void LollipopTransition(View v) throws IOException {
         final View nestedContent = findViewById(R.id.nested_content);
         final View commentFab = findViewById(R.id.commentFab);
         final View fullscreenFab = findViewById(R.id.postFab);
 
         hideView(nestedContent);
+        hideView(commentFab);
+        hideView(fullscreenFab);
 
         commentFab.postDelayed(new Runnable() {
             @Override
             public void run() {
                 hideView(commentFab);
             }
-        }, 50);
+        }, 250);
 
         fullscreenFab.postDelayed(new Runnable() {
             @Override
             public void run() {
                 hideView(fullscreenFab);
             }
-        }, 100);
+        }, 500);
 
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
 
@@ -422,6 +447,20 @@ public class PostSelected extends AppCompatActivity {
         bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
         byte[] byteArray = stream.toByteArray();
 
+        Log.d("The Jones Theory", "byteLength: " + byteArray.length);
+
+
+        if (byteArray.length > 1000000){
+            for (int i = 85; (byteArray.length > 1000000 && i >= 20); i = i - 5) {
+                stream.reset();
+                Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
+                bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
+                byteArray = stream.toByteArray();
+                Log.d("The Jones Theory", "AFTER byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
+            }
+        }
+
+
         Intent intent = new Intent(PostSelected.this, TransitionFullscreen.class);
         intent.putExtra("bitmap", byteArray);
         intent.putExtra("PostImage", PostImage);
@@ -429,16 +468,8 @@ public class PostSelected extends AppCompatActivity {
         intent.putExtra("PostTitle", PostTitle);
         intent.putExtra("PostText", PostText);
 
-        // Inflate transitions to apply
-        Transition changeTransform = TransitionInflater.from(this).
-                inflateTransition(R.transition.change_image_transform);
-        Transition explodeTransform = TransitionInflater.from(this).
-                inflateTransition(android.R.transition.explode);
-
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelected.this, imgFavorite, "photo_hero").toBundle());
     }
-
-
 
     public String stripHtml(String html) {
         return Html.fromHtml(html).toString();

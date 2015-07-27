@@ -11,9 +11,42 @@
         android:layout_height="match_parent"
         android:paddingTop="4dp">
 
-        <include
-            android:id="@+id/posts"
-            layout="@layout/list_item" />
+        <FrameLayout
+            android:layout_width="match_parent"
+            android:layout_height="match_parent">
+
+            <include
+                android:id="@+id/Random_posts"
+                layout="@layout/list_item"
+                />
+
+            <LinearLayout
+                android:id="@+id/no_Post"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                android:orientation="vertical"
+                android:visibility="gone"
+                >
+
+                <ImageView
+                    android:layout_width="200dp"
+                    android:layout_height="300dp"
+                    android:layout_gravity="center"
+                    android:scaleType="fitCenter"
+                    android:src="@mipmap/ic_launcher"
+                    />
+                <TextView
+                    android:layout_width="match_parent"
+                    android:layout_height="match_parent"
+                    android:text="This is embarrassing."
+                    android:layout_gravity="center"
+                    android:gravity="center_horizontal"
+                    android:textAppearance="@style/TextAppearance.AppCompat.SearchResult.Subtitle"
+                    android:layout_margin="16dp"/>
+
+            </LinearLayout>
+        </FrameLayout>
+
 
         </android.support.v4.widget.NestedScrollView>
 

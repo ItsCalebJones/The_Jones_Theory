@@ -124,7 +124,7 @@ public class LoginActivity extends AppCompatActivity {
                 }
                 Log.d(TAG, "Facebook: onSuccess - Stored: " + cookie + " new = " + token.getToken());
 
-                LoginActivity.this.startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                startActivity(new Intent(LoginActivity.this, MainActivity.class));
             }
 
             @Override

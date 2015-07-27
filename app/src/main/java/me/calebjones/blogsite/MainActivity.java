@@ -39,6 +39,7 @@ import me.calebjones.blogsite.fragments.FeedFragment;
 import me.calebjones.blogsite.fragments.PhotoFragment;
 import me.calebjones.blogsite.fragments.RandomFragment;
 import me.calebjones.blogsite.loader.PhotoLoader;
+import me.calebjones.blogsite.loader.PostDownloader;
 import me.calebjones.blogsite.util.AuthValidate;
 import me.calebjones.blogsite.util.FBConnect;
 
@@ -248,6 +249,9 @@ public class MainActivity extends AppCompatActivity {
         boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
         Log.d(TAG, "Previously Started = " + Boolean.toString(previouslyStarted));
         if(!previouslyStarted){
+            Intent intent = new Intent(this, PostDownloader.class);
+            intent.setAction(PostDownloader.DOWNLOAD_ALL);
+            startService(intent);
             showLogin();
         }
 

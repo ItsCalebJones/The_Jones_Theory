@@ -49,6 +49,8 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
     public Integer mPosition;
     private Context context;
     private Posts post;
+    private View noPost;
+    private View item;
 
     public SwipeRefreshLayout mSwipeRefreshLayout;
 
@@ -75,6 +77,9 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
         excerpt = (TextView) view.findViewById(R.id.excerpt);
         tags = (TextView) view.findViewById(R.id.tags);
 
+        noPost = view.findViewById(R.id.no_Post);
+        item = view.findViewById(R.id.Random_posts);
+
         thumbnail.setOnClickListener(this);
         title.setOnClickListener(this);
 
@@ -91,7 +96,13 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
         int num = 0;
         if (savedInstanceState != null)
             num = savedInstanceState.getInt("NUM");
-        loadPost(num);
+
+        if (databaseManager.getCount() != 0) {
+            loadPost(num);
+        } else {
+            item.setVisibility(View.INVISIBLE);
+            noPost.setVisibility(View.VISIBLE);
+        }
 
         // Inflate the layout for this fragment
         return view;
@@ -99,12 +110,17 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
     private void loadPost(int num) {
         int random;
-        if (num == 0) {
-            random = BlipUtils.randInt(1, databaseManager.getMax());
-        } else {
-            random = num;
+        int max = databaseManager.getMax();
+
+        if (databaseManager.getCount() != 0){
+            if (max != 0 && num == 0){
+                random = BlipUtils.randInt(1, max);
+                post = databaseManager.getPost(random);
+            } else {
+                random = num;
+                post = databaseManager.getPost(random);
+            }
         }
-        post = databaseManager.getPost(random);
 
         title.setText(Html.fromHtml(post.getTitle()));
         excerpt.setText(Html.fromHtml(post.getExcerpt()));

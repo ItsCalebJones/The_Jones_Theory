@@ -17,8 +17,12 @@
 package me.calebjones.blogsite.loader;
 
 import android.app.IntentService;
+import android.app.NotificationManager;
+import android.content.Context;
 import android.content.Intent;
+import android.graphics.BitmapFactory;
 import android.support.v4.content.LocalBroadcastManager;
+import android.support.v7.app.NotificationCompat;
 import android.util.Log;
 
 import com.google.gson.Gson;
@@ -31,6 +35,7 @@ import org.json.JSONException;
 import org.json.JSONObject;
 
 import me.calebjones.blogsite.BlogsiteApplication;
+import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
 import me.calebjones.blogsite.models.Posts;
@@ -63,6 +68,9 @@ public class PostDownloader extends IntentService {
 
     public List<String> postID;
 
+    public NotificationManager mNotifyManager;
+    public NotificationCompat.Builder mBuilder;
+
     public PostDownloader() {
         super("PostDownloaderService");
     }
@@ -89,6 +97,22 @@ public class PostDownloader extends IntentService {
             case DOWNLOAD_LAST_TEN:
                 redownloadLastTen();
         }
+    }
+
+    private void notificationService(){
+        int id = 1;
+        mNotifyManager = (NotificationManager) getSystemService(Context.NOTIFICATION_SERVICE);
+        mBuilder = new NotificationCompat.Builder(this);
+        mBuilder.setContentTitle("The Jones Theory")
+                .setOngoing(true)
+                .setContentText("Download in progress...")
+                .setSmallIcon(R.drawable.ic_action_file_download)
+                .setLargeIcon(BitmapFactory.decodeResource(
+                        getResources(), R.mipmap.ic_launcher));
+        // Sets an activity indicator for an operation of indeterminate length
+        mBuilder.setProgress(0, 0, true);
+        // Issues the notification
+        mNotifyManager.notify(id, mBuilder.build());
     }
 
     private void downloadSpecific(int i) {
@@ -183,52 +207,6 @@ public class PostDownloader extends IntentService {
         }
     }
 
-    private void downloadAllMissingTranscripts() {
-        final Gson gson = new Gson();
-        final DatabaseManager databaseManager = new DatabaseManager(this);
-        List<Integer> nums = databaseManager.getAllMissingTranscripts();
-
-        final CountDownLatch latch = new CountDownLatch(nums.size());
-        final Executor executor = Executors.newFixedThreadPool(nums.size() / 2);
-        for (int i : nums) {
-            final int index = i;
-            executor.execute(new Runnable() {
-                @Override
-                public void run() {
-                    try {
-                        String url = String.format(POST_URL, index);
-                        Request request = new Request.Builder().url(url).build();
-                        Response response = BlogsiteApplication.getInstance().client.newCall(request).execute();
-                        if (!response.isSuccessful()) throw new IOException();
-                        String responseBody = response.body().string();
-                        Posts item = null;
-                        try {
-                            item = gson.fromJson(responseBody, Posts.class);
-                        } catch (JsonSyntaxException e) {
-                        }
-                        if (item != null) {
-                            databaseManager.updatePost(item);
-                        }
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                        LocalBroadcastManager.getInstance(PostDownloader.this).sendBroadcast(new Intent(DOWNLOAD_FAIL));
-                    } finally {
-                        latch.countDown();
-                    }
-                }
-            });
-        }
-
-        try {
-            latch.await();
-        } catch (InterruptedException e) {
-            LocalBroadcastManager.getInstance(PostDownloader.this).sendBroadcast(new Intent(DOWNLOAD_FAIL));
-        }
-        SharedPrefs.getInstance().setLastTranscriptCheckTime(System.currentTimeMillis());
-        LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_SUCCESS));
-
-    }
-
     private void getPostID(){
         String firstUrl = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/?pretty=true&number=100&fields=ID";
         String nextPage = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/?pretty=true&number=100&fields=ID&page_handle=";
@@ -292,6 +270,7 @@ public class PostDownloader extends IntentService {
     }
 
     private void downloadMissing(){
+        notificationService();
         final Gson gson = new Gson();
         final DatabaseManager databaseManager = new DatabaseManager(this);
         Request request = new Request.Builder().url(LATEST_URL).build();
@@ -372,7 +351,6 @@ public class PostDownloader extends IntentService {
                                 item1.setPostID(jObject.optInt("ID"));
                                 item1.setURL(jObject.optString("URL"));
 
-
                                 //Cuts out all the Child nodes and gets only the  tags.
                                 JSONObject  Tobj = new JSONObject(jObject.optString("tags"));
                                 JSONArray Tarray = Tobj.names();
@@ -394,11 +372,11 @@ public class PostDownloader extends IntentService {
                                     item1.setTags("");
                                 }
 
-                                JSONObject  Cobj = new JSONObject(jObject.optString("categories"));
+                                JSONObject Cobj = new JSONObject(jObject.optString("categories"));
                                 JSONArray Carray = Cobj.names();
                                 String catsList = null;
 
-                                if (Tarray != null) {
+                                if (Carray != null && (Carray.length() > 0)) {
 
                                     for (int c = 0; c < Carray.length(); c++) {
                                         if (catsList != null) {
@@ -441,15 +419,25 @@ public class PostDownloader extends IntentService {
             }
             Log.d("PostDownloader", "Complete!");
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_SUCCESS));
+            // When the loop is finished, updates the notification
+            mBuilder.setContentText("Download complete")
+                    .setOngoing(false);
+            mNotifyManager.notify(1, mBuilder.build());
         } catch (IOException e) {
             e.printStackTrace();
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_FAIL));
+            // When the loop is finished, updates the notification
+            mBuilder.setContentText("Download Failed")
+                    .setOngoing(false);
+            mNotifyManager.notify(1, mBuilder.build());
         } catch (JSONException e) {
             e.printStackTrace();
         }
     }
 
     private void downloadAll() {
+        notificationService();
+
         final Gson gson = new Gson();
         final DatabaseManager databaseManager = new DatabaseManager(this);
         Request request = new Request.Builder().url(LATEST_URL).build();
@@ -486,6 +474,8 @@ public class PostDownloader extends IntentService {
             final CountDownLatch latch = new CountDownLatch(num);
             final Executor executor = Executors.newFixedThreadPool(10);
 
+//          For debugging specific posts
+//            for (int i = 2490; i <= 2600; i++) {
             for (int i = 1; i <= num; i++) {
                 final int index = i;
                 executor.execute(new Runnable() {
@@ -527,7 +517,7 @@ public class PostDownloader extends IntentService {
 
 
                                 //Cuts out all the Child nodes and gets only the  tags.
-                                JSONObject  Tobj = new JSONObject(jObject.optString("tags"));
+                                JSONObject Tobj = new JSONObject(jObject.optString("tags"));
                                 JSONArray Tarray = Tobj.names();
                                 String tagsList = null;
 
@@ -547,7 +537,7 @@ public class PostDownloader extends IntentService {
                                     item1.setTags("");
                                 }
 
-                                JSONObject  Cobj = new JSONObject(jObject.optString("categories"));
+                                JSONObject Cobj = new JSONObject(jObject.optString("categories"));
                                 JSONArray Carray = Cobj.names();
                                 String catsList = null;
 
@@ -577,6 +567,7 @@ public class PostDownloader extends IntentService {
                                     databaseManager.addPost(item1);
                                     Log.d("PostDownloader", index + " database...");
                                     double progress = ((double) index / num) * 100;
+
                                     Intent intent = new Intent(DOWNLOAD_PROGRESS);
                                     intent.putExtra(PROGRESS, progress);
                                     intent.putExtra(TITLE, item1.getTitle());
@@ -595,13 +586,25 @@ public class PostDownloader extends IntentService {
                 latch.await();
             } catch (InterruptedException e) {
                 LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_FAIL));
+                mBuilder.setContentText("Download failed.")
+                        .setProgress(0, 0, false)
+                        .setOngoing(false);
+                mNotifyManager.notify(1, mBuilder.build());
                 throw new IOException(e);
             }
             Log.d("PostDownloader", "Broadcast Sent!");
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_SUCCESS));
+            mBuilder.setContentText("Download complete")
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+            mNotifyManager.notify(1, mBuilder.build());
         } catch (IOException | JSONException e) {
             e.printStackTrace();
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_FAIL));
+            mBuilder.setContentText("Download failed.")
+                    .setProgress(0, 0, false)
+                    .setOngoing(false);
+            mNotifyManager.notify(1, mBuilder.build());
         }
     }
 

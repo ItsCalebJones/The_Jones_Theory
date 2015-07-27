@@ -266,6 +266,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if (low < 1) {
             low = 1;
         }
+        Log.d("The Jones Theory", "Low: " + low + " contNum: " + continuation);
 
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + ID + " <= ? AND " + ID + " >= ?" +
