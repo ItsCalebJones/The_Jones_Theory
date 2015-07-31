@@ -53,7 +53,8 @@ import java.util.List;
 
 import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.loader.PostLoader;
+import me.calebjones.blogsite.database.SharedPrefs;
+import me.calebjones.blogsite.network.PostLoader;
 
 public class RegistrationActivity extends AppCompatActivity implements LoaderManager.LoaderCallbacks<Cursor> {
     //Public Vars
@@ -289,7 +290,6 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 //            hideSoftKeyboard(RegistrationActivity.this);
             doRegisterTask = new doRegister(confirmUsername, username, uNonce, password);
             doRegisterTask.execute();
-            Toast.makeText(getApplicationContext(), "Login!", Toast.LENGTH_SHORT).show();
         }
     }
 
@@ -392,6 +392,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             Log.d("The Jones Theory-D", "Skip = " + Boolean.toString(previouslyStarted));
             if(!previouslyStarted){
                 SharedPreferences.Editor edit = prefs.edit();
+                SharedPrefs.getInstance().setFirstRun(false);
                 edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
                 edit.apply();
             }
@@ -597,6 +598,8 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
                 }
                 Toast.makeText(getApplicationContext(), "Error Registering: " + error, Toast.LENGTH_SHORT).show();
             } else {
+                SharedPrefs.getInstance().setFirstRun(false);
+
                 Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
                 intent.putExtra("Category", "blog");
                 startActivity(intent);

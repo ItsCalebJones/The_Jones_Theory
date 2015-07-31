@@ -14,7 +14,6 @@ import android.os.Handler;
 import android.support.v4.app.Fragment;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.widget.SwipeRefreshLayout;
-import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.DefaultItemAnimator;
 import android.support.v7.widget.RecyclerView;
 import android.support.v7.widget.StaggeredGridLayoutManager;
@@ -35,12 +34,14 @@ import com.koushikdutta.ion.Ion;
 
 import java.util.List;
 import java.util.Objects;
+import java.util.Random;
 
+import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.activity.PostSelected;
+import me.calebjones.blogsite.activity.PostSelectedActivity;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
-import me.calebjones.blogsite.loader.PostDownloader;
+import me.calebjones.blogsite.network.PostDownloader;
 import me.calebjones.blogsite.models.FeedItem;
 import me.calebjones.blogsite.models.Posts;
 import me.calebjones.blogsite.util.EndlessRecyclerOnScrollListener;
@@ -54,10 +55,12 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public View mainView;
     public View view;
 
+    private SlideInBottomAnimationAdapter animatorAdapter;
     private View noPost;
     private DatabaseManager databaseManager;
     private RecyclerView mRecyclerView;
     private FeedAdapter adapter;
+    private StaggeredGridLayoutManager layoutManager;
     private static final String BUNDLE_RECYCLER_LAYOUT = "BlogFragment.mRecylcerView.fragment_fetch_data";
 
     public BroadcastReceiver receiver = new BroadcastReceiver() {
@@ -76,7 +79,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                             adapter.removeAll();
                             Log.d("The Jones Theory", "FeedFragment: Broadcast " + mCategory);
                             adapter.addItems(databaseManager.getFeed(mCategory));
-                            adapter.notifyDataSetChanged();
+                            animatorAdapter.notifyDataSetChanged();
                             Log.d("The Jones Theory", "Adapter Size" + String.valueOf(adapter.getItemCount()));
                             stopRefreshing();
                         }
@@ -119,7 +122,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         view = lf.inflate(R.layout.fragment_fetch_data, container, false);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
-        StaggeredGridLayoutManager layoutManager;
+
         if (getResources().getBoolean(R.bool.landscape)) {
             layoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         } else {
@@ -198,7 +201,9 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             adapter = new FeedAdapter();
             Log.d("The Jones Theory", "FeedFragment: -onResume " + mCategory);
             adapter.addItems(databaseManager.getFeed(mCategory));
-            mRecyclerView.setAdapter(adapter);
+            animatorAdapter = new SlideInBottomAnimationAdapter(adapter);
+            animatorAdapter.setDuration(350);
+            mRecyclerView.setAdapter(animatorAdapter);
             noPost.setVisibility(View.GONE);
         }
         if (mRecyclerView.getAdapter().getItemCount() == 0) {
@@ -209,23 +214,25 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     }
 
     public void changeFeed(String category){
-        exitReveal();
         mCategory = category;
         Log.d("The Jones Theory", "FeedFragment: -changeFeed " + mCategory);
         setRefreshing();
-        adapter.removeAll();
-        adapter.addItems(databaseManager.getFeed(mCategory));
-        adapter.notifyDataSetChanged();
-        stopRefreshing();
+
+        Random r = new Random();
+        int delay = 200 + r.nextInt(600 - 200);
+
         final Handler handler = new Handler();
         handler.postDelayed(new Runnable() {
             @Override
             public void run() {
-                //Do something after 100ms
-                handler.postDelayed(this, 1000);
-                revealView();
+                adapter.removeAll();
+                adapter.addItems(databaseManager.getFeed(mCategory));
+                animatorAdapter.notifyDataSetChanged();
+                mRecyclerView.smoothScrollToPosition(0);
+                stopRefreshing();
             }
-        }, 250);
+        }, delay);
+
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -287,7 +294,9 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             adapter = new FeedAdapter();
             Log.d("The Jones Theory", "FeedFragment: -onRefresh " + mCategory);
             adapter.addItems(databaseManager.getFeed(mCategory));
-            mRecyclerView.setAdapter(adapter);
+            animatorAdapter = new SlideInBottomAnimationAdapter(adapter);
+            animatorAdapter.setDuration(1000);
+            mRecyclerView.setAdapter(animatorAdapter);
         }
 
         if (databaseManager.getCount() > 0){
@@ -347,7 +356,16 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
 
         public int getLastItemNum() {
-            return feedItemList.get(feedItemList.size() - 1).getID();
+            int counter = feedItemList.size() - 1;
+            int number = 999;
+            int id;
+            for (int i = 0; i < counter; i++){
+                id = feedItemList.get(i).getID();
+                if (id < number){
+                    number = id;
+                }
+            }
+            return number;
         }
 
 
@@ -419,7 +437,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         Log.d("The Jones Theory", "Title!");
                         break;
                     case R.id.thumbnail:
-                        Intent intent = new Intent(getActivity(), PostSelected.class);
+                        Intent intent = new Intent(getActivity(), PostSelectedActivity.class);
                         intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
                         intent.putExtra("PostImage", feedItemList.get(position).getFeaturedImage());
                         intent.putExtra("PostText", feedItemList.get(position).getContent());

@@ -1,10 +1,7 @@
 package me.calebjones.blogsite.gallery;
 
-import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
-import android.graphics.Bitmap;
-import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -14,8 +11,6 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
-import com.koushikdutta.async.future.FutureCallback;
-import com.koushikdutta.ion.Ion;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -24,7 +19,7 @@ import java.util.List;
 
 import me.calebjones.blogsite.BlogsiteApplication;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.activity.PostSelected;
+import me.calebjones.blogsite.activity.PostSelectedActivity;
 import me.calebjones.blogsite.models.Posts;
 import me.calebjones.blogsite.util.BlipUtils;
 
@@ -139,7 +134,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         @Override
         public void onClick(View v) {
             final int position = getAdapterPosition();
-            Intent intent = new Intent(mContext, PostSelected.class);
+            Intent intent = new Intent(mContext, PostSelectedActivity.class);
             intent.putExtra("PostTitle", imageItemList.get(position).getTitle());
             intent.putExtra("PostImage", imageItemList.get(position).getFeaturedImage());
             intent.putExtra("PostText", imageItemList.get(position).getContent());
@@ -147,7 +142,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             intent.putExtra("PostID", imageItemList.get(position).getPostID());
             intent.putExtra("ID", imageItemList.get(position).getID());
             mContext.startActivity(intent);
-//            mContext.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelected.this, imgFavorite, "photo_hero").toBundle());
+//            mContext.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelectedActivity.this, imgFavorite, "photo_hero").toBundle());
         }
     }
 }

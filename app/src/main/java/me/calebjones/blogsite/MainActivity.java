@@ -11,7 +11,6 @@ import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentPagerAdapter;
-import android.support.v4.app.FragmentStatePagerAdapter;
 import android.support.v4.view.ViewPager;
 import android.support.v4.widget.DrawerLayout;
 import android.support.v7.app.ActionBarDrawerToggle;
@@ -31,15 +30,15 @@ import com.facebook.login.LoginManager;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
-import me.calebjones.blogsite.activity.DBTest;
+import me.calebjones.blogsite.activity.DownloadActivity;
 import me.calebjones.blogsite.activity.LoginActivity;
 import me.calebjones.blogsite.activity.SettingsActivity;
+import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
 import me.calebjones.blogsite.fragments.FeedFragment;
 import me.calebjones.blogsite.fragments.PhotoFragment;
 import me.calebjones.blogsite.fragments.RandomFragment;
-import me.calebjones.blogsite.loader.PhotoLoader;
-import me.calebjones.blogsite.loader.PostDownloader;
+import me.calebjones.blogsite.network.PostDownloader;
 import me.calebjones.blogsite.util.AuthValidate;
 import me.calebjones.blogsite.util.FBConnect;
 
@@ -56,6 +55,7 @@ public class MainActivity extends AppCompatActivity {
     private DrawerLayout drawerLayout;
     private static final int DOWNLOAD_REQUEST = 1045;
     private TabLayout tabLayout;
+    private DatabaseManager databaseManager;
     private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
         @Override
         public void onReceive(Context context, Intent intent) {
@@ -77,8 +77,20 @@ public class MainActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
         setContentView(R.layout.activity_main);
-
         FacebookSdk.sdkInitialize(getApplicationContext());
+
+        //Check to see if the app is loading for the first time.
+        if(SharedPrefs.getInstance().getFirstRun()){
+            if (databaseManager == null) {
+                databaseManager = new DatabaseManager(this);
+            }
+            Log.d("The Jones Theory", "DB Size = " + String.valueOf(databaseManager.getCount()));
+            if (databaseManager.getCount() == 0){
+                doDownload();
+            }
+        }
+
+
 
         SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
         SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
@@ -211,19 +223,6 @@ public class MainActivity extends AppCompatActivity {
         tabLayout.setupWithViewPager(viewPager);
     }
 
-    @Override
-    protected void onActivityResult(int requestCode, int resultCode, Intent data) {
-        super.onActivityResult(requestCode, resultCode, data);
-        if (requestCode == DOWNLOAD_REQUEST) {
-            if (resultCode == RESULT_OK) {
-                SharedPrefs.getInstance().setFirstRun(false);
-                setUpViews();
-            } else {
-                finish();
-            }
-        }
-    }
-
     private void settingsIntent() {
         Intent i = new Intent(MainActivity.this, SettingsActivity.class);
         startActivity(i);
@@ -240,21 +239,43 @@ public class MainActivity extends AppCompatActivity {
     // TODO Fix SavedInstance by getting the active fragment and making sure its set correctly.
     @Override
     public void onResume() {
+        //Check to see if the app is loading for the first time.
+        if(!SharedPrefs.getInstance().getFirstRun()){
+            if (databaseManager == null) {
+                databaseManager = new DatabaseManager(this);
+            }
+            Log.d("The Jones Theory", "DB Size onResume = " + String.valueOf(databaseManager.getCount()));
+            if (databaseManager.getCount() == 0){
+                doDownload();
+            }
+        }
+
+
+        validateLoginStatus();
+
+    //  Logs 'install' and 'app activate' App Events.
+        AppEventsLogger.activateApp(this);
+        super.onResume();
+    }
+
+    private void doDownload() {
+        Intent intent = new Intent(this, PostDownloader.class);
+        intent.setAction(PostDownloader.DOWNLOAD_ALL);
+        startService(intent);
+    }
+
+    public void validateLoginStatus() {
         //Get Shared Preference auth key
         SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-        SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
+        final SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String authCookie = prefs.getString("AUTH_COOKIE", "");
 
         //Check to see if the app is loading for the first time.
-        boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-        Log.d(TAG, "Previously Started = " + Boolean.toString(previouslyStarted));
-        if(!previouslyStarted){
-            Intent intent = new Intent(this, PostDownloader.class);
-            intent.setAction(PostDownloader.DOWNLOAD_ALL);
-            startService(intent);
+        if(SharedPrefs.getInstance().getFirstRun()){
             showLogin();
+        } else if (SharedPrefs.getInstance().isDownloading()){
+            showDownload();
         }
-
 
         //Gets current FB Access Token
         final AccessToken token = AccessToken.getCurrentAccessToken();
@@ -269,6 +290,7 @@ public class MainActivity extends AppCompatActivity {
                     Log.v(TAG, "Main - Token - onPostExecute: " + result);
                     if (result) {
                         //If key is valid then the user is logged in.
+                        SharedPrefs.getInstance().setLoginStatus(true);
                         Log.d(TAG, "Main - Token - AuthValidateSuccess: " + status);
                     } else {
                         //If key is not valid try to generate a new auth key and save it.
@@ -285,9 +307,10 @@ public class MainActivity extends AppCompatActivity {
                                     SharedPreferences.Editor edit = prefs.edit();
                                     edit.putString("AUTH_COOKIE", cookieStr);
                                     edit.apply();
-                                    Toast.makeText(getApplicationContext(), "Logged in!", Toast.LENGTH_SHORT).show();
+                                    SharedPrefs.getInstance().setLoginStatus(true);
                                 } else {
                                     //DO THAT
+                                    SharedPrefs.getInstance().setLoginStatus(false);
                                     LoginManager.getInstance().logOut();
                                     Toast.makeText(getApplicationContext(), "Sorry, something happened please log back in.", Toast.LENGTH_SHORT).show();
                                 }
@@ -300,53 +323,45 @@ public class MainActivity extends AppCompatActivity {
             doAuth.execute();
 
         } else if (authCookie != null) {
-            //Show current authCookie
-            Toast.makeText(getApplicationContext(), authCookie, Toast.LENGTH_SHORT).show();
 
             //This SharedPreference key checks to see if the user wants to be logged in based on the settings.
-            boolean loginCheck = sharedPerf.getBoolean("prompt_logged_out", false);
-            Log.v(TAG, "Prompt To login: " + Boolean.toString(loginCheck));
+            final boolean promptLoginCheck = sharedPerf.getBoolean("prompt_logged_out", false);
+            Log.v(TAG, "Prompt To login: " + Boolean.toString(promptLoginCheck));
 
-            //If LoginCheck is True user elected to prompt for login.
-            if (loginCheck) {
+            //Easy way to check if authCookie has been added. Probably a better way to do this.
+            if (authCookie.length() > 10) {
+                Log.v(TAG, "Cookie: " + authCookie);
 
-                //Easy way to check if authCookie has been added. Probably a better way to do this.
-                if (authCookie.length() > 10) {
-                    Log.v(TAG, "Cookie: " + authCookie);
-
-                    doAuth = new AuthValidate(authCookie) {
-                        @Override
-                        protected void onPostExecute(Boolean result) {
-                            //Do something with the JSON string
-                            Log.v(TAG, "Main - authCookie - onPostExecute: " + result);
-                            if (result) {
-                                //DO THIS
-                                Log.d(TAG, "Main - authCookie - AuthValidateSuccess - " + status);
-                            } else {
-                                //DO THAT
-                                Log.d(TAG, "Main - authCookie - AuthValidateFailure -" + error);
+                doAuth = new AuthValidate(authCookie) {
+                    @Override
+                    protected void onPostExecute(Boolean result) {
+                        //Do something with the JSON string
+                        Log.v(TAG, "Main - authCookie - onPostExecute: " + result);
+                        if (result) {
+                            //DO THIS
+                            SharedPrefs.getInstance().setLoginStatus(true);
+                            Log.d(TAG, "Main - authCookie - AuthValidateSuccess - " + status);
+                        } else {
+                            //DO THAT
+                            SharedPrefs.getInstance().setLoginStatus(false);
+                            Log.d(TAG, "Main - authCookie - AuthValidateFailure -" + error);
+                            if (promptLoginCheck){
                                 showLogin();
                             }
                         }
-                    };
-                    doAuth.execute();
-                } else {
-                    showLogin();
-                }
+                    }
+                };
+                doAuth.execute();
             }
+        } else if (authCookie == null && token == null) {
+            SharedPrefs.getInstance().setLoginStatus(false);
         }
-
-    //  Logs 'install' and 'app activate' App Events.
-        AppEventsLogger.activateApp(this);
-        super.onResume();
     }
 
 
     @Override
     protected void onPause() {
         super.onPause();
-
-//        // Logs 'app deactivate' App Event.
 //        AppEventsLogger.deactivateApp(this);
     }
 
@@ -355,25 +370,10 @@ public class MainActivity extends AppCompatActivity {
         startActivity(loginIntent);
     }
 
-//    private void galleryFragment() {
-//        //Set up the Fragment transaction
-//        PhotoFragment photoFragment = new PhotoFragment();
-//        android.support.v4.app.FragmentTransaction mPhotoTransaction = getSupportFragmentManager().beginTransaction();
-//
-//        //Execute the transaction
-//        mPhotoTransaction.replace(R.id.frame, photoFragment);
-//        mPhotoTransaction.commit();
-//    }
-
-
-//    private void webFragment() {
-//        WebView myWebFragment = new WebView();
-//        android.support.v4.app.FragmentTransaction mWebTransaction = getSupportFragmentManager().beginTransaction();
-//        mWebTransaction.replace(R.id.frame, myWebFragment);
-//        mWebTransaction.commit();
-//    }
-
-
+    private void showDownload() {
+        Intent loginIntent = new Intent(this, DownloadActivity.class);
+        startActivity(loginIntent);
+    }
 
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
@@ -399,7 +399,7 @@ public class MainActivity extends AppCompatActivity {
         } else if (id == R.id.action_search){
             return true;
         } else if (id == R.id.DBTest){
-            Intent DBIntent = new Intent(this, DBTest.class);
+            Intent DBIntent = new Intent(this, DownloadActivity.class);
             startActivity(DBIntent);
         }
 
@@ -439,49 +439,5 @@ public class MainActivity extends AppCompatActivity {
         }
 
     }
-
-
-//    public class FragmentsAdapter extends FragmentPagerAdapter {
-//
-//
-//        private String[] titles = getResources().getStringArray(R.array.tabs);
-//
-//        public FragmentsAdapter(FragmentManager fm) {
-//            super(fm);
-//        }
-//
-//        @Override
-//        public Fragment getItem(int position) {
-//            switch (position) {
-//                case 0:
-//                    Log.d("The Jones Theory", "Get Item" + mCategory);
-//                switch (mCategory) {
-//                    case "home":
-//                        Log.d("The Jones Theory", "Home!");
-//                        return new FeedFragment();
-//                    case "about":
-//                        Log.d("The Jones Theory", "WebView!");
-//                        titles[0] = "WebView";
-//                        return new WebView();
-//                }
-//                case 1:
-//                    return new BlogFragment();
-//                case 2:
-//                    return new ScienceFragment();
-//            }
-//            return null;
-//        }
-//
-//        @Override
-//        public CharSequence getPageTitle(int position) {
-//            return titles[position];
-//        }
-//
-//        @Override
-//        public int getCount() {
-//            return titles.length;
-//        }
-//    }
-
 
 }

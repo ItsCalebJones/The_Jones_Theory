@@ -67,5 +67,6 @@ Donec in mauris sit amet magna maximus facilisis ac in dolor. Cras fermentum arc
 </string>
     <string name="title_activity_post_comments">PostComments</string>
     <string name="title_activity_dbtest">DBTest</string>
+    <string name="loggedout_comment_message">Thanks for reading! Tell me your thoughts?</string>
 
 </resources>

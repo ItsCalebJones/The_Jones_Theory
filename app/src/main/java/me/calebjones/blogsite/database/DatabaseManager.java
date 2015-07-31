@@ -32,7 +32,7 @@ import java.util.List;
 
 public class DatabaseManager extends SQLiteOpenHelper {
 
-    private static final String DB_NAME = "WP_POSTS";
+    private static final String DB_NAME = "WP_POSTS.db";
     private static final int DB_VERSION = 1;
     private SQLiteDatabase DB;
 
@@ -42,6 +42,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     private static final String PRIMARY_KEY = " PRIMARY KEY";
     private static final String COMMA_SEP = ",";
 
+    private static final String DOWNLOAD_TABLE = "Download_Table";
     private static final String TABLE_POST = "Post_Table";
     private static final String DATE = "DATE";
     private static final String PostID = "postID";
@@ -262,7 +263,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         if (continuationNum != 0)
             continuation = continuationNum;
 
-        int low = continuation - 10;
+        int low = continuation - 15;
         if (low < 1) {
             low = 1;
         }
@@ -270,7 +271,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + ID + " <= ? AND " + ID + " >= ?" +
-                        " ORDER BY " + ID + " DESC",
+                        " ORDER BY " + " date(date) " + " DESC",
                 new String[]{String.valueOf(continuation), String.valueOf(low)});
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
             posts = new ArrayList<>();
@@ -298,7 +299,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Posts> getScience() {
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + CATEGORY + " LIKE " + "'%science%'" +
-                        " ORDER BY " + ID + " DESC", null);
+                        " ORDER BY " + " date(DATE) " + " DESC", null);
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
             posts = new ArrayList<>();
             do {
@@ -325,7 +326,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + CATEGORY + " LIKE " + "'%blog%'" +
-                " ORDER BY " + ID + " DESC", null);
+                " ORDER BY " + " date(DATE) " + " DESC", null);
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
             posts = new ArrayList<>();
             do {
@@ -352,7 +353,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Posts> getParenting() {
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + CATEGORY + " LIKE " + "'%parenting%'" +
-                " ORDER BY " + ID + " DESC", null);
+                " ORDER BY " + " date(DATE) " + " DESC", null);
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
             posts = new ArrayList<>();
             do {
@@ -378,7 +379,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Posts> getAndroid() {
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + CATEGORY + " LIKE " + "'%android%'" +
-                " ORDER BY " + ID + " DESC", null);
+                " ORDER BY " + " date(DATE) " + " DESC", null);
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
             posts = new ArrayList<>();
             do {
@@ -404,7 +405,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public List<Posts> getTechnology() {
         List<Posts> posts = Collections.emptyList();
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + CATEGORY + " LIKE " + "'%technology%'" +
-                " ORDER BY " + ID + " DESC", null);
+                " ORDER BY " + " date(DATE) " + " DESC", null);
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
             posts = new ArrayList<>();
             do {
@@ -477,10 +478,24 @@ public class DatabaseManager extends SQLiteOpenHelper {
     public boolean feedExists(Posts item) {
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST
                 + " WHERE " + ID + " = ?", new String[]{String.valueOf(item.getID())});
-        Log.d("The Jons Theory", "feedExists: " + cursor.toString());
+
         boolean exists = false;
         if (cursor != null && cursor.getCount() != 0) {
             exists = true;
+            Log.d("The Jones Theory", "feedExists: " + exists);
+            cursor.close();
+        }
+        return exists;
+    }
+
+    public boolean idExists(String item) {
+        Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST
+                + " WHERE " + PostID + " = ?", new String[]{item});
+
+        boolean exists = false;
+        if (cursor != null && cursor.getCount() != 0) {
+            exists = true;
+            Log.d("The Jones Theory", "feedExists: " + exists);
             cursor.close();
         }
         return exists;

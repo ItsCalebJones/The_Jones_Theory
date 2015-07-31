@@ -50,7 +50,8 @@ import java.util.Arrays;
 
 import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.loader.PostLoader;
+import me.calebjones.blogsite.database.SharedPrefs;
+import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.util.AuthValidate;
 import me.calebjones.blogsite.util.FBConnect;
 
@@ -94,6 +95,12 @@ public class LoginActivity extends AppCompatActivity {
             public void onSuccess(LoginResult loginResult) {
                 // App code
 
+
+                //If first run set to false.
+                if(SharedPrefs.getInstance().getFirstRun()){
+                    SharedPrefs.getInstance().setFirstRun(false);
+                }
+
                 AccessToken token = AccessToken.getCurrentAccessToken();
                 //GET AUTH COOKIE
 
@@ -122,7 +129,6 @@ public class LoginActivity extends AppCompatActivity {
                     };
                     fbAuth.execute();
                 }
-                Log.d(TAG, "Facebook: onSuccess - Stored: " + cookie + " new = " + token.getToken());
 
                 startActivity(new Intent(LoginActivity.this, MainActivity.class));
             }
@@ -151,9 +157,6 @@ public class LoginActivity extends AppCompatActivity {
         coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_content);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
 
-
-        new PostLoader().execute(mURL);
-
         // Initializing Toolbar and setting it as the actionbar
         toolbar = (Toolbar) findViewById(R.id.login_toolbar);
         setSupportActionBar(toolbar);
@@ -162,7 +165,7 @@ public class LoginActivity extends AppCompatActivity {
         usernameTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus == true) {
+                if (hasFocus) {
                     collapseToolbar();
                 }
 
@@ -174,7 +177,7 @@ public class LoginActivity extends AppCompatActivity {
         passwordTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
-                if (hasFocus == true) {
+                if (hasFocus) {
                     collapseToolbar();
                 }
 
@@ -207,32 +210,17 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-//        Button faceButton = (Button) findViewById(R.id.login_button);
-//        faceButton.setOnClickListener(new View.OnClickListener() {
-//            @Override
-//            public void onClick(View view) {
-//                try {
-//                    Toast.makeText(getApplicationContext(), "Not available yet! =(", Toast.LENGTH_SHORT).show();
-//                } catch (Exception e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        });
-
         loginFormView = findViewById(R.id.login_form);
         progressView = findViewById(R.id.login_progress);
 
-        //adding underline and link to signup textview
-        signupButton = (TextView) findViewById(R.id.email_register);
 
+        signupButton = (TextView) findViewById(R.id.email_register);
         signupButton.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 Log.i(TAG, "Sign Up Activity activated.");
                 // this is where you should start the signup Activity
                 LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
-                // response = UserRegistrationTask("Caman9119", "caman9119@charter.net", "dd9d4bf59e", "1481");
-
             }
         });
 
@@ -246,14 +234,12 @@ public class LoginActivity extends AppCompatActivity {
                     Log.v(TAG, "onPostExecute: " + result);
                     showProgress(false);
                     if (result) {
-                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
                         usernameTextView.setVisibility(View.GONE);
                         passwordTextView.setVisibility(View.GONE);
                         loginButton.setVisibility(View.GONE);
                         signupButton.setVisibility(View.GONE);
                     } else {
                         //DO THAT
-                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
                     }
                 }
             };
@@ -274,14 +260,12 @@ public class LoginActivity extends AppCompatActivity {
                     Log.v(TAG, "onPostExecute: " + result);
                     showProgress(false);
                     if (result) {
-                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
                         usernameTextView.setVisibility(View.GONE);
                         passwordTextView.setVisibility(View.GONE);
                         loginButton.setVisibility(View.GONE);
                         signupButton.setVisibility(View.GONE);
                     } else {
                         //DO THAT
-                        Toast.makeText(getApplicationContext(), Boolean.toString(result), Toast.LENGTH_SHORT).show();
                     }
                 }
             };
@@ -494,18 +478,15 @@ public class LoginActivity extends AppCompatActivity {
 
             if (TextUtils.isEmpty(error) && !TextUtils.isEmpty(cookie)) {
                 //  activity_login success and move to main Activity here.
-                SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyPref", 4);
-                boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-                Log.d(TAG, "Success = " + Boolean.toString(previouslyStarted));
-                if(!previouslyStarted){
-                    SharedPreferences.Editor edit = prefs.edit();
-                    edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
-                    edit.commit();
+                boolean previouslyStarted = SharedPrefs.getInstance().getFirstRun();
+
+                //If first run set to false.
+                if(previouslyStarted){
+                    SharedPrefs.getInstance().setFirstRun(false);
                 }
-                    Intent intent = new Intent(LoginActivity.this, MainActivity.class);
-                    startActivity(intent);
 
-
+                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                startActivity(intent);
             } else {
                 Log.i(TAG, "Error:" + error);
 
@@ -539,21 +520,17 @@ public class LoginActivity extends AppCompatActivity {
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_skip) {
             SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+
             SharedPreferences.Editor sEdit = sharedPerf.edit();
             sEdit.putBoolean("prompt_logged_out", false);
             sEdit.apply();
 
-            SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-            boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-            Log.d(TAG, "Skip = " + Boolean.toString(previouslyStarted));
-            if(!previouslyStarted){
-                SharedPreferences.Editor edit = prefs.edit();
-                edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
-                edit.apply();
-            }
+            SharedPrefs.getInstance().setFirstRun(false);
+
+            //Start activity
             Intent intent = new Intent(this, MainActivity.class);
-            intent.putExtra("Category", "blog");
             startActivity(intent);
+
             return true;
         }
 

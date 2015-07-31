@@ -18,6 +18,8 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
+import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
+import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.gallery.ImageAdapter;
@@ -35,6 +37,7 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     private DatabaseManager databaseManager;
     private Menu menu;
     private View noPost;
+    private SlideInBottomAnimationAdapter animatorAdapter;
 
 
     public PhotoFragment() {
@@ -75,6 +78,7 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         mRecyclerView.setLayoutManager(mStaggeredLayoutManager);
+
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -156,7 +160,9 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if (mRecyclerView.getAdapter() == null) {
             adapter = new ImageAdapter(getActivity());
             adapter.addItems(databaseManager.getFeed(""));
-            mRecyclerView.setAdapter(adapter);
+            animatorAdapter = new SlideInBottomAnimationAdapter(adapter);
+            animatorAdapter.setDuration(500);
+            mRecyclerView.setAdapter(animatorAdapter);
         }
         if (mRecyclerView.getAdapter().getItemCount() == 0) {
             mRecyclerView.setVisibility(View.GONE);

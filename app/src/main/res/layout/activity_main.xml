@@ -36,11 +36,13 @@
 
             <android.support.design.widget.TabLayout
                 android:id="@+id/tabs"
+                android:elevation="4dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:background="@color/myAccentColor"
+                android:background="@color/myPrimaryColor"
                 android:theme="@style/ThemeOverlay.AppCompat.Dark"
-                app:tabIndicatorColor="@color/myPrimaryColor"
+                app:backgroundTintMode="multiply"
+                app:tabIndicatorHeight="4dp"
                 app:tabGravity="fill"/>
             <ProgressBar
                 android:id="@+id/progress_spinner"

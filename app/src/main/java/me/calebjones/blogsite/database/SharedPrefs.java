@@ -45,6 +45,13 @@ public class SharedPrefs {
     public void setFirstRun(boolean firstRun) {
         sharedPreferences.edit().putBoolean("FIRST_RUN", firstRun).apply();
     }
+    public boolean getLoginStatus() {
+        return sharedPreferences.getBoolean("LOGIN_STATUS", false);
+    }
+
+    public void setLoginStatus(boolean loginStatus) {
+        sharedPreferences.edit().putBoolean("LOGIN_STATUS", loginStatus).apply();
+    }
 
     public void setLastRedownladTime(long time) {
         sharedPreferences.edit().putLong("REDOWNLOAD_TIME", time).apply();
@@ -68,6 +75,13 @@ public class SharedPrefs {
 
     public void setCategory(String mCategory) {
         sharedPreferences.edit().putString("CATEGORY", "").apply();
+    }
+    public boolean isDownloading() {
+        return sharedPreferences.getBoolean("DOWNLOADING", false);
+    }
+
+    public void setDownloading(boolean isDownloading) {
+        sharedPreferences.edit().putBoolean("DOWNLOADING", isDownloading).apply();
     }
 
 }

@@ -82,7 +82,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
 
-        //Get data from PostSelected
+        //Get data from PostSelectedActivity
         Intent intent = getIntent();
         PostTitle = intent.getExtras().getString("PostTitle");
         PostImage = intent.getExtras().getString("PostImage");

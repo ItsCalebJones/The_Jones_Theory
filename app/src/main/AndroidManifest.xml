@@ -25,27 +25,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.PostSelected"
+            android:name=".activity.PostSelectedActivity"
             android:label="@string/title_activity_post_selected"
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
             android:name=".activity.TransitionFullscreen"
-            android:parentActivityName=".activity.PostSelected" />
+            android:parentActivityName=".activity.PostSelectedActivity" />
         <activity
-            android:name=".activity.Fullscreen"
-            android:parentActivityName=".activity.PostSelected" />
+            android:name=".activity.FullscreenActivity"
+            android:parentActivityName=".activity.PostSelectedActivity" />
         <activity
             android:name=".activity.SettingsActivity"
-            android:label="@string/title_activity_settings" >
+            android:label="@string/title_activity_settings"
+            android:parentActivityName=".MainActivity">
         </activity>
         <activity
             android:name=".activity.LoginActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
+            android:name=".activity.PostCommentsActivity"
+            android:label="@string/app_name"
+            android:windowSoftInputMode="adjustPan|stateUnchanged|adjustResize"
+            android:parentActivityName=".MainActivity">
+        </activity>
+        <activity
             android:name=".activity.RegistrationActivity"
-            android:label="@string/title_activity_registration" >
+            android:label="@string/title_activity_registration"
+            android:parentActivityName=".activity.LoginActivity">
         </activity>
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -58,16 +66,12 @@
             android:value="@string/facebook_app_id" />
 
         <activity
-            android:name=".activity.PostComments"
-            android:label="@string/title_activity_post_comments" >
-        </activity>
-        <activity
-            android:name=".activity.DBTest"
+            android:name=".activity.DownloadActivity"
             android:label="@string/title_activity_dbtest" >
         </activity>
 
         <service
-            android:name=".loader.PostDownloader"
+            android:name=".network.PostDownloader"
             android:exported="false" />
     </application>
 

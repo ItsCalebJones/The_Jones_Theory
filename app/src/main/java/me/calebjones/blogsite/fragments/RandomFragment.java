@@ -23,7 +23,7 @@ import com.koushikdutta.ion.Ion;
 import java.util.List;
 
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.activity.PostSelected;
+import me.calebjones.blogsite.activity.PostSelectedActivity;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.models.FeedItem;
 import me.calebjones.blogsite.models.Posts;
@@ -52,8 +52,6 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
     private View noPost;
     private View item;
 
-    public SwipeRefreshLayout mSwipeRefreshLayout;
-
 
     @Override
     public void onCreate(Bundle savedInstanceState) {
@@ -80,18 +78,12 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
         noPost = view.findViewById(R.id.no_Post);
         item = view.findViewById(R.id.Random_posts);
 
+        excerpt.setOnClickListener(this);
         thumbnail.setOnClickListener(this);
         title.setOnClickListener(this);
 
         databaseManager = new DatabaseManager(getActivity());
 
-        /*Set up Pull to refresh*/
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_main_swipe_refresh_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
-        mSwipeRefreshLayout.setColorSchemeResources(
-                R.color.myPrimaryColor,
-                R.color.myTextPrimaryColor,
-                R.color.myAccentColor);
 
         int num = 0;
         if (savedInstanceState != null)
@@ -132,29 +124,19 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
                 .error(R.drawable.placeholder)
                 .load(post.getFeaturedImage());
 
-        mSwipeRefreshLayout.setRefreshing(false);
     }
 
     //React to click events.
     @Override
     public void onClick(View v) {
-        final int position = 0;
-        switch (v.getId()) {
-            case R.id.title:
-                Log.d("The Jones Theory", "Title!");
-                break;
-            case R.id.thumbnail:
-                Intent intent = new Intent(getActivity(), PostSelected.class);
-                intent.putExtra("PostTitle", post.getTitle());
-                intent.putExtra("PostImage", post.getFeaturedImage());
-                intent.putExtra("PostText", post.getContent());
-                intent.putExtra("PostURL", post.getURL());
-                intent.putExtra("PostID", post.getPostID());
-                intent.putExtra("ID", post.getID());
-                startActivity(intent);
-                Log.d("The Jones Theory", "Thumbnail!");
-                break;
-        }
+        Intent intent = new Intent(getActivity(), PostSelectedActivity.class);
+        intent.putExtra("PostTitle", post.getTitle());
+        intent.putExtra("PostImage", post.getFeaturedImage());
+        intent.putExtra("PostText", post.getContent());
+        intent.putExtra("PostURL", post.getURL());
+        intent.putExtra("PostID", post.getPostID());
+        intent.putExtra("ID", post.getID());
+        startActivity(intent);
     }
 
     @Override
