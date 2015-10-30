@@ -6,11 +6,12 @@
     <!-- Base application theme. -->
     <style name="Base.Theme.BlogSite" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/myPrimaryColor</item>
-        <item name="colorPrimaryDark">@color/myPrimaryColor</item>
+        <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
         <item name="colorAccent">@color/myAccentColor</item>
-        <item name="android:windowBackground">@color/myWindowBackground</item>
+
         <item name="windowActionBar">false</item>
         <item name="windowActionModeOverlay">true</item>
+        <!--<item name="android:windowBackground">@color/myPrimaryColor</item>-->
         <!--<item name="windowDrawsSystemBarBackgrounds">true</item>-->
         <!-- Customize your theme here. -->
     </style>
@@ -21,6 +22,15 @@
         <item name="android:paddingTop">24dp</item>
         <item name="android:paddingBottom">16dp</item>
         <item name="android:orientation">vertical</item>
+    </style>
+
+    <style name="ExpandedAppBarPlus" parent="@android:style/TextAppearance.Medium">
+        <item name="android:textSize">28.5sp</item>
+        <item name="android:textStyle">bold</item>
+        <item name="android:shadowColor">#000000</item>
+        <item name="android:shadowDx">1</item>
+        <item name="android:shadowDy">1</item>
+        <item name="android:shadowRadius">1</item>
     </style>
 
 </resources>

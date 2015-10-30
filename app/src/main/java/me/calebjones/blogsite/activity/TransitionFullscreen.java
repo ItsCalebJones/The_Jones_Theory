@@ -77,6 +77,8 @@ public class TransitionFullscreen extends AppCompatActivity {
             getWindow().setExitTransition(new Fade());
         }
 
+
+
         super.onCreate(savedInstanceState);
         setContentView(R.layout.fullscreen);
 

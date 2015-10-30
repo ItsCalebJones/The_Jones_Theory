@@ -173,7 +173,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // TODO update menu
         inflater.inflate(R.menu.menu_fetch_data, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
@@ -183,10 +182,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         // Handle action bar item clicks here. The action bar will
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
-        int id = item.getItemId();
-        if (id == R.id.menuRefresh) {
-            onRefresh();
-        }
         return super.onOptionsItemSelected(item);
     }
 
@@ -302,6 +297,8 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         if (databaseManager.getCount() > 0){
             refreshPost();
         } else {
+            Log.d("The Jones Theory", "Feed - onRefresh - Doing the download thing.");
+
             Intent intent = new Intent(getActivity(), PostDownloader.class);
             intent.setAction(PostDownloader.DOWNLOAD_ALL);
             getActivity().startService(intent);
@@ -309,7 +306,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         Log.v(TAG, "Refreshing - onRefresh method.");
     }
 
-    //TODO Neeed to check if all data is missing first
     private void refreshPost() {
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PostDownloader.DOWNLOAD_SUCCESS);

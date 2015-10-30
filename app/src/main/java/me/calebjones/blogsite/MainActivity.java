@@ -32,6 +32,7 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import me.calebjones.blogsite.activity.DownloadActivity;
 import me.calebjones.blogsite.activity.LoginActivity;
+import me.calebjones.blogsite.activity.SearchActivity;
 import me.calebjones.blogsite.activity.SettingsActivity;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
@@ -86,14 +87,13 @@ public class MainActivity extends AppCompatActivity {
             }
             Log.d("The Jones Theory", "DB Size = " + String.valueOf(databaseManager.getCount()));
             if (databaseManager.getCount() == 0){
+                Log.d("The Jones Theory", "Main - doDownload - Doing the download thing.");
                 doDownload();
             }
+        } else if (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime() > 172800000) {
+            Log.d("The Jones Theory", "Doing the download thing its been " + (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime()) + " milliseconds.");
+            doDownload();
         }
-
-
-
-        SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-        SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
         tabLayout = (TabLayout) findViewById(R.id.tabs);
@@ -102,18 +102,16 @@ public class MainActivity extends AppCompatActivity {
         toolbar = (Toolbar) findViewById(R.id.my_awesome_toolbar);
         setSupportActionBar(toolbar);
 
+        //Set up the Progress bar... not sure if I use this?
         progressBar = (ProgressBar) findViewById(R.id.progress_spinner);
 
         //Initializing NavigationView
         navigationView = (NavigationView) findViewById(R.id.navigation_view);
 
-
         // Create global configuration and initialize ImageLoader with this config
         ImageLoaderConfiguration config = new ImageLoaderConfiguration.Builder(this)
                 .build();
         ImageLoader.getInstance().init(config);
-
-
 
         //Setting Navigation View Item Selected Listener to handle the item click of the navigation menu
         navigationView.setNavigationItemSelectedListener(new NavigationView.OnNavigationItemSelectedListener() {
@@ -245,9 +243,6 @@ public class MainActivity extends AppCompatActivity {
                 databaseManager = new DatabaseManager(this);
             }
             Log.d("The Jones Theory", "DB Size onResume = " + String.valueOf(databaseManager.getCount()));
-            if (databaseManager.getCount() == 0){
-                doDownload();
-            }
         }
 
 
@@ -270,10 +265,12 @@ public class MainActivity extends AppCompatActivity {
         final SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(MainActivity.this);
         String authCookie = prefs.getString("AUTH_COOKIE", "");
 
+        Log.d("The Jones Theory", "Downloading = " + SharedPrefs.getInstance().isDownloading());
+
         //Check to see if the app is loading for the first time.
         if(SharedPrefs.getInstance().getFirstRun()){
             showLogin();
-        } else if (SharedPrefs.getInstance().isDownloading()){
+        } else if (SharedPrefs.getInstance().isDownloading() & SharedPrefs.getInstance().getFirstRun()){
             showDownload();
         }
 
@@ -397,10 +394,8 @@ public class MainActivity extends AppCompatActivity {
             showLogin();
             return true;
         } else if (id == R.id.action_search){
+            startActivity(new Intent(this, SearchActivity.class));
             return true;
-        } else if (id == R.id.DBTest){
-            Intent DBIntent = new Intent(this, DownloadActivity.class);
-            startActivity(DBIntent);
         }
 
         return super.onOptionsItemSelected(item);

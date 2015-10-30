@@ -208,15 +208,15 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public List<Posts> search(String keyWord) {
-        List<Posts> comics = Collections.emptyList();
+        List<Posts> post = Collections.emptyList();
         int num = 0;
         if (BlipUtils.isNumeric(keyWord)) {
             num = Integer.parseInt(keyWord);
         }
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + TITLE +
-                " LIKE '%" + keyWord + "%' OR " + ID + " = " + num, null);
+                " LIKE '%" + keyWord + "%' " + " ORDER BY date(date) DESC" , null);
         if (cursor != null && cursor.getCount() != 0 && cursor.moveToFirst()) {
-            comics = new ArrayList<>();
+            post = new ArrayList<>();
             do {
                 Posts item = new Posts();
                 item.setID(cursor.getInt(0));
@@ -230,11 +230,11 @@ public class DatabaseManager extends SQLiteOpenHelper {
                 item.setFeaturedImage(cursor.getString(8));
                 item.setTitle(cursor.getString(9));
                 item.setFavourite(cursor.getInt(10) == 1);
-                comics.add(item);
+                post.add(item);
             } while (cursor.moveToNext());
             cursor.close();
         }
-        return comics;
+        return post;
     }
 
     //Need to add this logic to the different categories.

@@ -69,10 +69,15 @@
             android:name=".activity.DownloadActivity"
             android:label="@string/title_activity_dbtest" >
         </activity>
+        <activity android:name=".activity.SearchActivity"
+            android:label=""
+            android:parentActivityName=".MainActivity"/>
 
         <service
             android:name=".network.PostDownloader"
             android:exported="false" />
+
+        <receiver android:name="me.calebjones.blogsite.util.ButtonReceiver"/>
     </application>
 
 </manifest>

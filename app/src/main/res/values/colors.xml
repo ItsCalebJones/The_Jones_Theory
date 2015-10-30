@@ -28,5 +28,6 @@
     <color name="refresh_progress_1">#BBDEFB</color>
     <color name="refresh_progress_2">#FFD740</color>
     <color name="refresh_progress_3">#FFE57F</color>
+    <color name="icons_dark">#616161</color>
 
 </resources>

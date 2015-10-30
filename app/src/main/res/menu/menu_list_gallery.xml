@@ -4,7 +4,7 @@
     tools:context="me.calebjones.blogsite.fragments.PhotoFragment">
     <item
         android:id="@+id/action_toggle"
-        android:icon="@drawable/ic_view_dashboard_white_24dp"
+        android:icon="@drawable/ic_view_module"
         app:showAsAction="always"
         android:orderInCategory="100"
         android:title="Show as grid" />

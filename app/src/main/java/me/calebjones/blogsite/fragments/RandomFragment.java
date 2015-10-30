@@ -141,8 +141,7 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        // TODO update menu
-        inflater.inflate(R.menu.menu_fetch_data, menu);
+        inflater.inflate(R.menu.menu_random, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 

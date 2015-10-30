@@ -10,6 +10,7 @@ import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
 import android.text.Html;
+import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
 import android.view.View;
@@ -66,6 +67,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     };
 
     private void showLogin() {
+
         Intent loginIntent = new Intent(this, MainActivity.class);
         startActivity(loginIntent);
     }
@@ -73,7 +75,10 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        SharedPrefs.getInstance().setFirstRun(false);
         setContentView(R.layout.activity_dbtest);
+
+        Log.d("The Jones Theory", "Downloading = " + SharedPrefs.getInstance().isDownloading());
 
         if (databaseManager == null) {
             databaseManager = new DatabaseManager(this);
@@ -116,6 +121,8 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
 
     @Override
     public void onClick(View v) {
+        Log.d("The Jones Theory", "DownloadActivity - onClick - Doing the download thing.");
+
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PostDownloader.DOWNLOAD_PROGRESS);
         intentFilter.addAction(PostDownloader.DOWNLOAD_SUCCESS);

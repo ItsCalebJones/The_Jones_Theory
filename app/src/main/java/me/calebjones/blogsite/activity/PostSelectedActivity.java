@@ -79,10 +79,7 @@ public class PostSelectedActivity extends AppCompatActivity {
     public View CommentBox;
     public EditText CommentEditText;
 
-
-
     int defaultColor;
-
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -92,6 +89,8 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
 
         super.onCreate(savedInstanceState);
+
+
         setContentView(R.layout.activity_post_selected);
         Bundle bundle = getIntent().getExtras();
 
@@ -125,7 +124,61 @@ public class PostSelectedActivity extends AppCompatActivity {
 //        this.commentItemList.clear();
 //        new CommentsLoader().execute(URL + PostID.toString() + "/replies");
 
+        collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+
+        fullscreenFab = (FloatingActionButton) findViewById(R.id.postFab);
+        fullscreenFab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                if (PostImage != null) {
+                    if (android.os.Build.VERSION.SDK_INT >= 21) {
+                        try {
+                            LollipopTransition(v);
+                        } catch (IOException e) {
+                            e.printStackTrace();
+                        }
+                    } else {
+                        Transition(v);
+                    }
+                }
+            }
+        });
+
+        commentFab = (FloatingActionButton) findViewById(R.id.commentFab);
+        commentFab.setOnClickListener(new View.OnClickListener() {
+            public void onClick(View v) {
+                Intent commentIntent = new Intent(PostSelectedActivity.this, PostCommentsActivity.class);
+                commentIntent.putExtra("PostID", PostID.toString());
+                commentIntent.putExtra("PostURL", PostURL);
+                if (mPalette != null){
+                    commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
+                }
+                startActivity(commentIntent);
+            }
+        });
+
         //Replace the header image with the Feature Image
+        if (PostImage == null){
+            if (fullscreenFab.getVisibility() == View.VISIBLE) {
+                fullscreenFab.setVisibility(View.GONE);
+            }
+            commentFab.setVisibility(View.INVISIBLE);
+            if (myView.getVisibility() == View.INVISIBLE) {
+                myView.postDelayed(new Runnable() {
+                    @Override
+                    public void run() {
+                        revealView(myView);
+                        if (commentFab.getVisibility() == View.INVISIBLE) {
+                            commentFab.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+                                    revealView(commentFab);
+                                }
+                            }, 500);
+                        }
+                    }
+                }, 100);
+            }
+        }
         Ion.with(getApplicationContext())
                 .load(PostImage)
                 .withBitmap()
@@ -137,64 +190,40 @@ public class PostSelectedActivity extends AppCompatActivity {
                     public void onCompleted(Exception e, Bitmap result) {
                         imgFavorite.setImageBitmap(result);
                         bitmap = result;
-                        mPalette = Palette.generate(bitmap);
-                        final View mainView = findViewById(R.id.main_content);
-                        if (mainView.getVisibility() == View.INVISIBLE) {
-                            mainView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    mApplyPalette(mPalette);
-                                    revealView(mainView);
-                                    if (commentFab.getVisibility() == View.INVISIBLE) {
-                                        commentFab.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                revealView(commentFab);
-                                            }
-                                        }, 250);
+                        if (bitmap != null) {
+                            mPalette = Palette.generate(bitmap);
+                            final View mainView = findViewById(R.id.main_content);
+                            commentFab.setVisibility(View.INVISIBLE);
+                            fullscreenFab.setVisibility(View.INVISIBLE);
+                            if (mainView.getVisibility() == View.INVISIBLE) {
+                                mainView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mApplyPalette(mPalette);
+                                        revealView(mainView);
+                                        if (commentFab.getVisibility() == View.INVISIBLE) {
+                                            commentFab.postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    revealView(commentFab);
+                                                }
+                                            }, 500);
+                                        }
+                                        if (fullscreenFab.getVisibility() == View.INVISIBLE) {
+                                            fullscreenFab.postDelayed(new Runnable() {
+                                                @Override
+                                                public void run() {
+                                                    revealView(fullscreenFab);
+                                                }
+                                            }, 750);
+                                        }
                                     }
-                                    if (fullscreenFab.getVisibility() == View.INVISIBLE) {
-                                        fullscreenFab.postDelayed(new Runnable() {
-                                            @Override
-                                            public void run() {
-                                                revealView(fullscreenFab);
-                                            }
-                                        }, 500);
-                                    }
-                                }
-                            }, 100);
+                                }, 100);
+                            }
+                            Log.d("The Jones Theory", "Result: " + result.toString() + " Bitmap: " + bitmap.toString());
                         }
-                        Log.d("The Jones Theory", "Result: " + result.toString() + " Bitmap: " + bitmap.toString());
                     }
                 });
-
-        collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-
-        fullscreenFab = (FloatingActionButton) findViewById(R.id.postFab);
-        fullscreenFab.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                if (android.os.Build.VERSION.SDK_INT >= 21){
-                    try {
-                        LollipopTransition(v);
-                    } catch (IOException e) {
-                        e.printStackTrace();
-                    }
-                } else {
-                    Transition(v);
-                }
-            }
-        });
-
-        commentFab = (FloatingActionButton) findViewById(R.id.commentFab);
-        commentFab.setOnClickListener(new View.OnClickListener() {
-            public void onClick(View v) {
-                Intent commentIntent = new Intent(PostSelectedActivity.this, PostCommentsActivity.class);
-                commentIntent.putExtra("PostID", PostID.toString());
-                commentIntent.putExtra("PostURL", PostURL);
-                commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
-                startActivity(commentIntent);
-            }
-        });
 
         //Removes HTML artifcats
         PostText = removeStyling(PostText);
@@ -272,12 +301,14 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
         collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
+        collapsingToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBarPlus);
+        collapsingToolbar.setExpandedTitleColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryLight)));
 
 
 //        CommentBox.setBackgroundColor(mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
 //        mText.setBackgroundColor(mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
 
-        fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getVibrantColor(getResources().getColor(R.color.myAccentColor))));
+        fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(getResources().getColor(R.color.myAccentColor))));
         commentFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getDarkVibrantColor(getResources().getColor(R.color.myPrimaryDarkColor))));
 
 //        if (mPalette.getDarkMutedSwatch() != null){

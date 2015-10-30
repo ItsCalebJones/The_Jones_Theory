@@ -62,6 +62,7 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().setSharedElementsUseOverlay(false);
         }

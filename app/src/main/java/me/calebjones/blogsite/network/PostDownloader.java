@@ -41,6 +41,7 @@ import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
 import me.calebjones.blogsite.models.Posts;
+import me.calebjones.blogsite.util.ButtonReceiver;
 
 import java.io.IOException;
 import java.net.URLEncoder;
@@ -87,21 +88,26 @@ public class PostDownloader extends IntentService {
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        switch (intent.getAction()) {
-            case DOWNLOAD_TODAY:
-                downloadToday();
-                break;
-            case DOWNLOAD_ALL:
-                getPostAll();
-                break;
-            case DOWNLOAD_SPECIFIC:
-                downloadSpecific(intent.getExtras().getInt(COMIC_NUM));
-                break;
-            case DOWNLOAD_MISSING:
-                getPostMissing();
-                break;
-            case DOWNLOAD_LAST_TEN:
-                redownloadLastTen();
+        if (!SharedPrefs.getInstance().isDownloading()){
+            SharedPrefs.getInstance().setDownloading(true);
+            SharedPrefs.getInstance().setLastRedownladTime(System.currentTimeMillis());
+            switch (intent.getAction()) {
+                case DOWNLOAD_TODAY:
+                    downloadToday();
+                    break;
+                case DOWNLOAD_ALL:
+                    Log.d("The Jones Theory", "DOWNLOAD ALL - Downloading = " + SharedPrefs.getInstance().isDownloading());
+                    getPostAll();
+                    break;
+                case DOWNLOAD_SPECIFIC:
+                    downloadSpecific(intent.getExtras().getInt(COMIC_NUM));
+                    break;
+                case DOWNLOAD_MISSING:
+                    getPostMissing();
+                    break;
+                case DOWNLOAD_LAST_TEN:
+                    redownloadLastTen();
+            }
         }
     }
 
@@ -109,6 +115,7 @@ public class PostDownloader extends IntentService {
         int id = 1;
 
         //Create an Intent for the BroadcastReceiver
+
         Intent buttonIntent = new Intent(this, ButtonReceiver.class);
         buttonIntent.putExtra("notificationId", id);
 
@@ -225,7 +232,6 @@ public class PostDownloader extends IntentService {
     }
 
     private void getPostAll(){
-        SharedPrefs.getInstance().setDownloading(true);
         //Setup the URLS that I will need
         String firstUrl = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/?pretty=true&number=100&fields=ID,title&order_by=ID";
         String nextPage = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/?pretty=true&number=100&fields=ID,title&order_by=ID&page_handle=";
@@ -237,66 +243,65 @@ public class PostDownloader extends IntentService {
 
             //First make a call to see how many total posts there are and save to 'found'
             final Response response = BlogsiteApplication.getInstance().client.newCall(request).execute();
-            if (!response.isSuccessful()) throw new IOException();
+            if (!response.isSuccessful()){
+                throw new IOException();
+            } else {
 
-            //Take the response and parse the JSON
-            JSONObject JObject = new JSONObject(response.body().string());
-            JSONArray posts = JObject.optJSONArray("posts");
+                //Take the response and parse the JSON
+                JSONObject JObject = new JSONObject(response.body().string());
+                JSONArray posts = JObject.optJSONArray("posts");
 
-            //Store the data into the two objects, meta gets the next page later on. Found is total post count.
-            String meta = JObject.optString("meta");
-            int found = JObject.optInt("found");
+                //Store the data into the two objects, meta gets the next page later on. Found is total post count.
+                String meta = JObject.optString("meta");
+                int found = JObject.optInt("found");
 
-            postID = new ArrayList<>();
+                postID = new ArrayList<>();
 
-            //If there are more then 100, which there always will unless something catastrophic happens then set up the newURL.
-            if (found > 100){
-                JSONObject metaLink = new JSONObject(meta);
-                String nextValue = metaLink.optString("next_page");
-                newURL = nextPage + URLEncoder.encode(nextValue, "UTF-8");
-                Log.d("The Jones Theory", newURL);
-            }
-
-            // Loop through the posts and add the post ID to the array. The posts is still from the original call.
-            for (int i = 0; i < posts.length(); i++){
-                JSONObject post = posts.optJSONObject(i);
-                postID.add(post.optString("ID"));
-                count++;
-                Log.d("The Jones Theory", "Count: " + count + " Array: " + postID.get(i));
-            }
-
-            //Now this logic is in charge of loading the next pages until all posts are loaded into the array.
-            while (count != found){
-                Request newRequest = new Request.Builder().url(newURL).build();
-                Response newResponse = BlogsiteApplication.getInstance().client.newCall(newRequest).execute();
-                if (!newResponse.isSuccessful()) throw new IOException();
-
-                JSONObject nJObject = new JSONObject(newResponse.body().string());
-                JSONArray nPosts = nJObject.optJSONArray("posts");
-                String nMeta = nJObject.optString("meta");
-                int newFound = nJObject.optInt("found");
-
-                if (newFound > 100){
-                    JSONObject metaLink = new JSONObject(nMeta);
+                //If there are more then 100, which there always will unless something catastrophic happens then set up the newURL.
+                if (found > 100) {
+                    JSONObject metaLink = new JSONObject(meta);
                     String nextValue = metaLink.optString("next_page");
                     newURL = nextPage + URLEncoder.encode(nextValue, "UTF-8");
                     Log.d("The Jones Theory", newURL);
-
                 }
 
-                for (int i = 0; i < nPosts.length(); i++){
-                    JSONObject post = nPosts.optJSONObject(i);
+                // Loop through the posts and add the post ID to the array. The posts is still from the original call.
+                for (int i = 0; i < posts.length(); i++) {
+                    JSONObject post = posts.optJSONObject(i);
                     postID.add(post.optString("ID"));
                     count++;
-                    Log.d("The Jones Theory", "Count: " + count + " Array: " + postID.get(count - 1));
                 }
+
+                //Now this logic is in charge of loading the next pages until all posts are loaded into the array.
+                while (count != found) {
+                    Request newRequest = new Request.Builder().url(newURL).build();
+                    Response newResponse = BlogsiteApplication.getInstance().client.newCall(newRequest).execute();
+                    if (!newResponse.isSuccessful()) throw new IOException();
+
+                    JSONObject nJObject = new JSONObject(newResponse.body().string());
+                    JSONArray nPosts = nJObject.optJSONArray("posts");
+                    String nMeta = nJObject.optString("meta");
+                    int newFound = nJObject.optInt("found");
+
+                    if (newFound > 100) {
+                        JSONObject metaLink = new JSONObject(nMeta);
+                        String nextValue = metaLink.optString("next_page");
+                        newURL = nextPage + URLEncoder.encode(nextValue, "UTF-8");
+                    }
+                    for (int i = 0; i < nPosts.length(); i++) {
+                        JSONObject post = nPosts.optJSONObject(i);
+                        postID.add(post.optString("ID"));
+                        count++;
+                    }
+                }
+                Collections.reverse(postID);
+                download(postID);
+                Log.d("The Jones Theory", "getPostAll - Downloading = " + SharedPrefs.getInstance().isDownloading());
             }
         } catch (IOException | JSONException e) {
             SharedPrefs.getInstance().setDownloading(false);
             e.printStackTrace();
         }
-        Collections.reverse(postID);
-        download(postID);
     }
 
     private void getPostMissing(){
@@ -330,7 +335,6 @@ public class PostDownloader extends IntentService {
                 JSONObject metaLink = new JSONObject(meta);
                 String nextValue = metaLink.optString("next_page");
                 newURL = nextPage + URLEncoder.encode(nextValue, "UTF-8");
-                Log.d("The Jones Theory", newURL);
             }
 
             // Loop through the posts and add the post ID to the array. The posts is still from the original call.
@@ -357,13 +361,11 @@ public class PostDownloader extends IntentService {
                     JSONObject metaLink = new JSONObject(nMeta);
                     String nextValue = metaLink.optString("next_page");
                     newURL = nextPage + URLEncoder.encode(nextValue, "UTF-8");
-                    Log.d("The Jones Theory", newURL);
 
                 }
 
                 for (int i = 0; i < nPosts.length(); i++){
                     JSONObject post = nPosts.optJSONObject(i);
-                    Log.d("The Jones Theory", post.optString("ID"));
                     if(!databaseManager.idExists(post.optString("ID"))){
                         postID.add(post.optString("ID"));
                     }
@@ -400,7 +402,6 @@ public class PostDownloader extends IntentService {
                     @Override
                     public void run() {
                         try {
-                            Log.d("PostDownloader", "Index: " + index);
                             if (index != 404) {
                                 String url = String.format(POST_URL, index);
                                 Request newReq = new Request.Builder().url(url).build();
@@ -437,12 +438,9 @@ public class PostDownloader extends IntentService {
                                 SimpleDateFormat format = new SimpleDateFormat("yyyy-MM-dd'T'HH:mm:ssZ");
                                 Date newDate = format.parse(date);
 
-                                Log.d("The Jones Theory", "Date - " + date);
-
                                 format = new SimpleDateFormat("yyyy-MM-dd");
                                 date = format.format(newDate);
 
-                                Log.d("The Jones Theory", "Date - " + date);
                                 item1.setDate(date);
 
 
@@ -497,7 +495,13 @@ public class PostDownloader extends IntentService {
                                     databaseManager.addPost(item1);
                                     Log.d("PostDownloader", index + " database...");
                                     double progress = ((double) count / num) * 100;
-                                    setProgress((int) progress, item1.getTitle(), progress);
+                                    setProgress((int) progress, item1.getTitle());
+
+                                    Intent intent = new Intent(DOWNLOAD_PROGRESS);
+                                    intent.putExtra(PROGRESS, progress);
+                                    intent.putExtra(TITLE, item1.getTitle());
+
+                                    LocalBroadcastManager.getInstance(PostDownloader.this).sendBroadcast(intent);
                                 }
                             }
                         } catch (IOException | JSONException | ParseException e) {
@@ -521,7 +525,9 @@ public class PostDownloader extends IntentService {
                 throw new IOException(e);
             }
             SharedPrefs.getInstance().setDownloading(false);
+
             Log.d("PostDownloader", "Broadcast Sent!");
+            Log.d("The Jones Theory", "download - Downloading = " + SharedPrefs.getInstance().isDownloading());
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_SUCCESS));
 
@@ -551,6 +557,7 @@ public class PostDownloader extends IntentService {
 
             ).start();
         } catch (IOException e) {
+            SharedPrefs.getInstance().setLastRedownladTime(System.currentTimeMillis());
             SharedPrefs.getInstance().setDownloading(false);
             e.printStackTrace();
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_FAIL));
@@ -561,28 +568,12 @@ public class PostDownloader extends IntentService {
         }
     }
 
-    private void setProgress(int newProgress, String title, double mProgress){
-        if (newProgress > progress){
+    private void setProgress(int newProgress, String title){
+        if (newProgress > progress) {
             progress = newProgress;
 
             mBuilder.setProgress(100, progress, false);
             mNotifyManager.notify(1, mBuilder.build());
-
-            Intent intent = new Intent(DOWNLOAD_PROGRESS);
-            intent.putExtra(PROGRESS, mProgress);
-            intent.putExtra(TITLE, title);
-
-            LocalBroadcastManager.getInstance(PostDownloader.this).sendBroadcast(intent);
-        }
-    }
-
-    public class ButtonReceiver extends BroadcastReceiver {
-
-        @Override
-        public void onReceive(Context context, Intent intent) {
-            Log.d("The Jones Theory", "Notification button pushed!");
-
-            mNotifyManager.cancel(1);
         }
     }
 

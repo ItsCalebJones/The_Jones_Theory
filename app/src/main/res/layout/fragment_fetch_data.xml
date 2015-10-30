@@ -54,12 +54,6 @@
 
         </FrameLayout>
 
-    <!--<android.support.v7.widget.RecyclerView-->
-        <!--android:layout_width="fill_parent"-->
-        <!--android:layout_height="fill_parent"-->
-        <!--android:id="@+id/recycler_view" />-->
-        <!--&lt;!&ndash;android:layout_gravity="start"&ndash;&gt;-->
-
     </android.support.v4.widget.SwipeRefreshLayout>
 
 </LinearLayout>

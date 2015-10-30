@@ -20,6 +20,9 @@ import android.app.Application;
 
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
+import com.squareup.okhttp.Protocol;
+
+import java.util.Collections;
 
 import me.calebjones.blogsite.database.SharedPrefs;
 
@@ -27,7 +30,9 @@ public class BlogsiteApplication extends Application {
 
     private static BlogsiteApplication mInstance;
 
-    public OkHttpClient client = new OkHttpClient();
+    // Disable HTTP/2 for interop with NGINX 1.9.5.
+    // TODO: remove this hack after 2015-12-31.
+    public OkHttpClient client = new OkHttpClient().setProtocols(Collections.singletonList(Protocol.HTTP_1_1));
 
     public static synchronized BlogsiteApplication getInstance() {
         return mInstance;

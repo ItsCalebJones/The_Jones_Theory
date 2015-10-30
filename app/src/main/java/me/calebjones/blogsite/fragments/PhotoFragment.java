@@ -18,7 +18,6 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewGroup;
 
-import jp.wasabeef.recyclerview.animators.adapters.AlphaInAnimationAdapter;
 import jp.wasabeef.recyclerview.animators.adapters.SlideInBottomAnimationAdapter;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.database.DatabaseManager;
@@ -67,10 +66,10 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
 
         LayoutInflater lf = getActivity().getLayoutInflater();
 
-        View view = lf.inflate(R.layout.fragment_auto_fit_recycler_view, container, false);
+        View view = lf.inflate(R.layout.fragment_photos, container, false);
         noPost = view.findViewById(R.id.no_Post);
-
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
+
         if (getResources().getBoolean(R.bool.landscape)) {
             mStaggeredLayoutManager = new StaggeredGridLayoutManager(2, StaggeredGridLayoutManager.VERTICAL);
         } else {
@@ -78,7 +77,6 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         }
 
         mRecyclerView.setLayoutManager(mStaggeredLayoutManager);
-
         mRecyclerView.setItemAnimator(new DefaultItemAnimator());
         mRecyclerView.addOnScrollListener(new RecyclerView.OnScrollListener() {
             @Override
@@ -112,7 +110,6 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         return view;
     }
 
-
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // TODO update menu
@@ -139,16 +136,15 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         MenuItem item = menu.findItem(R.id.action_toggle);
         if (isListView) {
             mStaggeredLayoutManager.setSpanCount(2);
-            item.setIcon(R.drawable.ic_view_list_white_18dp);
+            item.setIcon(R.drawable.ic_view_stream);
             item.setTitle("Show as list");
             isListView = false;
         } else {
             mStaggeredLayoutManager.setSpanCount(1);
-            item.setIcon(R.drawable.ic_view_dashboard_white_18dp);
+            item.setIcon(R.drawable.ic_view_module);
             item.setTitle("Show as grid");
             isListView = true;
         }
-
     }
 
     @Override
@@ -156,7 +152,6 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if (databaseManager == null) {
             databaseManager = new DatabaseManager(getActivity());
         }
-
         if (mRecyclerView.getAdapter() == null) {
             adapter = new ImageAdapter(getActivity());
             adapter.addItems(databaseManager.getFeed(""));
@@ -167,6 +162,20 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         if (mRecyclerView.getAdapter().getItemCount() == 0) {
             mRecyclerView.setVisibility(View.GONE);
             noPost.setVisibility(View.VISIBLE);
+        }
+        if (menu != null){
+            MenuItem item = menu.findItem(R.id.action_toggle);
+            if (isListView) {
+                mStaggeredLayoutManager.setSpanCount(2);
+                item.setIcon(R.drawable.ic_view_stream);
+                item.setTitle("Show as list");
+                isListView = false;
+            } else {
+                mStaggeredLayoutManager.setSpanCount(1);
+                item.setIcon(R.drawable.ic_view_module);
+                item.setTitle("Show as grid");
+                isListView = true;
+            }
         }
         super.onResume();
     }
