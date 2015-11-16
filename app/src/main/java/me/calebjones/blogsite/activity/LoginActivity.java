@@ -131,7 +131,7 @@ public class LoginActivity extends AppCompatActivity {
                     fbAuth.execute();
                 }
 
-                startActivity(new Intent(LoginActivity.this, MainActivity.class));
+                startActivity(new Intent(LoginActivity.this, DownloadActivity.class));
             }
 
             @Override
@@ -486,7 +486,7 @@ public class LoginActivity extends AppCompatActivity {
                     SharedPrefs.getInstance().setFirstRun(false);
                 }
 
-                Intent intent = new Intent(LoginActivity.this, MainActivity.class);
+                Intent intent = new Intent(LoginActivity.this, DownloadActivity.class);
                 startActivity(intent);
             } else {
                 Log.i(TAG, "Error:" + error);
@@ -529,7 +529,7 @@ public class LoginActivity extends AppCompatActivity {
             SharedPrefs.getInstance().setFirstRun(false);
 
             //Start activity
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, DownloadActivity.class);
             startActivity(intent);
 
             return true;

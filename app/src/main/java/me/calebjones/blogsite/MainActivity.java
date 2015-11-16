@@ -1,5 +1,6 @@
 package me.calebjones.blogsite;
 
+import android.app.ActivityManager;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -31,6 +32,7 @@ import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 
 import me.calebjones.blogsite.activity.DownloadActivity;
+import me.calebjones.blogsite.activity.IntentLauncher;
 import me.calebjones.blogsite.activity.LoginActivity;
 import me.calebjones.blogsite.activity.SearchActivity;
 import me.calebjones.blogsite.activity.SettingsActivity;
@@ -79,20 +81,28 @@ public class MainActivity extends AppCompatActivity {
 
         setContentView(R.layout.activity_main);
         FacebookSdk.sdkInitialize(getApplicationContext());
+        Log.d("The Jones Theory", "Downloading: " + String.valueOf(SharedPrefs.getInstance().isDownloading()));
 
         //Check to see if the app is loading for the first time.
         if(SharedPrefs.getInstance().getFirstRun()){
+            SharedPrefs.getInstance().setFirstDownload(true);
             if (databaseManager == null) {
                 databaseManager = new DatabaseManager(this);
             }
-            Log.d("The Jones Theory", "DB Size = " + String.valueOf(databaseManager.getCount()));
-            if (databaseManager.getCount() == 0){
-                Log.d("The Jones Theory", "Main - doDownload - Doing the download thing.");
-                doDownload();
+//            Log.d("The Jones Theory", "DB Size = " + String.valueOf(databaseManager.getCount()));
+//            if (databaseManager.getCount() == 0){
+//                Log.d("The Jones Theory", "Main - doDownload - Doing the download thing.");
+//                SharedPrefs.getInstance().setFirstDownload(true);
+//                doDownload(PostDownloader.DOWNLOAD_ALL);
+//            }
+        } else if (SharedPrefs.getInstance().isDownloading()){
+            if (!isPostDownloaderRunning(PostDownloader.class)){
+                SharedPrefs.getInstance().setDownloading(false);
+                Log.d("The Jones Theory", "Setting Download: " + String.valueOf(SharedPrefs.getInstance().isDownloading()));
             }
         } else if (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime() > 172800000) {
             Log.d("The Jones Theory", "Doing the download thing its been " + (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime()) + " milliseconds.");
-            doDownload();
+            doDownload(PostDownloader.DOWNLOAD_MISSING);
         }
 
         viewPager = (ViewPager) findViewById(R.id.viewpager);
@@ -209,6 +219,16 @@ public class MainActivity extends AppCompatActivity {
         setUpViews();
     }
 
+    private boolean isPostDownloaderRunning(Class<?> serviceClass) {
+        ActivityManager manager = (ActivityManager) getSystemService(Context.ACTIVITY_SERVICE);
+        for (ActivityManager.RunningServiceInfo service : manager.getRunningServices(Integer.MAX_VALUE)) {
+            if (serviceClass.getName().equals(service.service.getClassName())) {
+                return true;
+            }
+        }
+        return false;
+    }
+
     private static String makeFragmentName(int viewPagerId, int index) {
         return "android:switcher:" + viewPagerId + ":" + index;
     }
@@ -253,11 +273,16 @@ public class MainActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    private void doDownload() {
+    private void doDownload(String Download) {
         Intent intent = new Intent(this, PostDownloader.class);
-        intent.setAction(PostDownloader.DOWNLOAD_ALL);
+        if (Download.equals(PostDownloader.DOWNLOAD_ALL)){
+            intent.setAction(PostDownloader.DOWNLOAD_ALL);
+        } else if (Download.equals(PostDownloader.DOWNLOAD_MISSING)){
+            intent.setAction(PostDownloader.DOWNLOAD_MISSING);
+        }
         startService(intent);
     }
+
 
     public void validateLoginStatus() {
         //Get Shared Preference auth key
@@ -270,7 +295,7 @@ public class MainActivity extends AppCompatActivity {
         //Check to see if the app is loading for the first time.
         if(SharedPrefs.getInstance().getFirstRun()){
             showLogin();
-        } else if (SharedPrefs.getInstance().isDownloading() & SharedPrefs.getInstance().getFirstRun()){
+        } else if (SharedPrefs.getInstance().isFirstDownload()){
             showDownload();
         }
 
@@ -397,6 +422,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, SearchActivity.class));
             return true;
         }
+//        else if (id == R.id.IntentLauncher){
+//            startActivity(new Intent(this, IntentLauncher.class));
+//        }
 
         return super.onOptionsItemSelected(item);
     }

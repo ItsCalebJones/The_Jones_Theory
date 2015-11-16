@@ -8,8 +8,8 @@ android {
         applicationId "me.calebjones.blogsite"
         minSdkVersion 15
         targetSdkVersion 22
-        versionCode 12
-        versionName "2.3.5"
+        versionCode 15
+        versionName "2.3.8"
     }
     buildTypes {
         release {

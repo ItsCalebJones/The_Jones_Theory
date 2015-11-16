@@ -19,6 +19,7 @@ package me.calebjones.blogsite.database;
 import android.content.ContentValues;
 import android.content.Context;
 import android.database.Cursor;
+import android.database.DatabaseUtils;
 import android.database.sqlite.SQLiteDatabase;
 import android.database.sqlite.SQLiteOpenHelper;
 import android.util.Log;
@@ -145,8 +146,35 @@ public class DatabaseManager extends SQLiteOpenHelper {
     }
 
     public Posts getPost(int num) {
+        Log.d("The Jones Theory", "Checking for postID " + num);
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + ID + " = ?",
                 new String[]{String.valueOf(num)});
+        Log.d("The Jones Theory", "Cursor Size " + cursor.getCount() + ": " + DatabaseUtils.dumpCursorToString(cursor));
+        if (cursor != null && cursor.getCount() != 0) {
+            cursor.moveToFirst();
+            Posts item = new Posts();
+            item.setID(cursor.getInt(0));
+            item.setDate(cursor.getString(1));
+            item.setPostID(cursor.getInt(2));
+            item.setURL(cursor.getString(3));
+            item.setContent(cursor.getString(4));
+            item.setExcerpt(cursor.getString(5));
+            item.setTags(cursor.getString(6));
+            item.setCategories(cursor.getString(7));
+            item.setFeaturedImage(cursor.getString(8));
+            item.setTitle(cursor.getString(9));
+            item.setFavourite(cursor.getInt(10) == 1);
+            cursor.close();
+            return item;
+        }
+        return null;
+    }
+
+    public Posts getPostByID(int num) {
+        Log.d("The Jones Theory", "Checking for postID " + num);
+        Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST + " WHERE " + PostID + " = ?",
+                new String[]{String.valueOf(num)});
+        Log.d("The Jones Theory", "Cursor Size " + cursor.getCount() + ": " +DatabaseUtils.dumpCursorToString(cursor));
         if (cursor != null && cursor.getCount() != 0) {
             cursor.moveToFirst();
             Posts item = new Posts();
@@ -495,7 +523,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         boolean exists = false;
         if (cursor != null && cursor.getCount() != 0) {
             exists = true;
-            Log.d("The Jones Theory", "feedExists: " + exists);
+            Log.d("The Jones Theory", "Post " + item + " exist: " + exists);
             cursor.close();
         }
         return exists;

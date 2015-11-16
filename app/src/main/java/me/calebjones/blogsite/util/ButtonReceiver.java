@@ -12,7 +12,7 @@ import android.util.Log;
 public class ButtonReceiver extends BroadcastReceiver {
 
     public NotificationManager myNotificationManager;
-    public static final int NOTIFICATION_ID = 1;
+    public static final int NOTIFICATION_ID = 123321;
 
     @Override
     public void onReceive(Context context, Intent intent) {

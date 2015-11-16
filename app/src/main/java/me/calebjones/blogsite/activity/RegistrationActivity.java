@@ -396,7 +396,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
                 edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
                 edit.apply();
             }
-            Intent intent = new Intent(this, MainActivity.class);
+            Intent intent = new Intent(this, DownloadActivity.class);
             intent.putExtra("Category", "blog");
             startActivity(intent);
             return true;
@@ -598,11 +598,18 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
                 }
                 Toast.makeText(getApplicationContext(), "Error Registering: " + error, Toast.LENGTH_SHORT).show();
             } else {
-                SharedPrefs.getInstance().setFirstRun(false);
+                if (SharedPrefs.getInstance().getFirstRun()){
+                    SharedPrefs.getInstance().setFirstRun(false);
 
-                Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
-                intent.putExtra("Category", "blog");
-                startActivity(intent);
+                    Intent intent = new Intent(RegistrationActivity.this, DownloadActivity.class);
+                    intent.putExtra("Category", "blog");
+                    startActivity(intent);
+                } else {
+                    Intent intent = new Intent(RegistrationActivity.this, MainActivity.class);
+                    intent.putExtra("Category", "blog");
+                    startActivity(intent);
+                }
+
             }
             Log.v("The Jones Theory", "onPostExecute: " + result);
         }

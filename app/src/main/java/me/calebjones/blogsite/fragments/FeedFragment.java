@@ -285,6 +285,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onRefresh() {
         setRefreshing();
+        Log.v(TAG, "FeedFragment - Refreshing - onRefresh method.");
         if (mRecyclerView.getAdapter() == null) {
             adapter = new FeedAdapter();
             Log.d("The Jones Theory", "FeedFragment: -onRefresh " + mCategory);
@@ -298,12 +299,10 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             refreshPost();
         } else {
             Log.d("The Jones Theory", "Feed - onRefresh - Doing the download thing.");
-
             Intent intent = new Intent(getActivity(), PostDownloader.class);
             intent.setAction(PostDownloader.DOWNLOAD_ALL);
             getActivity().startService(intent);
         }
-        Log.v(TAG, "Refreshing - onRefresh method.");
     }
 
     private void refreshPost() {

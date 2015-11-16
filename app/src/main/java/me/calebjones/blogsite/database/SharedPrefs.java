@@ -84,4 +84,12 @@ public class SharedPrefs {
         sharedPreferences.edit().putBoolean("DOWNLOADING", isDownloading).apply();
     }
 
+    public boolean isFirstDownload() {
+        return sharedPreferences.getBoolean("FIRST_DOWNLOAD", false);
+    }
+
+    public void setFirstDownload(boolean isDownloading) {
+        sharedPreferences.edit().putBoolean("FIRST_DOWNLOAD", isDownloading).apply();
+    }
+
 }

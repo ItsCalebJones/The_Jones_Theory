@@ -40,6 +40,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
                         progressBar.setIndeterminate(false);
                     }
                     progressBar.setProgress((int) intent.getExtras().getDouble(PostDownloader.PROGRESS));
+                    caption.setText(Html.fromHtml("Found " + intent.getExtras().getInt(PostDownloader.NUMBER) + " total posts."));
                     progress.setText(String.valueOf(Math.round(intent.getExtras().getDouble(PostDownloader.PROGRESS))) + "%");
                     title.setText(Html.fromHtml(intent.getExtras().getString(PostDownloader.TITLE)));
                     break;
@@ -99,9 +100,9 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
 
 
         downloadUI.setVisibility(View.GONE);
-        pageTitle.setText("Posts need to be Downloaded");
-        caption.setText("About 1MB of text data needs to be downloaded to make the app experience fluid and support the search functionality");
-        button.setOnClickListener(this);
+        pageTitle.setText("Download the Science!");
+        caption.setText("About ~2MB of text data needs to be downloaded to make the app experience fluid and support the search functionality.");
+                button.setOnClickListener(this);
 
 
         if (savedInstanceState != null || SharedPrefs.getInstance().isDownloading()) {
@@ -111,8 +112,8 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
             intentFilter.addAction(PostDownloader.DOWNLOAD_FAIL);
             LocalBroadcastManager.getInstance(this).registerReceiver(receiver, intentFilter);
 
-            pageTitle.setText("Downloading Posts");
-            caption.setText("About 1mb to Download");
+            pageTitle.setText("Downloading Science");
+            caption.setText("Calculating data size.");
             button.setVisibility(View.GONE);
             downloadUI.setVisibility(View.VISIBLE);
             progressBar.setIndeterminate(true);
@@ -133,8 +134,8 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
         intent.setAction(PostDownloader.DOWNLOAD_ALL);
         startService(intent);
 
-        pageTitle.setText("Downloading Posts");
-        caption.setText("About 3mb to Download");
+        pageTitle.setText("Downloading Science");
+        caption.setText("Calculating data size.");
         button.setVisibility(View.GONE);
         downloadUI.setVisibility(View.VISIBLE);
         progressBar.setIndeterminate(true);
