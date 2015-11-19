@@ -2,12 +2,14 @@ package me.calebjones.blogsite.network;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
+import android.app.NotificationManager;
 import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.support.v4.app.NotificationCompat;
 import android.util.Log;
 import android.widget.Toast;
 
@@ -29,8 +31,10 @@ import java.text.SimpleDateFormat;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.Random;
 
 import me.calebjones.blogsite.BlogsiteApplication;
+import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
 import me.calebjones.blogsite.models.Posts;
@@ -64,8 +68,7 @@ public class UpdateCheckService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         DatabaseManager databaseManager = new DatabaseManager(this);
         Request request = new Request.Builder().url(LATEST_URL).build();
-        Log.d("The Jones Theory-Update", "Hello World!");
-
+        Log.d("The Jones Theory", "UpdateCheckService init...");
         try{
 
             //First make a call to see how many total posts there are and save to 'found'
@@ -202,8 +205,12 @@ public class UpdateCheckService extends IntentService {
 
         alarmManager.cancel(pendingIntent);
 
+        Random r = new Random();
+
         Calendar calendar = Calendar.getInstance();
         calendar.add(Calendar.HOUR, 8);
+        calendar.add(Calendar.MINUTE, r.nextInt(240 - 1) + 1);
+        Log.d("The Jones Theory", "UpdateCheckService init...calendar.getTimeInMillis()" + calendar.getTimeInMillis());
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
         super.onDestroy();
     }
