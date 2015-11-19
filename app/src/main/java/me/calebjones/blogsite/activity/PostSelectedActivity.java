@@ -13,6 +13,7 @@ import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
@@ -59,23 +60,23 @@ public class PostSelectedActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
 
-    private LinearLayout mTitle, CommentLayout, mText, spacer_layout;
+    private LinearLayout CommentLayout, mText, spacer_layout;
     private Context mContext;
     private FloatingActionButton fullscreenFab;
     private FloatingActionButton commentFab;
     private CollapsingToolbarLayout collapsingToolbar;
+    private AppBarLayout appBarLayout;
     private boolean LoginStatus;
     private Button button;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
-    public String PostTitle, PostImage, PostText, PostURL;
+    public String PostTitle, PostImage, PostText, PostURL, PostCat;
     public Integer PostID;
     public Bitmap bitmap;
-    public List<CommentItem> commentItemList;
     public List<FeedItem> feedItemList;
     public Palette mPalette;
-    public TextView mTextView, CommentBoxTitle, mTitleView, CommentTextLoggedOut;
+    public TextView mTextView, CommentBoxTitle, CommentTextLoggedOut, mTitle;
     public View CommentBox;
     public EditText CommentEditText;
 
@@ -90,10 +91,8 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_selected);
         Bundle bundle = getIntent().getExtras();
-
 
         final ImageView imgFavorite = (ImageView)findViewById(R.id.header);
         final View myView = findViewById(R.id.main_content);
@@ -112,6 +111,8 @@ public class PostSelectedActivity extends AppCompatActivity {
             PostText = intent.getExtras().getString("PostText");
             PostURL = intent.getExtras().getString("PostURL");
             PostID = intent.getExtras().getInt("PostID");
+            PostCat = intent.getExtras().getString("PostCat");
+
             Log.i("The Jones Theory", "Intent!");
 
             this.feedItemList = PostLoader.getWords();
@@ -120,11 +121,11 @@ public class PostSelectedActivity extends AppCompatActivity {
             Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
         }
 
-//        this.commentItemList = CommentsLoader.getWords();
-//        this.commentItemList.clear();
-//        new CommentsLoader().execute(URL + PostID.toString() + "/replies");
-
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+
+
+        collapsingToolbar.setTitle(PostCat.replaceAll(",", " |"));
 
         fullscreenFab = (FloatingActionButton) findViewById(R.id.postFab);
         fullscreenFab.setOnClickListener(new View.OnClickListener() {
@@ -149,7 +150,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 Intent commentIntent = new Intent(PostSelectedActivity.this, PostCommentsActivity.class);
                 commentIntent.putExtra("PostID", PostID.toString());
                 commentIntent.putExtra("PostURL", PostURL);
-                if (mPalette != null){
+                if (mPalette != null) {
                     commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
                 }
                 startActivity(commentIntent);
@@ -202,20 +203,10 @@ public class PostSelectedActivity extends AppCompatActivity {
                                         mApplyPalette(mPalette);
                                         revealView(mainView);
                                         if (commentFab.getVisibility() == View.INVISIBLE) {
-                                            commentFab.postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    revealView(commentFab);
-                                                }
-                                            }, 500);
+                                            revealView(commentFab);
                                         }
                                         if (fullscreenFab.getVisibility() == View.INVISIBLE) {
-                                            fullscreenFab.postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    revealView(fullscreenFab);
-                                                }
-                                            }, 750);
+                                            revealView(fullscreenFab);
                                         }
                                     }
                                 }, 100);
@@ -229,13 +220,15 @@ public class PostSelectedActivity extends AppCompatActivity {
         PostText = removeStyling(PostText);
         PostTitle = stripHtml(PostTitle);
 
-//        mTitle = (LinearLayout) findViewById(R.id.content_title);
         mText = (LinearLayout) findViewById(R.id.selected_content);
         CommentLayout = (LinearLayout) findViewById(R.id.CommentLayout);
 
         //Setup the Title, EditText and Textviews
+        mTitle = (TextView) findViewById(R.id.PostTextTitle);
+        mTitle.setText(Html.fromHtml(PostTitle));
         mTextView = (TextView) findViewById(R.id.PostTextPara);
         mTextView.setText(Html.fromHtml(PostText));
+
         CommentTextLoggedOut = (TextView) findViewById(R.id.CommentTextLoggedOut);
         CommentBoxTitle = (TextView) findViewById(R.id.CommentBoxTitle);
         CommentBox = findViewById(R.id.CommentBox);
@@ -245,12 +238,11 @@ public class PostSelectedActivity extends AppCompatActivity {
         mToolbar = (Toolbar) findViewById(R.id.PostToolbar);
         setSupportActionBar(mToolbar);
 
-        //Setup the Actionabar backbutton and elevation
+        //Setup the Action Bar back button and elevation
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
 
-        collapsingToolbar.setTitle(PostTitle);
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
 
@@ -286,23 +278,14 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
-    //Need to move this off main thread
-    private void postComment() throws IOException {
-        SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-        String authCookie = prefs.getString("AUTH_COOKIE", "");
-        String text = CommentEditText.getText().toString();
-        new postComment().execute(authCookie, text);
-        hideView(CommentBox);
-    }
-
-    //Pallete bugs here where swatches are empty
+    //PalLete bugs here where swatches are empty
     public void mApplyPalette(Palette mPalette){
 //        getWindow().setBackgroundDrawable(new ColorDrawable(mPalette.getDarkMutedColor(defaultColor)));
 
         collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
         collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-        collapsingToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBarPlus);
-        collapsingToolbar.setExpandedTitleColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryLight)));
+//        collapsingToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBarPlus);
+//        collapsingToolbar.setExpandedTitleColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryLight)));
 
 
 //        CommentBox.setBackgroundColor(mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
@@ -382,20 +365,6 @@ public class PostSelectedActivity extends AppCompatActivity {
                 }
             }, 500);
         }
-        if (commentFab.getVisibility() == View.INVISIBLE && LoginStatus)
-            commentFab.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    revealView(commentFab);
-                }
-            }, 750);
-        if (fullscreenFab.getVisibility() == View.INVISIBLE)
-            fullscreenFab.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    revealView(fullscreenFab);
-                }
-            }, 1000);
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
             CommentTextLoggedOut.setVisibility(View.GONE);
@@ -408,23 +377,23 @@ public class PostSelectedActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    private void revealView(View mainView) {
+    private void revealView(View view) {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            int cx = (mainView.getLeft() + mainView.getRight()) / 2;
-            int cy = (mainView.getTop() + mainView.getBottom()) / 2;
+            int cx = (view.getLeft() + view.getRight()) / 2;
+            int cy = (view.getTop() + view.getBottom()) / 2;
 
             // get the final radius for the clipping circle
-            int finalRadius = Math.max(mainView.getWidth(), mainView.getHeight() / 2);
+            int finalRadius = Math.max(view.getWidth(), view.getHeight() / 2);
 
             // create the animator for this view (the start radius is zero)
             Animator anim =
-                    ViewAnimationUtils.createCircularReveal(mainView, cx, cy, 0, finalRadius);
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
 
             // make the view visible and start the animation
-            mainView.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
             anim.start();
         } else {
-            mainView.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
         }
     }
 
@@ -466,22 +435,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         final View fullscreenFab = findViewById(R.id.postFab);
 
         hideView(nestedContent);
-        hideView(commentFab);
-        hideView(fullscreenFab);
 
-        commentFab.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hideView(commentFab);
-            }
-        }, 250);
-
-        fullscreenFab.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hideView(fullscreenFab);
-            }
-        }, 500);
 
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
 
@@ -495,7 +449,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         Log.d("The Jones Theory", "byteLength: " + byteArray.length);
 
-
+        //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
         if (byteArray.length > 524288){
             for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
                 stream.reset();

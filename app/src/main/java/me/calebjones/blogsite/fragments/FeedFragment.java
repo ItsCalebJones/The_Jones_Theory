@@ -429,10 +429,10 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                 exitReveal();
                 switch (v.getId()) {
                     case R.id.title:
-                        Log.d("The Jones Theory", "Title!");
                         break;
                     case R.id.thumbnail:
                         Intent intent = new Intent(getActivity(), PostSelectedActivity.class);
+                        intent.putExtra("PostCat", feedItemList.get(position).getCategories());
                         intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
                         intent.putExtra("PostImage", feedItemList.get(position).getFeaturedImage());
                         intent.putExtra("PostText", feedItemList.get(position).getContent());
@@ -440,7 +440,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
                         intent.putExtra("PostID", feedItemList.get(position).getPostID());
                         intent.putExtra("ID", feedItemList.get(position).getID());
                         startActivity(intent);
-                        Log.d("The Jones Theory", "Thumbnail!");
                         break;
                 }
             }
