@@ -113,7 +113,7 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
         // TODO update menu
-        inflater.inflate(R.menu.menu_list_gallery, menu);
+        inflater.inflate(R.menu.menu_photos, menu);
         this.menu = menu;
         super.onCreateOptionsMenu(menu, inflater);
     }

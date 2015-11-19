@@ -61,7 +61,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public ViewHolder onCreateViewHolder(ViewGroup viewGroup,
                                                 int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.image_item, viewGroup, false);
+                .inflate(R.layout.content_image_item, viewGroup, false);
 
         return new ViewHolder(v);
     }

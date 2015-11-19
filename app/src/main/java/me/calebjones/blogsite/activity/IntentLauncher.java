@@ -2,8 +2,6 @@ package me.calebjones.blogsite.activity;
 
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.design.widget.FloatingActionButton;
-import android.support.design.widget.Snackbar;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.util.Log;
@@ -12,7 +10,6 @@ import android.widget.Button;
 import android.content.Context;
 
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.network.UpdateCheckService;
 import me.calebjones.blogsite.receivers.BootReceiver;
 
 public class IntentLauncher extends AppCompatActivity {
@@ -23,7 +20,7 @@ public class IntentLauncher extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_intent_launcher);
+        setContentView(R.layout.debug_activity_launcher);
         Toolbar toolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(toolbar);
 

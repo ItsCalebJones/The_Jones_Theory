@@ -26,8 +26,6 @@ import com.squareup.okhttp.Request;
 import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
-import org.w3c.dom.Comment;
-
 import java.io.IOException;
 import java.util.List;
 
@@ -59,7 +57,7 @@ public class PostCommentsActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_post_comments);
+        setContentView(R.layout.activity_comments);
 
         commentRecyclerView = (RecyclerView) findViewById(R.id.comment_view);
 
@@ -199,7 +197,7 @@ public class PostCommentsActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_post_comments, menu);
+        getMenuInflater().inflate(R.menu.menu_comments, menu);
         return true;
     }
 

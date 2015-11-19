@@ -25,7 +25,6 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.transition.Explode;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.util.Log;
@@ -80,7 +79,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
 
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.fullscreen);
+        setContentView(R.layout.activity_fullscreen);
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
 

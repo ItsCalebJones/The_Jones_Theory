@@ -91,7 +91,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         super.onCreate(savedInstanceState);
 
 
-        setContentView(R.layout.activity_post_selected);
+        setContentView(R.layout.activity_selected);
         Bundle bundle = getIntent().getExtras();
 
 
@@ -156,7 +156,7 @@ public class PostSelectedActivity extends AppCompatActivity {
             }
         });
 
-        //Replace the header image with the Feature Image
+        //Replace the content_header image with the Feature Image
         if (PostImage == null){
             if (fullscreenFab.getVisibility() == View.VISIBLE) {
                 fullscreenFab.setVisibility(View.GONE);
@@ -534,7 +534,7 @@ public class PostSelectedActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         super.onCreateOptionsMenu(menu);
-        getMenuInflater().inflate(R.menu.menu_post_selected, menu);
+        getMenuInflater().inflate(R.menu.menu_selected, menu);
         Log.d("The Jones Theory", "Menu has been created");
         return true;
     }
