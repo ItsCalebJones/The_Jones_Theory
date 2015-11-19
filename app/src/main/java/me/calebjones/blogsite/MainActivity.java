@@ -1,6 +1,8 @@
 package me.calebjones.blogsite;
 
 import android.app.ActivityManager;
+import android.app.AlarmManager;
+import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
@@ -30,6 +32,9 @@ import com.facebook.appevents.AppEventsLogger;
 import com.facebook.login.LoginManager;
 import com.nostra13.universalimageloader.core.ImageLoader;
 import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
+
+import java.util.Calendar;
+import java.util.Random;
 
 import me.calebjones.blogsite.activity.DownloadActivity;
 import me.calebjones.blogsite.activity.IntentLauncher;
@@ -67,6 +72,7 @@ public class MainActivity extends AppCompatActivity {
     };
 
     //Public Variables
+    public static final int RESTART_CODE = 135325;
     public static final String TAG = "The Jones Theory - M";
     public Context context;
     public ProgressBar progressBar;
@@ -79,7 +85,29 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        //Set up Alarm Manager and Pending Intent to wake the UpdateServiceCheck
+        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+        Intent intent = new Intent(this, getClass());
+        PendingIntent pendingIntent = PendingIntent.getService(this, RESTART_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+
+        alarmManager.cancel(pendingIntent);
+
+        //Use a RNG to offset server load
+        Random r = new Random();
+
+        //Init the calendar and calculate the wakeup time.
+        Calendar calendar = Calendar.getInstance();
+        calendar.add(Calendar.HOUR, 1);
+        calendar.add(Calendar.MINUTE, r.nextInt(240 - 1) + 1);
+
+        //Log the time and start the intent.
+        Log.d("The Jones Theory", "UpdateCheckService init...calendar.getTimeInMillis() " + calendar.getTimeInMillis());
+        alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+
+        //Set ContentView to Activity Main
         setContentView(R.layout.activity_main);
+
+        //Init FB SDK
         FacebookSdk.sdkInitialize(getApplicationContext());
         Log.d("The Jones Theory", "Downloading: " + String.valueOf(SharedPrefs.getInstance().isDownloading()));
 
