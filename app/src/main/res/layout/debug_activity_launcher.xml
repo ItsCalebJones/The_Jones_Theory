@@ -16,7 +16,7 @@
 
     </android.support.design.widget.AppBarLayout>
 
-    <include layout="@layout/content_intent_launcher" />
+    <include layout="@layout/debug_content_intent_launcher" />
 
 
 </android.support.design.widget.CoordinatorLayout>

@@ -32,7 +32,7 @@ public class CommentAdapter extends RecyclerView.Adapter<CommentListRowHolder> {
     public CommentListRowHolder onCreateViewHolder(ViewGroup viewGroup,
                                                 int i) {
         View v = LayoutInflater.from(viewGroup.getContext())
-                .inflate(R.layout.comment_item, null);
+                .inflate(R.layout.content_comment_item, null);
 
         Log.d("TAG", "Position: " + position);
 

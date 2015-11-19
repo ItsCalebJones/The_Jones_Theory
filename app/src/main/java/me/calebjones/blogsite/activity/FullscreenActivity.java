@@ -66,7 +66,7 @@ public class FullscreenActivity extends AppCompatActivity {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().setSharedElementsUseOverlay(false);
         }
-        setContentView(R.layout.fullscreen);
+        setContentView(R.layout.activity_fullscreen);
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
 

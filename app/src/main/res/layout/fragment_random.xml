@@ -12,7 +12,7 @@
 
             <include
                 android:id="@+id/Random_posts"
-                layout="@layout/list_item"
+                layout="@layout/content_list_item"
                 />
 
             <LinearLayout

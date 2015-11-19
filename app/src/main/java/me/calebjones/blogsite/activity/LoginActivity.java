@@ -48,10 +48,8 @@ import java.net.URL;
 import java.net.URLEncoder;
 import java.util.Arrays;
 
-import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.database.SharedPrefs;
-import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.util.AuthValidate;
 import me.calebjones.blogsite.util.FBConnect;
 
@@ -507,7 +505,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.login_menu, menu);
+        getMenuInflater().inflate(R.menu.menu_login, menu);
         return true;
     }
 

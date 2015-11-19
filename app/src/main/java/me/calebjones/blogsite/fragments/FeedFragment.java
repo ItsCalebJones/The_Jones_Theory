@@ -61,7 +61,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     private RecyclerView mRecyclerView;
     private FeedAdapter adapter;
     private StaggeredGridLayoutManager layoutManager;
-    private static final String BUNDLE_RECYCLER_LAYOUT = "BlogFragment.mRecylcerView.fragment_fetch_data";
+    private static final String BUNDLE_RECYCLER_LAYOUT = "BlogFragment.mRecylcerView.fragment_feed";
 
     public BroadcastReceiver receiver = new BroadcastReceiver() {
         @Override
@@ -119,7 +119,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         super.onCreateView(inflater, container, savedInstanceState);
         LayoutInflater lf = getActivity().getLayoutInflater();
 
-        view = lf.inflate(R.layout.fragment_fetch_data, container, false);
+        view = lf.inflate(R.layout.fragment_feed, container, false);
 
         mRecyclerView = (RecyclerView) view.findViewById(R.id.recycler_view);
 
@@ -173,7 +173,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     @Override
     public void onCreateOptionsMenu(Menu menu, MenuInflater inflater) {
-        inflater.inflate(R.menu.menu_fetch_data, menu);
+        inflater.inflate(R.menu.menu_feed, menu);
         super.onCreateOptionsMenu(menu, inflater);
     }
 
@@ -367,7 +367,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         @Override
         public ViewHolder onCreateViewHolder(ViewGroup viewGroup,
                                              int i) {
-            View v = getActivity().getLayoutInflater().inflate(R.layout.list_item, viewGroup, false);
+            View v = getActivity().getLayoutInflater().inflate(R.layout.content_list_item, viewGroup, false);
             return new ViewHolder(v);
         }
 

@@ -77,7 +77,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         SharedPrefs.getInstance().setFirstRun(false);
-        setContentView(R.layout.activity_dbtest);
+        setContentView(R.layout.activity_download);
 
         Log.d("The Jones Theory", "Downloading = " + SharedPrefs.getInstance().isDownloading());
 
@@ -146,7 +146,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     @Override
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
-        getMenuInflater().inflate(R.menu.menu_dbtest, menu);
+        getMenuInflater().inflate(R.menu.menu_download, menu);
         return true;
     }
 
