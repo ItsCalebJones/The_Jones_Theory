@@ -4,6 +4,7 @@ import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.annotation.TargetApi;
 import android.app.ActivityOptions;
+import android.app.PendingIntent;
 import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
@@ -12,6 +13,7 @@ import android.media.browse.MediaBrowser;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
@@ -52,7 +54,13 @@ import me.calebjones.blogsite.content.database.SharedPrefs;
 import me.calebjones.blogsite.content.models.FeedItem;
 import me.calebjones.blogsite.content.models.Posts;
 import me.calebjones.blogsite.network.PostLoader;
+<<<<<<< HEAD:app/src/main/java/me/calebjones/blogsite/ui/activity/PostSelectedActivity.java
 import me.calebjones.blogsite.util.image.URLImageParser;
+=======
+import me.calebjones.blogsite.util.customtab.CustomTabActivityHelper;
+import me.calebjones.blogsite.util.URLImageParser;
+import me.calebjones.blogsite.util.WebViewFallback;
+>>>>>>> master:app/src/main/java/me/calebjones/blogsite/activity/PostSelectedActivity.java
 
 
 public class PostSelectedActivity extends AppCompatActivity {
@@ -299,7 +307,8 @@ public class PostSelectedActivity extends AppCompatActivity {
                 int duration = Toast.LENGTH_SHORT;
 
                 Toast.makeText(context, text, duration).show();
-                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(span.getURL()));
+                openCustomTab(span.getURL());
+
             }
         };
         strBuilder.setSpan(clickable, start, end, flags);
@@ -473,11 +482,8 @@ public class PostSelectedActivity extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void LollipopTransition(View v) throws IOException {
         final View nestedContent = findViewById(R.id.nested_content);
-        final View commentFab = findViewById(R.id.commentFab);
-        final View fullscreenFab = findViewById(R.id.postFab);
 
         hideView(nestedContent);
-
 
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
 
@@ -556,7 +562,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 shareIntent();
                 return true;
             case R.id.openBrowser:
-                browserIntent();
+                openCustomTab(PostURL);
                 return true;
             default:
                 return super.onOptionsItemSelected(item);
@@ -577,6 +583,33 @@ public class PostSelectedActivity extends AppCompatActivity {
         sendIntent.setType("text/plain");
         startActivity(sendIntent);
     }
+
+    private void openCustomTab(String url) {
+        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+
+        int color = getResources().getColor(R.color.myPrimaryColor);
+        intentBuilder.setToolbarColor(color);
+        intentBuilder.setShowTitle(true);
+        String menuItemTitle = "Share";
+        PendingIntent menuItemPendingIntent = createPendingShareIntent(url);
+        intentBuilder.addMenuItem(menuItemTitle, menuItemPendingIntent);
+
+        intentBuilder.setStartAnimations(this,
+                R.anim.slide_in_right, R.anim.slide_out_left);
+        intentBuilder.setExitAnimations(this,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
+        CustomTabActivityHelper.openCustomTab(
+                this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
+    }
+
+    private PendingIntent createPendingShareIntent(String url) {
+        Intent actionIntent = new Intent(Intent.ACTION_SEND);
+        actionIntent.setType("text/plain");
+        actionIntent.putExtra(Intent.EXTRA_TEXT, url);
+        return PendingIntent.getActivity(getApplicationContext(), 0, actionIntent, 0);
+    }
+
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
