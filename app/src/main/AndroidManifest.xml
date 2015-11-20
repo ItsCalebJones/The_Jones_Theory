@@ -26,35 +26,35 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".ui.activity.PostSelectedActivity"
+            android:name=".activity.PostSelectedActivity"
             android:label="@string/title_activity_post_selected"
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
-            android:name=".ui.activity.TransitionFullscreen"
-            android:parentActivityName=".ui.activity.PostSelectedActivity" />
+            android:name=".activity.TransitionFullscreen"
+            android:parentActivityName=".activity.PostSelectedActivity" />
         <activity
-            android:name=".ui.activity.FullscreenActivity"
-            android:parentActivityName=".ui.activity.PostSelectedActivity" />
+            android:name=".activity.FullscreenActivity"
+            android:parentActivityName=".activity.PostSelectedActivity" />
         <activity
-            android:name=".ui.activity.SettingsActivity"
+            android:name=".activity.SettingsActivity"
             android:label="@string/title_activity_settings"
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
-            android:name=".ui.activity.LoginActivity"
+            android:name=".activity.LoginActivity"
             android:label="@string/app_name" >
         </activity>
         <activity
-            android:name=".ui.activity.PostCommentsActivity"
+            android:name=".activity.PostCommentsActivity"
             android:label="@string/app_name"
             android:parentActivityName=".MainActivity"
             android:windowSoftInputMode="adjustPan|stateUnchanged|adjustResize" >
         </activity>
         <activity
-            android:name=".ui.activity.RegistrationActivity"
+            android:name=".activity.RegistrationActivity"
             android:label="@string/title_activity_registration"
-            android:parentActivityName=".ui.activity.LoginActivity" >
+            android:parentActivityName=".activity.LoginActivity" >
         </activity>
         <activity
             android:name="com.facebook.FacebookActivity"
@@ -67,11 +67,11 @@
             android:value="@string/facebook_app_id" />
 
         <activity
-            android:name=".ui.activity.DownloadActivity"
+            android:name=".activity.DownloadActivity"
             android:label="@string/title_activity_dbtest" >
         </activity>
         <activity
-            android:name=".ui.activity.SearchActivity"
+            android:name=".activity.SearchActivity"
             android:label=""
             android:parentActivityName=".MainActivity" />
 
@@ -84,15 +84,15 @@
             android:enabled="true"
             android:exported="false" />
 
-        <receiver android:name=".util.receivers.ButtonReceiver" />
+        <receiver android:name=".util.ButtonReceiver" />
         <receiver
-            android:name=".util.receivers.NewPostReceiver"
+            android:name=".receivers.NewPostReceiver"
             android:exported="false" >
             <intent-filter>
                 <action android:name="me.calebjones.blogsite.NEW_POST" />
             </intent-filter>
         </receiver>
-        <receiver android:name=".util.receivers.BootReceiver" >
+        <receiver android:name=".receivers.BootReceiver" >
             <intent-filter>
                 <action android:name="android.intent.action.BOOT_COMPLETED" />
                 <action android:name="me.calebjones.blogsite.NEW_POST" />
@@ -100,7 +100,7 @@
         </receiver>
 
         <activity
-            android:name=".ui.activity.IntentLauncher"
+            android:name=".activity.IntentLauncher"
             android:label="@string/title_activity_intent_launcher"
             android:theme="@style/Theme.BlogSite" >
         </activity>
