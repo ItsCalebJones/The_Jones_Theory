@@ -2,16 +2,11 @@ package me.calebjones.blogsite.network;
 
 import android.app.AlarmManager;
 import android.app.IntentService;
-import android.app.NotificationManager;
 import android.app.PendingIntent;
-import android.content.Context;
 import android.content.Intent;
-import android.content.res.Resources;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.support.v4.app.NotificationCompat;
 import android.util.Log;
-import android.widget.Toast;
 
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
@@ -24,7 +19,6 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.io.InputStream;
 import java.net.HttpURLConnection;
-import java.net.MalformedURLException;
 import java.net.URL;
 import java.text.ParseException;
 import java.text.SimpleDateFormat;
@@ -34,10 +28,9 @@ import java.util.List;
 import java.util.Random;
 
 import me.calebjones.blogsite.BlogsiteApplication;
-import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.database.DatabaseManager;
-import me.calebjones.blogsite.database.SharedPrefs;
-import me.calebjones.blogsite.models.Posts;
+import me.calebjones.blogsite.content.database.DatabaseManager;
+import me.calebjones.blogsite.content.database.SharedPrefs;
+import me.calebjones.blogsite.content.models.Posts;
 
 /**
  * Created by cjones on 11/10/15.

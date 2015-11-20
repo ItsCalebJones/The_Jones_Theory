@@ -5,7 +5,7 @@
     android:layout_height="match_parent"
     android:orientation="vertical"
     android:fitsSystemWindows="true"
-    tools:context="me.calebjones.blogsite.activity.RegistrationActivity">
+    tools:context="me.calebjones.blogsite.ui.activity.RegistrationActivity">
 
     <android.support.v7.widget.Toolbar
         android:id="@+id/regi_toolbar"
@@ -29,7 +29,7 @@
 
 
 
-        <me.calebjones.blogsite.util.FontFitTextView
+        <me.calebjones.blogsite.util.view.FontFitTextView
             android:layout_width="310dp"
             android:layout_height="60dp"
             android:fontFamily="sans-serif-condensed"
