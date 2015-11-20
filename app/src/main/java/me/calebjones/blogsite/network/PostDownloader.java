@@ -24,11 +24,8 @@ import android.content.Intent;
 import android.graphics.BitmapFactory;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v4.app.NotificationCompat;
-import android.support.v4.app.NotificationCompat.WearableExtender;
 import android.util.Log;
 
-import com.google.gson.Gson;
-import com.google.gson.JsonSyntaxException;
 import com.squareup.okhttp.Request;
 import com.squareup.okhttp.Response;
 
@@ -39,10 +36,10 @@ import org.json.JSONObject;
 import me.calebjones.blogsite.BlogsiteApplication;
 import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.database.DatabaseManager;
-import me.calebjones.blogsite.database.SharedPrefs;
-import me.calebjones.blogsite.models.Posts;
-import me.calebjones.blogsite.util.ButtonReceiver;
+import me.calebjones.blogsite.content.database.DatabaseManager;
+import me.calebjones.blogsite.content.database.SharedPrefs;
+import me.calebjones.blogsite.content.models.Posts;
+import me.calebjones.blogsite.util.receivers.ButtonReceiver;
 
 import java.io.IOException;
 import java.net.URLEncoder;

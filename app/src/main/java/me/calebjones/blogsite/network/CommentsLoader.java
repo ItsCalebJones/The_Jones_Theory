@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.calebjones.blogsite.comments.CommentItem;
+import me.calebjones.blogsite.content.models.CommentItem;
 
 
 public class CommentsLoader extends AsyncTask<String, Void, Integer> {
