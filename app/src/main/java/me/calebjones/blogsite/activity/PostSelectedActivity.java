@@ -9,6 +9,9 @@ import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.Canvas;
+import android.graphics.drawable.BitmapDrawable;
+import android.graphics.drawable.Drawable;
 import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Build;
@@ -21,8 +24,13 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.Spannable;
+import android.text.SpannableStringBuilder;
+import android.text.Spanned;
+import android.text.style.ImageSpan;
 import android.transition.Slide;
 import android.transition.Transition;
+import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -44,7 +52,10 @@ import com.squareup.okhttp.RequestBody;
 import com.squareup.okhttp.Response;
 
 import java.io.ByteArrayOutputStream;
+import java.io.File;
 import java.io.IOException;
+import java.io.InputStream;
+import java.net.MalformedURLException;
 import java.util.List;
 
 import me.calebjones.blogsite.BlogsiteApplication;
@@ -53,6 +64,7 @@ import me.calebjones.blogsite.comments.CommentItem;
 import me.calebjones.blogsite.database.SharedPrefs;
 import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.models.FeedItem;
+import me.calebjones.blogsite.util.URLImageParser;
 
 
 public class PostSelectedActivity extends AppCompatActivity {
@@ -77,6 +89,7 @@ public class PostSelectedActivity extends AppCompatActivity {
     public List<FeedItem> feedItemList;
     public Palette mPalette;
     public TextView mTextView, CommentBoxTitle, CommentTextLoggedOut, mTitle;
+    private SpannableStringBuilder htmlSpannable;
     public View CommentBox;
     public EditText CommentEditText;
 
@@ -217,6 +230,8 @@ public class PostSelectedActivity extends AppCompatActivity {
                 });
 
         //Removes HTML artifcats
+
+//Skipping this for now trying to get images to load
         PostText = removeStyling(PostText);
         PostTitle = stripHtml(PostTitle);
 
@@ -227,12 +242,18 @@ public class PostSelectedActivity extends AppCompatActivity {
         mTitle = (TextView) findViewById(R.id.PostTextTitle);
         mTitle.setText(Html.fromHtml(PostTitle));
         mTextView = (TextView) findViewById(R.id.PostTextPara);
-        mTextView.setText(Html.fromHtml(PostText));
+
+        URLImageParser p = new URLImageParser(mTextView, this);
+        Spanned htmlSpan = Html.fromHtml(PostText, p, null);
+        mTextView.setText(htmlSpan);
+
+//        mTextView.setText(Html.fromHtml(PostText,new URLImageParser(mTextView, this), null));
 
         CommentTextLoggedOut = (TextView) findViewById(R.id.CommentTextLoggedOut);
         CommentBoxTitle = (TextView) findViewById(R.id.CommentBoxTitle);
         CommentBox = findViewById(R.id.CommentBox);
         CommentEditText = (EditText) findViewById(R.id.CommentEditText);
+
 
         //Init the toolbar
         mToolbar = (Toolbar) findViewById(R.id.PostToolbar);
@@ -480,7 +501,9 @@ public class PostSelectedActivity extends AppCompatActivity {
         //Remove Styling from Text
         PostText = PostText.replaceAll("<style>.*?</style>", "");
         //Remove Styling from Text
-        PostText = PostText.replaceAll("<img.+/(img)*>", "");
+        int index = PostText.indexOf("<img");
+        PostText = PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length());
+        Log.d("The Jones Theory", PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length()));
 
         return PostText;
     }
@@ -553,59 +576,5 @@ public class PostSelectedActivity extends AppCompatActivity {
         PostImage = savedInstanceState.getString("PostImage");
         PostURL = savedInstanceState.getString("PostURL");
         PostID = savedInstanceState.getInt("PostID");
-    }
-
-    public class postComment extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected String doInBackground(String... params){
-            //Send response
-            RequestBody formBody = new FormEncodingBuilder()
-                    .add("cookie", params[0])
-                    .add("post_id", PostID.toString())
-                    .addEncoded("content", params[1])
-                    .add("comment_status", "1")
-                    .build();
-
-            Request todayReq = new Request.Builder().url(COMMENT_URL).post(formBody).build();
-            Response response = null;
-            try {
-                response = BlogsiteApplication.getInstance().client.newCall(todayReq).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String result = null;
-
-            if (response.isSuccessful()){
-                result = "Success!";
-            }
-            else {
-                try {
-                    result = response.body().string();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            Log.d("The Jones Theory", result);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            /* Download complete. Lets update UI */
-            Log.d("The Jones Theory", "Result: " + result);
-            revealView(CommentBox);
-            if (!result.equals("Success!")){
-                CommentEditText.requestFocus();
-                CommentEditText.setError("Error, try again. Please make sure you are logged in.");
-            }
-
-        }
     }
 }
