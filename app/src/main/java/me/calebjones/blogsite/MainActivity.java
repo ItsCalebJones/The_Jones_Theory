@@ -36,18 +36,19 @@ import com.nostra13.universalimageloader.core.ImageLoaderConfiguration;
 import java.util.Calendar;
 import java.util.Random;
 
-import me.calebjones.blogsite.ui.activity.DownloadActivity;
-import me.calebjones.blogsite.ui.activity.LoginActivity;
-import me.calebjones.blogsite.ui.activity.SearchActivity;
-import me.calebjones.blogsite.ui.activity.SettingsActivity;
-import me.calebjones.blogsite.content.database.DatabaseManager;
-import me.calebjones.blogsite.content.database.SharedPrefs;
-import me.calebjones.blogsite.ui.fragments.FeedFragment;
-import me.calebjones.blogsite.ui.fragments.PhotoFragment;
-import me.calebjones.blogsite.ui.fragments.RandomFragment;
+import me.calebjones.blogsite.activity.DownloadActivity;
+import me.calebjones.blogsite.activity.IntentLauncher;
+import me.calebjones.blogsite.activity.LoginActivity;
+import me.calebjones.blogsite.activity.SearchActivity;
+import me.calebjones.blogsite.activity.SettingsActivity;
+import me.calebjones.blogsite.database.DatabaseManager;
+import me.calebjones.blogsite.database.SharedPrefs;
+import me.calebjones.blogsite.fragments.FeedFragment;
+import me.calebjones.blogsite.fragments.PhotoFragment;
+import me.calebjones.blogsite.fragments.RandomFragment;
 import me.calebjones.blogsite.network.PostDownloader;
-import me.calebjones.blogsite.util.auth.AuthValidate;
-import me.calebjones.blogsite.util.auth.FBConnect;
+import me.calebjones.blogsite.util.AuthValidate;
+import me.calebjones.blogsite.util.FBConnect;
 
 public class MainActivity extends AppCompatActivity {
 

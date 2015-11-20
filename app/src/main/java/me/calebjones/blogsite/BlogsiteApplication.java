@@ -24,7 +24,7 @@ import com.squareup.okhttp.Protocol;
 
 import java.util.Collections;
 
-import me.calebjones.blogsite.content.database.SharedPrefs;
+import me.calebjones.blogsite.database.SharedPrefs;
 
 public class BlogsiteApplication extends Application {
 
