@@ -6,13 +6,13 @@ import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.media.browse.MediaBrowser;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
+import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
@@ -20,6 +20,9 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.text.SpannableStringBuilder;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.transition.Slide;
 import android.transition.Transition;
 import android.util.Log;
@@ -33,25 +36,23 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
 import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
-import me.calebjones.blogsite.BlogsiteApplication;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.comments.CommentItem;
+import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
-import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.models.FeedItem;
+import me.calebjones.blogsite.models.Posts;
+import me.calebjones.blogsite.network.PostLoader;
+import me.calebjones.blogsite.util.URLImageParser;
 
 
 public class PostSelectedActivity extends AppCompatActivity {
@@ -59,23 +60,25 @@ public class PostSelectedActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
 
-    private LinearLayout mTitle, CommentLayout, mText, spacer_layout;
+    private LinearLayout CommentLayout, mText, spacer_layout;
     private Context mContext;
     private FloatingActionButton fullscreenFab;
     private FloatingActionButton commentFab;
     private CollapsingToolbarLayout collapsingToolbar;
+    private AppBarLayout appBarLayout;
     private boolean LoginStatus;
     private Button button;
+    private Posts post;
+    private MediaBrowser.ConnectionCallback mConnectionCallback;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
-    public String PostTitle, PostImage, PostText, PostURL;
+    public String PostTitle, PostImage, PostText, PostURL, PostCat;
     public Integer PostID;
     public Bitmap bitmap;
-    public List<CommentItem> commentItemList;
     public List<FeedItem> feedItemList;
     public Palette mPalette;
-    public TextView mTextView, CommentBoxTitle, mTitleView, CommentTextLoggedOut;
+    public TextView mTextView, CommentBoxTitle, CommentTextLoggedOut, mTitle;
     public View CommentBox;
     public EditText CommentEditText;
 
@@ -83,6 +86,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        DatabaseManager databaseManager = new DatabaseManager(this);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             getWindow().setEnterTransition(new Slide());
@@ -90,10 +94,8 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-
         setContentView(R.layout.activity_selected);
         Bundle bundle = getIntent().getExtras();
-
 
         final ImageView imgFavorite = (ImageView)findViewById(R.id.header);
         final View myView = findViewById(R.id.main_content);
@@ -107,24 +109,24 @@ public class PostSelectedActivity extends AppCompatActivity {
         if (bundle != null){
             //Get information about the post that was selected from BlogFragment
             Intent intent = getIntent();
-            PostTitle = intent.getExtras().getString("PostTitle");
-            PostImage = intent.getExtras().getString("PostImage");
-            PostText = intent.getExtras().getString("PostText");
-            PostURL = intent.getExtras().getString("PostURL");
             PostID = intent.getExtras().getInt("PostID");
-            Log.i("The Jones Theory", "Intent!");
-
             this.feedItemList = PostLoader.getWords();
+            post = databaseManager.getPostByID(PostID);
+            PostCat = post.getCategories();
+            PostImage = post.getFeaturedImage();
+            PostText = post.getContent();
+            PostTitle = post.getTitle();
+            PostURL = post.getURL();
         }
         if (savedInstanceState != null) {
             Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
         }
 
-//        this.commentItemList = CommentsLoader.getWords();
-//        this.commentItemList.clear();
-//        new CommentsLoader().execute(URL + PostID.toString() + "/replies");
-
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
+        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
+
+
+        collapsingToolbar.setTitle(PostCat.replaceAll(",", " |"));
 
         fullscreenFab = (FloatingActionButton) findViewById(R.id.postFab);
         fullscreenFab.setOnClickListener(new View.OnClickListener() {
@@ -149,7 +151,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 Intent commentIntent = new Intent(PostSelectedActivity.this, PostCommentsActivity.class);
                 commentIntent.putExtra("PostID", PostID.toString());
                 commentIntent.putExtra("PostURL", PostURL);
-                if (mPalette != null){
+                if (mPalette != null) {
                     commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
                 }
                 startActivity(commentIntent);
@@ -202,20 +204,10 @@ public class PostSelectedActivity extends AppCompatActivity {
                                         mApplyPalette(mPalette);
                                         revealView(mainView);
                                         if (commentFab.getVisibility() == View.INVISIBLE) {
-                                            commentFab.postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    revealView(commentFab);
-                                                }
-                                            }, 500);
+                                            revealView(commentFab);
                                         }
                                         if (fullscreenFab.getVisibility() == View.INVISIBLE) {
-                                            fullscreenFab.postDelayed(new Runnable() {
-                                                @Override
-                                                public void run() {
-                                                    revealView(fullscreenFab);
-                                                }
-                                            }, 750);
+                                            revealView(fullscreenFab);
                                         }
                                     }
                                 }, 100);
@@ -226,31 +218,39 @@ public class PostSelectedActivity extends AppCompatActivity {
                 });
 
         //Removes HTML artifcats
+
+//Skipping this for now trying to get images to load
         PostText = removeStyling(PostText);
         PostTitle = stripHtml(PostTitle);
 
-//        mTitle = (LinearLayout) findViewById(R.id.content_title);
         mText = (LinearLayout) findViewById(R.id.selected_content);
         CommentLayout = (LinearLayout) findViewById(R.id.CommentLayout);
 
         //Setup the Title, EditText and Textviews
+        mTitle = (TextView) findViewById(R.id.PostTextTitle);
+        mTitle.setText(Html.fromHtml(PostTitle));
         mTextView = (TextView) findViewById(R.id.PostTextPara);
-        mTextView.setText(Html.fromHtml(PostText));
+
+//        mTextView.setText(htmlSpan);
+        setTextViewHTML(mTextView, PostText);
+
+//        mTextView.setText(Html.fromHtml(PostText,new URLImageParser(mTextView, this), null));
+
         CommentTextLoggedOut = (TextView) findViewById(R.id.CommentTextLoggedOut);
         CommentBoxTitle = (TextView) findViewById(R.id.CommentBoxTitle);
         CommentBox = findViewById(R.id.CommentBox);
         CommentEditText = (EditText) findViewById(R.id.CommentEditText);
 
+
         //Init the toolbar
         mToolbar = (Toolbar) findViewById(R.id.PostToolbar);
         setSupportActionBar(mToolbar);
 
-        //Setup the Actionabar backbutton and elevation
+        //Setup the Action Bar back button and elevation
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
 
-        collapsingToolbar.setTitle(PostTitle);
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
 
@@ -286,23 +286,47 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
-    //Need to move this off main thread
-    private void postComment() throws IOException {
-        SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-        String authCookie = prefs.getString("AUTH_COOKIE", "");
-        String text = CommentEditText.getText().toString();
-        new postComment().execute(authCookie, text);
-        hideView(CommentBox);
+    protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
+    {
+        int start = strBuilder.getSpanStart(span);
+        int end = strBuilder.getSpanEnd(span);
+        int flags = strBuilder.getSpanFlags(span);
+        ClickableSpan clickable = new ClickableSpan() {
+            public void onClick(View view) {
+                // Do something with span.getURL() to handle the link click...
+                Context context = getApplicationContext();
+                CharSequence text = "Hello toast!" + span.getURL();
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast.makeText(context, text, duration).show();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(span.getURL()));
+            }
+        };
+        strBuilder.setSpan(clickable, start, end, flags);
+        strBuilder.removeSpan(span);
     }
 
-    //Pallete bugs here where swatches are empty
+    protected void setTextViewHTML(TextView text, String html)
+    {
+        URLImageParser urlImageParser = new URLImageParser(text, this);
+        CharSequence sequence = Html.fromHtml(html, urlImageParser, null);
+        SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+        for(URLSpan span : urls) {
+            makeLinkClickable(strBuilder, span);
+        }
+
+        text.setText(strBuilder);
+    }
+
+    //PalLete bugs here where swatches are empty
     public void mApplyPalette(Palette mPalette){
 //        getWindow().setBackgroundDrawable(new ColorDrawable(mPalette.getDarkMutedColor(defaultColor)));
 
         collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
         collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-        collapsingToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBarPlus);
-        collapsingToolbar.setExpandedTitleColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryLight)));
+//        collapsingToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBarPlus);
+//        collapsingToolbar.setExpandedTitleColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryLight)));
 
 
 //        CommentBox.setBackgroundColor(mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
@@ -315,6 +339,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 //            mTextView.setTextColor(defaultColor);
 //        }
     }
+
     public void Transition(View v){
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
 
@@ -382,20 +407,6 @@ public class PostSelectedActivity extends AppCompatActivity {
                 }
             }, 500);
         }
-        if (commentFab.getVisibility() == View.INVISIBLE && LoginStatus)
-            commentFab.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    revealView(commentFab);
-                }
-            }, 750);
-        if (fullscreenFab.getVisibility() == View.INVISIBLE)
-            fullscreenFab.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    revealView(fullscreenFab);
-                }
-            }, 1000);
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
             CommentTextLoggedOut.setVisibility(View.GONE);
@@ -408,23 +419,23 @@ public class PostSelectedActivity extends AppCompatActivity {
         super.onResume();
     }
 
-    private void revealView(View mainView) {
+    private void revealView(View view) {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            int cx = (mainView.getLeft() + mainView.getRight()) / 2;
-            int cy = (mainView.getTop() + mainView.getBottom()) / 2;
+            int cx = (view.getLeft() + view.getRight()) / 2;
+            int cy = (view.getTop() + view.getBottom()) / 2;
 
             // get the final radius for the clipping circle
-            int finalRadius = Math.max(mainView.getWidth(), mainView.getHeight() / 2);
+            int finalRadius = Math.max(view.getWidth(), view.getHeight() / 2);
 
             // create the animator for this view (the start radius is zero)
             Animator anim =
-                    ViewAnimationUtils.createCircularReveal(mainView, cx, cy, 0, finalRadius);
+                    ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
 
             // make the view visible and start the animation
-            mainView.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
             anim.start();
         } else {
-            mainView.setVisibility(View.VISIBLE);
+            view.setVisibility(View.VISIBLE);
         }
     }
 
@@ -466,22 +477,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         final View fullscreenFab = findViewById(R.id.postFab);
 
         hideView(nestedContent);
-        hideView(commentFab);
-        hideView(fullscreenFab);
 
-        commentFab.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hideView(commentFab);
-            }
-        }, 250);
-
-        fullscreenFab.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                hideView(fullscreenFab);
-            }
-        }, 500);
 
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
 
@@ -495,7 +491,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         Log.d("The Jones Theory", "byteLength: " + byteArray.length);
 
-
+        //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
         if (byteArray.length > 524288){
             for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
                 stream.reset();
@@ -526,7 +522,9 @@ public class PostSelectedActivity extends AppCompatActivity {
         //Remove Styling from Text
         PostText = PostText.replaceAll("<style>.*?</style>", "");
         //Remove Styling from Text
-        PostText = PostText.replaceAll("<img.+/(img)*>", "");
+        int index = PostText.indexOf("<img");
+        PostText = PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length());
+        Log.d("The Jones Theory", PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length()));
 
         return PostText;
     }
@@ -599,59 +597,5 @@ public class PostSelectedActivity extends AppCompatActivity {
         PostImage = savedInstanceState.getString("PostImage");
         PostURL = savedInstanceState.getString("PostURL");
         PostID = savedInstanceState.getInt("PostID");
-    }
-
-    public class postComment extends AsyncTask<String, Void, String> {
-
-        @Override
-        protected void onPreExecute() {
-
-        }
-
-        @Override
-        protected String doInBackground(String... params){
-            //Send response
-            RequestBody formBody = new FormEncodingBuilder()
-                    .add("cookie", params[0])
-                    .add("post_id", PostID.toString())
-                    .addEncoded("content", params[1])
-                    .add("comment_status", "1")
-                    .build();
-
-            Request todayReq = new Request.Builder().url(COMMENT_URL).post(formBody).build();
-            Response response = null;
-            try {
-                response = BlogsiteApplication.getInstance().client.newCall(todayReq).execute();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-            String result = null;
-
-            if (response.isSuccessful()){
-                result = "Success!";
-            }
-            else {
-                try {
-                    result = response.body().string();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-
-            Log.d("The Jones Theory", result);
-            return result;
-        }
-
-        @Override
-        protected void onPostExecute(String result) {
-            /* Download complete. Lets update UI */
-            Log.d("The Jones Theory", "Result: " + result);
-            revealView(CommentBox);
-            if (!result.equals("Success!")){
-                CommentEditText.requestFocus();
-                CommentEditText.setError("Error, try again. Please make sure you are logged in.");
-            }
-
-        }
     }
 }

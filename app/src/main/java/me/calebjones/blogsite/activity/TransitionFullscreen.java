@@ -100,6 +100,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
         //Init the PhotoView
         final PhotoView photoView = (PhotoView)findViewById(R.id.image);
+
         //Set up the bottom bar icons
         final ImageView shareView = (ImageView)findViewById(R.id.shareFooter);
         final ImageView downloadView = (ImageView)findViewById(R.id.downloadFooter);
@@ -192,7 +193,6 @@ public class TransitionFullscreen extends AppCompatActivity {
 
                 // load the full version, crossfading from the thumbnail image
                 Ion.with(photoView)
-                        .crossfade(true)
                         .deepZoom()
                         .load(PostImage);
 

@@ -99,7 +99,7 @@
                 android:layout_below="@id/CommentName"
                 android:layout_marginLeft="8dp"
                 android:layout_marginRight="8dp"
-                android:background="@color/myViewSeperators" />
+                android:background="@color/View_Separator" />
 
             <TextView
                 android:id="@+id/excerpt"
