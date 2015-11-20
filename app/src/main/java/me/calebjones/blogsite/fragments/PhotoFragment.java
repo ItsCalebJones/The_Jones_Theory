@@ -24,10 +24,9 @@ import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.gallery.ImageAdapter;
 import me.calebjones.blogsite.util.EndlessRecyclerOnScrollListener;
 
-public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener{
+public class PhotoFragment extends Fragment {
 
     public static final String TAG = "The Jones Theory - PhG";
-    public SwipeRefreshLayout mSwipeRefreshLayout;
 
     private boolean isListView;
     private StaggeredGridLayoutManager mStaggeredLayoutManager;
@@ -48,13 +47,6 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
         setHasOptionsMenu(true);
         this.setRetainInstance(true);
         super.onCreate(savedInstanceState);
-    }
-
-    // TODO implement onRefresh Swiperefreshlayout
-    @Override
-    public void onRefresh() {
-        Log.v(TAG, "Refreshing - onRefresh method.");
-
     }
 
 
@@ -89,7 +81,6 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 super.onScrolled(recyclerView, dx, dy);
 
                 int topRowVerticalPostion = (mRecyclerView == null || mRecyclerView.getChildCount() == 0) ? 0 : mRecyclerView.getChildAt(0).getTop();
-                mSwipeRefreshLayout.setEnabled(dx == 0 && topRowVerticalPostion >= 0);
             }
         });
         mRecyclerView.addOnScrollListener(new EndlessRecyclerOnScrollListener(mStaggeredLayoutManager) {
@@ -100,9 +91,6 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
                 }
             }
         });
-
-        mSwipeRefreshLayout = (SwipeRefreshLayout) view.findViewById(R.id.activity_grid_swipe_refresh_layout);
-        mSwipeRefreshLayout.setOnRefreshListener(this);
 
         isListView = true;
 
@@ -163,42 +151,9 @@ public class PhotoFragment extends Fragment implements SwipeRefreshLayout.OnRefr
             mRecyclerView.setVisibility(View.GONE);
             noPost.setVisibility(View.VISIBLE);
         }
-        if (menu != null){
-            MenuItem item = menu.findItem(R.id.action_toggle);
-            if (isListView) {
-                mStaggeredLayoutManager.setSpanCount(2);
-                item.setIcon(R.drawable.ic_view_stream);
-                item.setTitle("Show as list");
-                isListView = false;
-            } else {
-                mStaggeredLayoutManager.setSpanCount(1);
-                item.setIcon(R.drawable.ic_view_module);
-                item.setTitle("Show as grid");
-                isListView = true;
-            }
-        }
         super.onResume();
     }
 
-    public void stopRefresh(){
-        mSwipeRefreshLayout.setRefreshing(false);
-    }
-
-    public void startRefresh(){
-        mSwipeRefreshLayout.setRefreshing(true);
-    }
-
-    public boolean isRefreshing(){
-        boolean refreshing = mSwipeRefreshLayout.isRefreshing();
-        return refreshing;
-    }
-
-    public boolean swipeNull(){
-        if (mSwipeRefreshLayout == null){
-            return true;
-        }
-        return false;
-    }
 
     @Override
     public void onViewStateRestored(@Nullable Bundle savedInstanceState) {
