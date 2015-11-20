@@ -5,6 +5,7 @@ import android.content.Intent;
 import android.net.Uri;
 
 import me.calebjones.blogsite.activity.WebViewActivity;
+import me.calebjones.blogsite.util.customtab.CustomTabActivityHelper;
 
 /**
  * A Fallback that opens a Webview when Custom Tabs is not available

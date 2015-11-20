@@ -3,7 +3,7 @@
     android:layout_height="match_parent"
     android:tag="webview"
     android:fitsSystemWindows="true"
-    tools:context="me.calebjones.blogsite.fragments.WebView">
+    tools:context="me.calebjones.blogsite.ui.fragments.WebView">
 
     <WebView  xmlns:android="http://schemas.android.com/apk/res/android"
         android:id="@+id/webview2"

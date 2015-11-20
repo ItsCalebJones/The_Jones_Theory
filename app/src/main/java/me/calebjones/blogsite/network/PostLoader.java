@@ -16,7 +16,7 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.calebjones.blogsite.models.FeedItem;
+import me.calebjones.blogsite.content.models.FeedItem;
 
 public class PostLoader extends AsyncTask<String, Void, Integer> {
 

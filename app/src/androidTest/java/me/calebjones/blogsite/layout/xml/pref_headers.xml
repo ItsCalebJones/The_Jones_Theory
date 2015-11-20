@@ -3,15 +3,15 @@
     <!-- These settings headers are only used on tablets. -->
 
     <header
-        android:fragment="me.calebjones.blogsite.activity.SettingsActivity$GeneralPreferenceFragment"
+        android:fragment="me.calebjones.blogsite.ui.activity.SettingsActivity$GeneralPreferenceFragment"
         android:title="@string/pref_header_general" />
 
     <header
-        android:fragment="me.calebjones.blogsite.activity.SettingsActivity$NotificationPreferenceFragment"
+        android:fragment="me.calebjones.blogsite.ui.activity.SettingsActivity$NotificationPreferenceFragment"
         android:title="@string/pref_header_notifications" />
 
     <header
-        android:fragment="me.calebjones.blogsite.activity.SettingsActivity$DataSyncPreferenceFragment"
+        android:fragment="me.calebjones.blogsite.ui.activity.SettingsActivity$DataSyncPreferenceFragment"
         android:title="@string/pref_header_data_sync" />
 
 </preference-headers>
