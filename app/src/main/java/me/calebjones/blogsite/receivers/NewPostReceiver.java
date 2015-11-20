@@ -7,26 +7,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.net.Uri;
-import android.os.Environment;
 import android.support.v7.app.NotificationCompat;
 import android.text.Html;
 import android.util.Log;
 
-import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.HttpURLConnection;
-import java.net.URL;
-
-import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.activity.PostSelectedActivity;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.models.Posts;
 import me.calebjones.blogsite.network.PostDownloader;
 import me.calebjones.blogsite.network.UpdateCheckService;
-import me.calebjones.blogsite.util.ButtonReceiver;
 
 /**
  * Created by cjones on 11/10/15.

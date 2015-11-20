@@ -82,6 +82,7 @@
                 android:layout_margin="16dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
+                android:autoLink="web"
                 android:text="@string/lorem_ipsum" />
 
             <View
@@ -97,7 +98,8 @@
                 android:layout_margin="8dp"
                 android:layout_width="match_parent"
                 android:layout_height="wrap_content"
-                android:textColor="@color/icons"
+                android:textAlignment="center"
+                android:textColor="@android:color/black"
                 android:text="Let your voice be heard! Sign in to comment." />
 
             <LinearLayout
@@ -152,7 +154,7 @@
                         android:text="Submit"
                         android:textStyle="bold"
                         android:textColor="#ffffffff"
-                        android:elevation="10dp"
+                        android:elevation="2dp"
                         android:backgroundTint="@color/myPrimaryDarkColor"
                         android:layout_gravity="center_horizontal"/>
                 </LinearLayout>
@@ -168,7 +170,7 @@
         android:layout_height="wrap_content"
         android:layout_width="wrap_content"
         app:pressedTranslationZ="4dp"
-        app:elevation="8dp"
+        app:elevation="2dp"
         app:layout_anchor="@id/appbar"
         app:layout_anchorGravity="bottom|right|end"
         android:src="@drawable/ic_fullscreen"
@@ -181,7 +183,7 @@
         android:layout_width="wrap_content"
         app:rippleColor="@color/myAccentColor"
         app:pressedTranslationZ="4dp"
-        app:elevation="8dp"
+        app:elevation="2dp"
         app:layout_anchor="@id/separator2"
         app:layout_anchorGravity="bottom|right|end"
         app:backgroundTint="@color/myPrimaryDarkColor"

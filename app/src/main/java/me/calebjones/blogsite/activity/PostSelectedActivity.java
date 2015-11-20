@@ -6,14 +6,10 @@ import android.annotation.TargetApi;
 import android.app.ActivityOptions;
 import android.content.Context;
 import android.content.Intent;
-import android.content.SharedPreferences;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
-import android.graphics.Canvas;
-import android.graphics.drawable.BitmapDrawable;
-import android.graphics.drawable.Drawable;
+import android.media.browse.MediaBrowser;
 import android.net.Uri;
-import android.os.AsyncTask;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.design.widget.AppBarLayout;
@@ -24,13 +20,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
-import android.text.Spannable;
 import android.text.SpannableStringBuilder;
-import android.text.Spanned;
-import android.text.style.ImageSpan;
+import android.text.style.ClickableSpan;
+import android.text.style.URLSpan;
 import android.transition.Slide;
 import android.transition.Transition;
-import android.util.DisplayMetrics;
 import android.util.Log;
 import android.view.Menu;
 import android.view.MenuItem;
@@ -42,28 +36,22 @@ import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.LinearLayout;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
-import com.squareup.okhttp.FormEncodingBuilder;
-import com.squareup.okhttp.Request;
-import com.squareup.okhttp.RequestBody;
-import com.squareup.okhttp.Response;
 
 import java.io.ByteArrayOutputStream;
-import java.io.File;
 import java.io.IOException;
-import java.io.InputStream;
-import java.net.MalformedURLException;
 import java.util.List;
 
-import me.calebjones.blogsite.BlogsiteApplication;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.comments.CommentItem;
+import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
-import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.models.FeedItem;
+import me.calebjones.blogsite.models.Posts;
+import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.util.URLImageParser;
 
 
@@ -80,6 +68,8 @@ public class PostSelectedActivity extends AppCompatActivity {
     private AppBarLayout appBarLayout;
     private boolean LoginStatus;
     private Button button;
+    private Posts post;
+    private MediaBrowser.ConnectionCallback mConnectionCallback;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
@@ -89,7 +79,6 @@ public class PostSelectedActivity extends AppCompatActivity {
     public List<FeedItem> feedItemList;
     public Palette mPalette;
     public TextView mTextView, CommentBoxTitle, CommentTextLoggedOut, mTitle;
-    private SpannableStringBuilder htmlSpannable;
     public View CommentBox;
     public EditText CommentEditText;
 
@@ -97,6 +86,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
+        DatabaseManager databaseManager = new DatabaseManager(this);
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             getWindow().setEnterTransition(new Slide());
@@ -119,16 +109,14 @@ public class PostSelectedActivity extends AppCompatActivity {
         if (bundle != null){
             //Get information about the post that was selected from BlogFragment
             Intent intent = getIntent();
-            PostTitle = intent.getExtras().getString("PostTitle");
-            PostImage = intent.getExtras().getString("PostImage");
-            PostText = intent.getExtras().getString("PostText");
-            PostURL = intent.getExtras().getString("PostURL");
             PostID = intent.getExtras().getInt("PostID");
-            PostCat = intent.getExtras().getString("PostCat");
-
-            Log.i("The Jones Theory", "Intent!");
-
             this.feedItemList = PostLoader.getWords();
+            post = databaseManager.getPostByID(PostID);
+            PostCat = post.getCategories();
+            PostImage = post.getFeaturedImage();
+            PostText = post.getContent();
+            PostTitle = post.getTitle();
+            PostURL = post.getURL();
         }
         if (savedInstanceState != null) {
             Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
@@ -243,9 +231,8 @@ public class PostSelectedActivity extends AppCompatActivity {
         mTitle.setText(Html.fromHtml(PostTitle));
         mTextView = (TextView) findViewById(R.id.PostTextPara);
 
-        URLImageParser p = new URLImageParser(mTextView, this);
-        Spanned htmlSpan = Html.fromHtml(PostText, p, null);
-        mTextView.setText(htmlSpan);
+//        mTextView.setText(htmlSpan);
+        setTextViewHTML(mTextView, PostText);
 
 //        mTextView.setText(Html.fromHtml(PostText,new URLImageParser(mTextView, this), null));
 
@@ -299,6 +286,39 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
+    protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
+    {
+        int start = strBuilder.getSpanStart(span);
+        int end = strBuilder.getSpanEnd(span);
+        int flags = strBuilder.getSpanFlags(span);
+        ClickableSpan clickable = new ClickableSpan() {
+            public void onClick(View view) {
+                // Do something with span.getURL() to handle the link click...
+                Context context = getApplicationContext();
+                CharSequence text = "Hello toast!" + span.getURL();
+                int duration = Toast.LENGTH_SHORT;
+
+                Toast.makeText(context, text, duration).show();
+                Intent intent = new Intent(Intent.ACTION_VIEW, Uri.parse(span.getURL()));
+            }
+        };
+        strBuilder.setSpan(clickable, start, end, flags);
+        strBuilder.removeSpan(span);
+    }
+
+    protected void setTextViewHTML(TextView text, String html)
+    {
+        URLImageParser urlImageParser = new URLImageParser(text, this);
+        CharSequence sequence = Html.fromHtml(html, urlImageParser, null);
+        SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
+        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+        for(URLSpan span : urls) {
+            makeLinkClickable(strBuilder, span);
+        }
+
+        text.setText(strBuilder);
+    }
+
     //PalLete bugs here where swatches are empty
     public void mApplyPalette(Palette mPalette){
 //        getWindow().setBackgroundDrawable(new ColorDrawable(mPalette.getDarkMutedColor(defaultColor)));
@@ -319,6 +339,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 //            mTextView.setTextColor(defaultColor);
 //        }
     }
+
     public void Transition(View v){
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
 
