@@ -16,8 +16,8 @@ import java.net.URL;
 import java.util.ArrayList;
 import java.util.List;
 
-import me.calebjones.blogsite.fragments.PhotoFragment;
-import me.calebjones.blogsite.gallery.ImageItem;
+import me.calebjones.blogsite.ui.fragments.PhotoFragment;
+import me.calebjones.blogsite.content.models.ImageItem;
 
 public class PhotoLoader extends AsyncTask<String, Void, Integer> {
 
