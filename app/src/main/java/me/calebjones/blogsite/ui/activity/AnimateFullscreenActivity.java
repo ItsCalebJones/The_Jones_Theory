@@ -46,12 +46,8 @@ import java.util.Date;
 import me.calebjones.blogsite.R;
 import uk.co.senab.photoview.PhotoView;
 
-
-/**
- * Created by koush on 11/10/14.
- */
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-public class TransitionFullscreen extends AppCompatActivity {
+public class AnimateFullscreenActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private ProgressDialog dialog;
@@ -193,6 +189,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
                 // load the full version, crossfading from the thumbnail image
                 Ion.with(photoView)
+                        .crossfade(true)
                         .deepZoom()
                         .load(PostImage);
 
@@ -208,7 +205,7 @@ public class TransitionFullscreen extends AppCompatActivity {
 
         // Set the clipboard's primary clip.
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(TransitionFullscreen.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
+        Toast.makeText(AnimateFullscreenActivity.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
 
     }
 
@@ -219,7 +216,7 @@ public class TransitionFullscreen extends AppCompatActivity {
         mfile_path = mfile_path.replaceAll("\\s+","");
         mPostTitle = mPostTitle.replaceAll("\\s+","");
 
-        Ion.with(TransitionFullscreen.this)
+        Ion.with(AnimateFullscreenActivity.this)
                 .load(PostImage)
                         // attach the percentage report to a progress bar.
                         // can also attach to a ProgressDialog with progressDialog.
@@ -233,7 +230,7 @@ public class TransitionFullscreen extends AppCompatActivity {
                                 resetDownload();
                                 if (e != null) {
                                     Log.e("The Jones Theory", "Error downloading " + mPostTitle + " - " + e);
-                                    Toast.makeText(TransitionFullscreen.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(AnimateFullscreenActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
                                     return;
                                 }
                                 NotfifyDownload();
@@ -388,7 +385,7 @@ public class TransitionFullscreen extends AppCompatActivity {
     }
 
     private void backIntent() {
-        TransitionFullscreen.this.finish();
+        AnimateFullscreenActivity.this.finish();
     }
 
     public void shareIntent() {

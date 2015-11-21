@@ -1,4 +1,4 @@
-package me.calebjones.blogsite.ui.activity;
+package me.calebjones.blogsite.ui.activity.debug;
 
 import android.content.Intent;
 import android.os.Bundle;

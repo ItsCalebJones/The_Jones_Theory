@@ -508,7 +508,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
 
 
-        Intent intent = new Intent(PostSelectedActivity.this, TransitionFullscreen.class);
+        Intent intent = new Intent(PostSelectedActivity.this, AnimateFullscreenActivity.class);
         intent.putExtra("bitmap", byteArray);
         intent.putExtra("PostImage", PostImage);
         intent.putExtra("PostURL", PostURL);

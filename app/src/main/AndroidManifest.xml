@@ -31,7 +31,7 @@
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
-            android:name=".ui.activity.TransitionFullscreen"
+            android:name=".ui.activity.AnimateFullscreenActivity"
             android:parentActivityName=".ui.activity.PostSelectedActivity" />
         <activity
             android:name=".ui.activity.FullscreenActivity"
@@ -100,7 +100,7 @@
         </receiver>
 
         <activity
-            android:name=".ui.activity.IntentLauncher"
+            android:name=".ui.activity.debug.IntentLauncher"
             android:label="@string/title_activity_intent_launcher"
             android:theme="@style/Theme.BlogSite" >
         </activity>
