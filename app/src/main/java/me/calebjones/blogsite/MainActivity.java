@@ -37,10 +37,10 @@ import java.util.Calendar;
 import java.util.Random;
 
 import me.calebjones.blogsite.activity.DownloadActivity;
-import me.calebjones.blogsite.activity.IntentLauncher;
 import me.calebjones.blogsite.activity.LoginActivity;
 import me.calebjones.blogsite.activity.SearchActivity;
 import me.calebjones.blogsite.activity.SettingsActivity;
+import me.calebjones.blogsite.activity.debug.IntentLauncher;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.database.SharedPrefs;
 import me.calebjones.blogsite.fragments.FeedFragment;
@@ -245,6 +245,8 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
 
         setUpViews();
+
+
     }
 
     private boolean isPostDownloaderRunning(Class<?> serviceClass) {
@@ -429,6 +431,12 @@ public class MainActivity extends AppCompatActivity {
     public boolean onCreateOptionsMenu(Menu menu) {
         // Inflate the menu; this adds items to the action bar if it is present.
          getMenuInflater().inflate(R.menu.menu_main, menu);
+        MenuItem item = menu.findItem(R.id.IntentLauncher);
+        if (BuildConfig.DEBUG) {
+            // do something for a debug build
+            item.setVisible(true);
+            Log.d("The Jones Theory", "Debug mode!");
+        }
         return true;
     }
 
@@ -450,9 +458,9 @@ public class MainActivity extends AppCompatActivity {
             startActivity(new Intent(this, SearchActivity.class));
             return true;
         }
-//        else if (id == R.id.IntentLauncher){
-//            startActivity(new Intent(this, IntentLauncher.class));
-//        }
+        else if (id == R.id.IntentLauncher){
+            startActivity(new Intent(this, IntentLauncher.class));
+        }
 
         return super.onOptionsItemSelected(item);
     }

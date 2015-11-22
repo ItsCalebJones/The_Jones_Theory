@@ -100,7 +100,7 @@
         </receiver>
 
         <activity
-            android:name=".activity.IntentLauncher"
+            android:name=".activity.debug.IntentLauncher"
             android:label="@string/title_activity_intent_launcher"
             android:theme="@style/Theme.BlogSite" >
         </activity>

@@ -13,6 +13,7 @@ import android.util.Log;
 
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.activity.PostSelectedActivity;
+import me.calebjones.blogsite.activity.debug.IntentLauncher;
 import me.calebjones.blogsite.database.DatabaseManager;
 import me.calebjones.blogsite.models.Posts;
 import me.calebjones.blogsite.network.PostDownloader;
@@ -39,6 +40,7 @@ public class NewPostReceiver extends BroadcastReceiver {
                 int postID = intent.getExtras().getInt(UpdateCheckService.EXTRA_NUM);
                 byte[] bytes = intent.getByteArrayExtra("BitmapImage");
                 Bitmap bitmap = BitmapFactory.decodeByteArray(bytes, 0, bytes.length);
+                Log.d("The Jones Theory-NPR", "Post - ID: " + postID );
 
                 post = databaseManager.getPostByID(postID);
 
@@ -53,7 +55,7 @@ public class NewPostReceiver extends BroadcastReceiver {
                 mainActIntent.putExtra("PostImage", post.getFeaturedImage());
                 mainActIntent.putExtra("PostText", post.getContent());
                 mainActIntent.putExtra("PostURL", post.getURL());
-                mainActIntent.putExtra("PostID", post.getID());
+                mainActIntent.putExtra("PostID", post.getPostID());
                 PendingIntent clickIntent = PendingIntent.getActivity(context, 57836,
                         mainActIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
