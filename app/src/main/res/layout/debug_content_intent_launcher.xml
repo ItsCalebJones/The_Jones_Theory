@@ -9,6 +9,7 @@
     app:layout_behavior="@string/appbar_scrolling_view_behavior"
     tools:showIn="@layout/activity_intent_launcher"
     tools:context="me.calebjones.blogsite.ui.activity.debug.IntentLauncher">
+
     <Button
         android:id="@+id/BootReceived"
         android:text="Boot Received"

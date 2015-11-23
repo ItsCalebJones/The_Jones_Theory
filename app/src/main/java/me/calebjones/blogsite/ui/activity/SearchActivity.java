@@ -25,6 +25,7 @@ import android.support.v7.widget.StaggeredGridLayoutManager;
 import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
+import android.transition.Explode;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
@@ -179,5 +180,11 @@ public class SearchActivity extends AppCompatActivity implements TextWatcher, Vi
                 final int position = getAdapterPosition();
                 }
         }
+    }
+
+    @Override
+    public void finish() {
+        super.finish();
+        overridePendingTransition(android.R.anim.slide_in_left, android.R.anim.slide_out_right);
     }
 }
