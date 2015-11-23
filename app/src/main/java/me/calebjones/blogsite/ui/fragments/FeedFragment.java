@@ -36,8 +36,8 @@ import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.adapter.FeedAdapter;
 import me.calebjones.blogsite.content.database.DatabaseManager;
 import me.calebjones.blogsite.content.database.SharedPrefs;
-import me.calebjones.blogsite.network.PostDownloader;
 import me.calebjones.blogsite.content.models.Posts;
+import me.calebjones.blogsite.network.PostDownloader;
 import me.calebjones.blogsite.util.views.EndlessRecyclerOnScrollListener;
 
 public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefreshListener {
@@ -63,7 +63,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             switch (intent.getAction()) {
                 case PostDownloader.DOWNLOAD_FAIL:
                     stopRefreshing();
-                    Toast.makeText(getActivity(), "Error!", Toast.LENGTH_LONG).show();
                     break;
                 case PostDownloader.DOWNLOAD_SUCCESS:
                     new Handler().postDelayed(new Runnable() {
@@ -98,7 +97,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
 //        refreshPost();
 
-        setHasOptionsMenu(true);
+       setHasOptionsMenu(true);
 
         this.setRetainInstance(true);
 

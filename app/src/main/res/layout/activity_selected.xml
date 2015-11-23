@@ -27,7 +27,7 @@
             app:expandedTitleMarginEnd="64dp">
 
             <ImageView
-                android:id="@+id/header"
+                android:id="@+id/image"
                 android:transitionName="photo_hero"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

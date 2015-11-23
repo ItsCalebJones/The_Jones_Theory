@@ -31,9 +31,6 @@
             android:parentActivityName=".MainActivity" >
         </activity>
         <activity
-            android:name=".ui.activity.AnimateFullscreenActivity"
-            android:parentActivityName=".ui.activity.PostSelectedActivity" />
-        <activity
             android:name=".ui.activity.FullscreenActivity"
             android:parentActivityName=".ui.activity.PostSelectedActivity" />
         <activity

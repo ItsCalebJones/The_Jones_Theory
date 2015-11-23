@@ -1,7 +1,11 @@
 package me.calebjones.blogsite.content.adapter;
 
+import android.app.Activity;
+import android.app.ActivityOptions;
+import android.app.FragmentManager;
 import android.content.Context;
 import android.content.Intent;
+import android.support.v4.app.ActivityOptionsCompat;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -14,6 +18,7 @@ import com.koushikdutta.ion.Ion;
 
 import java.util.List;
 
+import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.models.Posts;
 import me.calebjones.blogsite.ui.activity.PostSelectedActivity;
@@ -124,14 +129,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 case R.id.title:
                     break;
                 case R.id.thumbnail:
-                    Intent intent = new Intent(mContext, PostSelectedActivity.class);
-                    intent.putExtra("PostCat", feedItemList.get(position).getCategories());
-                    intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
-                    intent.putExtra("PostImage", feedItemList.get(position).getFeaturedImage());
-                    intent.putExtra("PostText", feedItemList.get(position).getContent());
-                    intent.putExtra("PostURL", feedItemList.get(position).getURL());
-                    intent.putExtra("PostID", feedItemList.get(position).getPostID());
-                    intent.putExtra("ID", feedItemList.get(position).getID());
+                    Intent intent = new Intent(mContext, PostSelectedActivity.class)
+                        .putExtra("PostCat", feedItemList.get(position).getCategories())
+                        .putExtra("PostTitle", feedItemList.get(position).getTitle())
+                        .putExtra("PostImage", feedItemList.get(position).getFeaturedImage())
+                        .putExtra("PostText", feedItemList.get(position).getContent())
+                        .putExtra("PostURL", feedItemList.get(position).getURL())
+                        .putExtra("PostID", feedItemList.get(position).getPostID())
+                        .putExtra("ID", feedItemList.get(position).getID());
                     mContext.startActivity(intent);
                     break;
             }

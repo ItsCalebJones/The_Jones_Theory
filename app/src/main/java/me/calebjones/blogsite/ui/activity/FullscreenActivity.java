@@ -23,6 +23,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
 import android.text.Html;
+import android.transition.Fade;
 import android.util.Log;
 import android.view.View;
 import android.widget.ImageView;
@@ -41,12 +42,11 @@ import java.util.Date;
 import me.calebjones.blogsite.R;
 import uk.co.senab.photoview.PhotoView;
 
-
 public class FullscreenActivity extends AppCompatActivity {
 
-    private static final String TAG = "The Jones Theory - F";
     private Toolbar mToolbar;
     private ProgressDialog dialog;
+
     ProgressBar progressBar;
     public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
             "/TheJonesTheory/temp";
@@ -58,14 +58,17 @@ public class FullscreenActivity extends AppCompatActivity {
     public String PostText;
     public String PostURL;
     public BitmapInfo bi;
+    public Bitmap bitmap;
+
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        super.onCreate(savedInstanceState);
-
+        Log.d("The Jones Theory-Full", "Started...");
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            getWindow().setSharedElementsUseOverlay(false);
+            getWindow().setExitTransition(new Fade());
         }
+
+        super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
@@ -78,16 +81,15 @@ public class FullscreenActivity extends AppCompatActivity {
         PostURL = intent.getExtras().getString("PostURL");
 
 
-        PostTitle = stripHtml(PostTitle);
+        stripHtml(PostTitle);
 
         //Setup the Actionabar with parameters
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
         setSupportActionBar(mToolbar);
-        getSupportActionBar().setTitle(PostTitle);
+        getSupportActionBar().setTitle(Html.fromHtml(PostTitle));
 
         //Init the PhotoView
         final PhotoView photoView = (PhotoView)findViewById(R.id.image);
-        photoView.setMaximumScale(16);
 
         //Set up the bottom bar icons
         final ImageView shareView = (ImageView)findViewById(R.id.shareFooter);
@@ -125,23 +127,28 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         };
 
-
         shareView.setOnClickListener(sClickListener);
         downloadView.setOnClickListener(dClickListener);
         browserView.setOnClickListener(bClickListener);
         copyView.setOnClickListener(cClickListener);
 
         // Load the bitmap from the intent
-        bitmapKey = getIntent().getStringExtra("bitmapInfo");
+        Log.d("The Jones Theory", "Loading bitmap...");
+        byte[] byteArray = getIntent().getByteArrayExtra("bitmap");
         PostURL = getIntent().getStringExtra("PostURL");
+
+        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
 
         //Downloads bitmap to cache
         bi = Ion.getDefault(this)
                 .getBitmapCache()
                 .get(bitmapKey);
-        photoView.setImageBitmap(bi.bitmap);
+        photoView.setImageBitmap(bitmap);
+        photoView.setMaximumScale(16);
 
-        Palette.from(bi.bitmap).generate(new Palette.PaletteAsyncListener() {
+        Log.d("The Jones Theory", "Loading Palette...");
+
+        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
             public void onGenerated(Palette palette) {
                 Palette.Swatch Swatch = palette.getDarkMutedSwatch();
                 if (Swatch != null) {
@@ -150,60 +157,72 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
+        Runnable r = new Runnable() {
+            @Override
+            public void run() {
+                try {
+                    bitMapToFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+        Thread t = new Thread(r);
+        t.start();
 
-        try {
-            bitMapToFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-
-        // load the full version, crossfading from the thumbnail image
         Ion.with(photoView)
                 .crossfade(true)
                 .deepZoom()
                 .load(PostImage);
     }
 
-    private void clipboardAdd() {
-        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+    public static boolean deleteDir(File dir) {
+        if (dir != null && dir.isDirectory()) {
+            String[] children = dir.list();
+            for (int i = 0; i < children.length; i++) {
+                boolean success = deleteDir(new File(dir, children[i]));
+                if (!success) {
+                    return false;
+                }
+            }
+        }
 
-        // Creates a new text clip to put on the clipboard
-        ClipData clip = ClipData.newPlainText("Post Title", PostTitle + " " + PostURL);
-
-        // Set the clipboard's primary clip.
-        clipboard.setPrimaryClip(clip);
-        Toast.makeText(FullscreenActivity.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
-
+        return dir.delete();
     }
 
-    private void downloadFile() {
-        mfile_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
-                "/TheJonesTheory/";
-        mPostTitle = PostTitle.replaceAll("[^a-zA-Z]", "");
-        mfile_path = mfile_path.replaceAll("\\s+","");
-        mPostTitle = mPostTitle.replaceAll("\\s+","");
+    public Bitmap getCroppedBitmap(Bitmap bitmap) {
+        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
+                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
+        Canvas canvas = new Canvas(output);
 
-        Ion.with(FullscreenActivity.this)
-                .load(PostImage)
-                        // attach the percentage report to a progress bar.
-                        // can also attach to a ProgressDialog with progressDialog.
-                .progressBar(progressBar)
-                        // write to a file
-                .write(new File(mfile_path + mPostTitle + ".png"))
-                        // run a callback on completion
-                        .setCallback(new FutureCallback<File>() {
-                            @Override
-                            public void onCompleted(Exception e, File result) {
-                                resetDownload();
-                                if (e != null) {
-                                    Log.e(TAG, "Error downloading " + mPostTitle + " - " + e);
-                                    Toast.makeText(FullscreenActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
-                                    return;
-                                }
-                                NotfifyDownload();
-                            }
-                        });
+        final int color = 0xff424242;
+        final Paint paint = new Paint();
+        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
 
+        paint.setAntiAlias(true);
+        canvas.drawARGB(0, 0, 0, 0);
+        paint.setColor(color);
+        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
+        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
+                bitmap.getWidth() / 2, paint);
+        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
+        canvas.drawBitmap(bitmap, rect, rect, paint);
+        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
+        //return _bmp;
+        return output;
+    }
+
+    public String stripHtml(String html) {
+        return Html.fromHtml(html).toString();
+    }
+
+    public void shareIntent() {
+        Intent sendIntent = new Intent();
+        sendIntent.setAction(Intent.ACTION_SEND);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/temp/temp.png")));
+        sendIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
+        sendIntent.setType("image/*");
+        startActivity(sendIntent);
     }
 
     private void NotfifyDownload() {
@@ -241,7 +260,7 @@ public class FullscreenActivity extends AppCompatActivity {
         File file = new File(dir, mPostTitle + ".png");
         intent.setDataAndType(Uri.fromFile(file), "image/*");
 
-        Bitmap mBitmap = getCroppedBitmap(bi.bitmap);
+        Bitmap mBitmap = getCroppedBitmap(bitmap);
 
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.BigPictureStyle bNoti = new NotificationCompat.BigPictureStyle();
@@ -255,7 +274,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 R.mipmap.ic_launcher);
 
         bNoti.setBigContentTitle("Download Completed")
-                .bigPicture(bi.bitmap)
+                .bigPicture(bitmap)
                 .bigLargeIcon(srcBitmapLocal)
                 .setSummaryText(mPostTitle);
 
@@ -272,7 +291,7 @@ public class FullscreenActivity extends AppCompatActivity {
                         .addAction(R.drawable.ic_action_file_download, "Open", filePendingIntent)
                         .addAction(R.drawable.ic_action_share, "Share", sharePendingIntent)
 
-                .setStyle(bNoti);
+                        .setStyle(bNoti);
 
 //        noti.flags |= Notification.FLAG_AUTO_CANCEL;
 //        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
@@ -283,36 +302,6 @@ public class FullscreenActivity extends AppCompatActivity {
 
 // Issue the notification with notification manager.
         notificationManager.notify(notificationId, notificationBuilder.build());
-    }
-
-    void resetDownload() {
-            progressBar.setProgress(0);
-        }
-    public Bitmap getCroppedBitmap(Bitmap bitmap) {
-        Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
-                bitmap.getHeight(), Bitmap.Config.ARGB_8888);
-        Canvas canvas = new Canvas(output);
-
-        final int color = 0xff424242;
-        final Paint paint = new Paint();
-        final Rect rect = new Rect(0, 0, bitmap.getWidth(), bitmap.getHeight());
-
-        paint.setAntiAlias(true);
-        canvas.drawARGB(0, 0, 0, 0);
-        paint.setColor(color);
-        // canvas.drawRoundRect(rectF, roundPx, roundPx, paint);
-        canvas.drawCircle(bitmap.getWidth() / 2, bitmap.getHeight() / 2,
-                bitmap.getWidth() / 2, paint);
-        paint.setXfermode(new PorterDuffXfermode(PorterDuff.Mode.SRC_IN));
-        canvas.drawBitmap(bitmap, rect, rect, paint);
-        //Bitmap _bmp = Bitmap.createScaledBitmap(output, 60, 60, false);
-        //return _bmp;
-        return output;
-    }
-
-
-    public String stripHtml(String html) {
-        return Html.fromHtml(html).toString();
     }
 
     private void bitMapToFile() throws IOException {
@@ -326,24 +315,11 @@ public class FullscreenActivity extends AppCompatActivity {
         File file = new File(dir, "temp.png");
         FileOutputStream fOut = new FileOutputStream(file);
 
-        bi.bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
         fOut.flush();
         fOut.close();
     }
 
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-
-        return dir.delete();
-    }
     private void browserIntent() {
         String url = PostURL;
         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
@@ -355,12 +331,49 @@ public class FullscreenActivity extends AppCompatActivity {
         FullscreenActivity.this.finish();
     }
 
-    public void shareIntent() {
-        Intent sendIntent = new Intent();
-        sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/temp/temp.png")));
-        sendIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
-        sendIntent.setType("image/*");
-        startActivity(sendIntent);
+    private void clipboardAdd() {
+        ClipboardManager clipboard = (ClipboardManager) getSystemService(CLIPBOARD_SERVICE);
+
+        // Creates a new text clip to put on the clipboard
+        ClipData clip = ClipData.newPlainText("Post Title", PostTitle + " " + PostURL);
+
+        // Set the clipboard's primary clip.
+        clipboard.setPrimaryClip(clip);
+        Toast.makeText(FullscreenActivity.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
+
+    }
+
+    private void downloadFile() {
+        mfile_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
+                "/TheJonesTheory/";
+        mPostTitle = PostTitle.replaceAll("[^a-zA-Z]", "");
+        mfile_path = mfile_path.replaceAll("\\s+","");
+        mPostTitle = mPostTitle.replaceAll("\\s+","");
+
+        Ion.with(FullscreenActivity.this)
+                .load(PostImage)
+                        // attach the percentage report to a progress bar.
+                        // can also attach to a ProgressDialog with progressDialog.
+                .progressBar(progressBar)
+                        // write to a file
+                .write(new File(mfile_path + mPostTitle + ".png"))
+                        // run a callback on completion
+                .setCallback(new FutureCallback<File>() {
+                    @Override
+                    public void onCompleted(Exception e, File result) {
+                        resetDownload();
+                        if (e != null) {
+                            Log.e("The Jones Theory", "Error downloading " + mPostTitle + " - " + e);
+                            Toast.makeText(FullscreenActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                            return;
+                        }
+                        NotfifyDownload();
+                    }
+                });
+
+    }
+
+    void resetDownload() {
+        progressBar.setProgress(0);
     }
 }
