@@ -81,6 +81,7 @@ public class PostSelectedActivity extends AppCompatActivity {
     private Bitmap mCloseButtonBitmap;
     private CompositeSubscription mSubscriptions;
     private Intent intent;
+    private ImageView imageView;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
@@ -226,7 +227,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         //Removes HTML artifcats
 
-//Skipping this for now trying to get images to load
+        //Skipping this for now trying to get images to load
         PostText = removeStyling(PostText);
         PostTitle = stripHtml(PostTitle);
 
@@ -258,9 +259,8 @@ public class PostSelectedActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
-
-
     }
+
 
     private void setUpCompressedBitmap() {
         //Store bitmap off the UI
@@ -447,9 +447,11 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
+<<<<<<< HEAD
     public void LollipopTransition(View v) throws IOException {
         Log.d("The Jones Theory", "Sending Intent...");
         startActivity(intent);
+
     }
 
     public String stripHtml(String html) {

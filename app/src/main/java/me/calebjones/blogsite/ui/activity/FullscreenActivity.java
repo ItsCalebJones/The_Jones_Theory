@@ -64,6 +64,7 @@ public class FullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         Log.d("The Jones Theory-Full", "Started...");
+
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().setExitTransition(new Fade());
         }
@@ -80,8 +81,7 @@ public class FullscreenActivity extends AppCompatActivity {
         PostText = intent.getExtras().getString("PostText");
         PostURL = intent.getExtras().getString("PostURL");
 
-
-        stripHtml(PostTitle);
+        PostTitle = stripHtml(PostTitle);
 
         //Setup the Actionabar with parameters
         mToolbar = (Toolbar) findViewById(R.id.toolbar);
