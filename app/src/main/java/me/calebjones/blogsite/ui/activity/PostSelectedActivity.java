@@ -9,6 +9,8 @@ import android.content.Context;
 import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
 import android.media.browse.MediaBrowser;
 import android.net.Uri;
 import android.os.Build;
@@ -56,8 +58,14 @@ import me.calebjones.blogsite.content.models.FeedItem;
 import me.calebjones.blogsite.content.models.Posts;
 import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.util.customtab.CustomTabActivityHelper;
+import me.calebjones.blogsite.util.customtab.CustomTabsHelper;
+import me.calebjones.blogsite.util.images.ImageUtils;
 import me.calebjones.blogsite.util.images.URLImageParser;
 import me.calebjones.blogsite.util.customtab.WebViewFallback;
+import rx.Subscriber;
+import rx.android.schedulers.AndroidSchedulers;
+import rx.schedulers.Schedulers;
+import rx.subscriptions.CompositeSubscription;
 
 
 public class PostSelectedActivity extends AppCompatActivity {
@@ -74,7 +82,10 @@ public class PostSelectedActivity extends AppCompatActivity {
     private boolean LoginStatus;
     private Button button;
     private Posts post;
+    private CustomTabActivityHelper customTabActivityHelper;
     private MediaBrowser.ConnectionCallback mConnectionCallback;
+    private Bitmap mCloseButtonBitmap;
+    private CompositeSubscription mSubscriptions;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
@@ -87,15 +98,21 @@ public class PostSelectedActivity extends AppCompatActivity {
     public View CommentBox;
     public EditText CommentEditText;
 
+
     int defaultColor;
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         DatabaseManager databaseManager = new DatabaseManager(this);
+        customTabActivityHelper = new CustomTabActivityHelper();
+        mSubscriptions = new CompositeSubscription();
+
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
             getWindow().setEnterTransition(new Slide());
         }
+
+        decodeBitmaps();
 
         super.onCreate(savedInstanceState);
 
@@ -238,6 +255,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
 //        mTextView.setText(htmlSpan);
         setTextViewHTML(mTextView, PostText);
+        customTabActivityHelper.mayLaunchUrl(Uri.parse(PostURL), null, null);
 
 //        mTextView.setText(Html.fromHtml(PostText,new URLImageParser(mTextView, this), null));
 
@@ -291,6 +309,51 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
+    @Override
+    public void onDestroy() {
+        super.onDestroy();
+        mSubscriptions.unsubscribe();
+    }
+
+    private void decodeBitmaps() {
+        decodeBitmap(R.drawable.ic_action_arrow_back);
+    }
+
+    private void decodeBitmap(final int resource) {
+        mSubscriptions.add(ImageUtils.decodeBitmap(this, resource)
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribeOn(Schedulers.io())
+                .subscribe(new Subscriber<Bitmap>() {
+                    @Override
+                    public void onCompleted() {
+                    }
+
+                    @Override
+                    public void onError(Throwable e) {
+                        Log.e("The Jones Theory", "There was a problem decoding the bitmap " + e);
+                    }
+
+                    @Override
+                    public void onNext(Bitmap bitmap) {
+                    if (resource == R.drawable.ic_action_arrow_back) {
+                            mCloseButtonBitmap = bitmap;
+                        }
+                    }
+                }));
+    }
+
+    @Override
+    protected void onStart() {
+        super.onStart();
+        customTabActivityHelper.bindCustomTabsService(this);
+    }
+
+    @Override
+    protected void onStop() {
+        super.onStop();
+        customTabActivityHelper.unbindCustomTabsService(this);
+    }
+
     protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
     {
         int start = strBuilder.getSpanStart(span);
@@ -322,6 +385,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
         for(URLSpan span : urls) {
             makeLinkClickable(strBuilder, span);
+
         }
 
         text.setText(strBuilder);
@@ -586,12 +650,16 @@ public class PostSelectedActivity extends AppCompatActivity {
     private void openCustomTab(String url) {
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
 
-        int color = getResources().getColor(R.color.myPrimaryColor);
-        intentBuilder.setToolbarColor(color);
+        intentBuilder.setToolbarColor(mPalette.getVibrantColor(getResources()
+                .getColor(R.color.myPrimaryColor)));
         intentBuilder.setShowTitle(true);
-        String menuItemTitle = "Share";
-        PendingIntent menuItemPendingIntent = createPendingShareIntent(url);
-        intentBuilder.addMenuItem(menuItemTitle, menuItemPendingIntent);
+
+        PendingIntent actionPendingIntent = createPendingShareIntent(url);
+        intentBuilder.setActionButton(BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_action_share), "Share", actionPendingIntent);
+
+        intentBuilder.setCloseButtonIcon(
+                BitmapFactory.decodeResource(getResources(), R.drawable.ic_back_arrow));
 
         intentBuilder.setStartAnimations(this,
                 R.anim.slide_in_right, R.anim.slide_out_left);

@@ -45,7 +45,8 @@ public class UpdateCheckService extends IntentService {
     public static final String LATEST_URL = "https://public-api.wordpress.com/rest/v1.1/sites/" +
             "calebjones.me/posts/?pretty=true&number=1&fields=ID,date,author,content,URL,excerpt," +
             "tags,categories,featured_image,title,type";
-    public List<String> postID;
+
+    public Posts post;
 
     public UpdateCheckService() {
         super("UpdateCheckService");
@@ -89,13 +90,10 @@ public class UpdateCheckService extends IntentService {
                         sendBroadcast(notifIntent);
                     }
                 }
-        } catch (IOException | JSONException e) {
+        } catch (IOException | JSONException | ParseException e) {
             SharedPrefs.getInstance().setDownloading(false);
             e.printStackTrace();
-        } catch (ParseException e) {
-                    SharedPrefs.getInstance().setDownloading(false);
-            e.printStackTrace();
-                }
+        }
         SharedPrefs.getInstance().setDownloading(false);
     }
 
@@ -115,7 +113,7 @@ public class UpdateCheckService extends IntentService {
 
     private void saveToDatabase(JSONObject jObject) throws ParseException, JSONException {
         DatabaseManager databaseManager = new DatabaseManager(this);
-        Posts post = new Posts();
+        post = new Posts();
 
         //If the item is not a post break out of loop and ignore it
         if (!(jObject.optString("type").equals("post"))) {
@@ -192,6 +190,7 @@ public class UpdateCheckService extends IntentService {
 
     @Override
     public void onDestroy() {
+        post = null;
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(this, getClass());
         PendingIntent pendingIntent = PendingIntent.getService(this, RESTART_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
