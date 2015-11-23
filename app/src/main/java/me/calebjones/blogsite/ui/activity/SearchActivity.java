@@ -16,6 +16,7 @@
 
 package me.calebjones.blogsite.ui.activity;
 
+import android.content.Intent;
 import android.os.Build;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
@@ -26,11 +27,13 @@ import android.text.Editable;
 import android.text.Html;
 import android.text.TextWatcher;
 import android.transition.Explode;
+import android.util.Log;
 import android.view.View;
 import android.view.ViewGroup;
 import android.widget.EditText;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
@@ -42,6 +45,7 @@ import java.util.List;
 import java.util.Locale;
 
 import me.calebjones.blogsite.BlogsiteApplication;
+import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.database.DatabaseManager;
 import me.calebjones.blogsite.content.models.Posts;
@@ -145,9 +149,9 @@ public class SearchActivity extends AppCompatActivity implements TextWatcher, Vi
         @Override
         public void onBindViewHolder(ViewHolder holder, int position) {
             Posts posts = myPosts.get(position);
+            String title = posts.getPostID() + ". " + Html.fromHtml(posts.getTitle());
 
-            holder.title.setText(posts.getPostID() + ". " + Html.fromHtml(posts.getTitle()));
-
+            holder.title.setText(title);
             holder.alt.setText(Html.fromHtml(posts.getExcerpt()));
 
             Picasso.with(holder.img.getContext())
@@ -173,12 +177,20 @@ public class SearchActivity extends AppCompatActivity implements TextWatcher, Vi
                 title = (TextView) itemView.findViewById(R.id.title);
                 alt = (TextView) itemView.findViewById(R.id.excerpt);
                 img = (ImageView) itemView.findViewById(R.id.thumbnail);
+
+                img.setOnClickListener(this);
+                title.setOnClickListener(this);
             }
 
             @Override
             public void onClick(View v) {
                 final int position = getAdapterPosition();
-                }
+                Log.d("The Jones Theory-Search", "ID Clicked: " + myPosts.get(position).getPostID());
+                Intent intent = new Intent(getBaseContext(), PostSelectedActivity.class);
+                intent.putExtra("PostID", myPosts.get(position).getPostID());
+                intent.setFlags(Intent.FLAG_ACTIVITY_NEW_TASK);
+                getBaseContext().startActivity(intent);
+            }
         }
     }
 
