@@ -651,7 +651,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
 
         intentBuilder.setToolbarColor(mPalette.getVibrantColor(getResources()
-                .getColor(R.color.myPrimaryColor)));
+                .getColor(R.color.myPrimaryColor, null)));
         intentBuilder.setShowTitle(true);
 
         PendingIntent actionPendingIntent = createPendingShareIntent(url);
