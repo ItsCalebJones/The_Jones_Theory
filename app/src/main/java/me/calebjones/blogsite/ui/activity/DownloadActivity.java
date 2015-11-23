@@ -59,7 +59,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
                     new Handler().postDelayed(new Runnable() {
                         @Override
                         public void run() {
-                            showLogin();
+                            showMain();
                         }
                     }, 2000);
                     break;
@@ -67,7 +67,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
         }
     };
 
-    private void showLogin() {
+    private void showMain() {
 
         Intent loginIntent = new Intent(this, MainActivity.class);
         startActivity(loginIntent);
@@ -83,6 +83,9 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
 
         if (databaseManager == null) {
             databaseManager = new DatabaseManager(this);
+        }
+        if (databaseManager.getCount() > 0){
+            showMain();
         }
 
         progress = (TextView) findViewById(R.id.progress);
