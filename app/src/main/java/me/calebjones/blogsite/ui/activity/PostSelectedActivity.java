@@ -586,7 +586,7 @@ public class PostSelectedActivity extends AppCompatActivity {
     private void openCustomTab(String url) {
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
 
-        int color = getResources().getColor(R.color.myPrimaryColor);
+        int color = getResources().getColor(R.color.myPrimaryColor, null);
         intentBuilder.setToolbarColor(color);
         intentBuilder.setShowTitle(true);
         String menuItemTitle = "Share";
