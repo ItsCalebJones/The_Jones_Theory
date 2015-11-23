@@ -63,6 +63,8 @@ public class FullscreenActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        Log.d("The Jones Theory", "Intent received...");
+
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().setSharedElementsUseOverlay(false);
         }
@@ -76,7 +78,6 @@ public class FullscreenActivity extends AppCompatActivity {
         PostImage = intent.getExtras().getString("PostImage");
         PostText = intent.getExtras().getString("PostText");
         PostURL = intent.getExtras().getString("PostURL");
-
 
         PostTitle = stripHtml(PostTitle);
 
@@ -151,11 +152,21 @@ public class FullscreenActivity extends AppCompatActivity {
             }
         });
 
-        try {
-            bitMapToFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    bitMapToFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
 
         // load the full version, crossfading from the thumbnail image
         Ion.with(photoView)

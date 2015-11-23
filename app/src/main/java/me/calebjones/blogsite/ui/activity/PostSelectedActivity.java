@@ -86,6 +86,8 @@ public class PostSelectedActivity extends AppCompatActivity {
     private MediaBrowser.ConnectionCallback mConnectionCallback;
     private Bitmap mCloseButtonBitmap;
     private CompositeSubscription mSubscriptions;
+    private Intent intent;
+    private ImageView imageView;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
@@ -215,6 +217,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                         imgFavorite.setImageBitmap(result);
                         bitmap = result;
                         if (bitmap != null) {
+                            setUpCompressedBitmap();
                             mPalette = Palette.generate(bitmap);
                             final View mainView = findViewById(R.id.main_content);
                             commentFab.setVisibility(View.INVISIBLE);
@@ -241,7 +244,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         //Removes HTML artifcats
 
-//Skipping this for now trying to get images to load
+        //Skipping this for now trying to get images to load
         PostText = removeStyling(PostText);
         PostTitle = stripHtml(PostTitle);
 
@@ -273,7 +276,6 @@ public class PostSelectedActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
-
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
 
@@ -335,7 +337,7 @@ public class PostSelectedActivity extends AppCompatActivity {
 
                     @Override
                     public void onNext(Bitmap bitmap) {
-                    if (resource == R.drawable.ic_action_arrow_back) {
+                        if (resource == R.drawable.ic_action_arrow_back) {
                             mCloseButtonBitmap = bitmap;
                         }
                     }
@@ -542,43 +544,48 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
+    private void setUpCompressedBitmap(){
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run(){
+                //Convert to byte array
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                Log.d("The Jones Theory", "byteLength: " + byteArray.length);
+
+                //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
+                if (byteArray.length > 524288){
+                    for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
+                        stream.reset();
+                        Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
+                        byteArray = stream.toByteArray();
+                        Log.d("The Jones Theory", "AFTER byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
+                    }
+                }
+
+                intent = new Intent(PostSelectedActivity.this, AnimateFullscreenActivity.class);
+                intent.putExtra("bitmap", byteArray);
+                intent.putExtra("PostImage", PostImage);
+                intent.putExtra("PostURL", PostURL);
+                intent.putExtra("PostTitle", PostTitle);
+                intent.putExtra("PostText", PostText);
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
+    }
+
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void LollipopTransition(View v) throws IOException {
-        final View nestedContent = findViewById(R.id.nested_content);
-
-        hideView(nestedContent);
-
+        Log.d("The Jones Theory", "LollipopTransition...");
         ImageView imgFavorite = (ImageView) findViewById(R.id.header);
-
-        BitmapInfo bi = Ion.with(imgFavorite)
-                .getBitmapInfo();
-
-        //Convert to byte array
-        ByteArrayOutputStream stream = new ByteArrayOutputStream();
-        bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
-        byte[] byteArray = stream.toByteArray();
-
-        Log.d("The Jones Theory", "byteLength: " + byteArray.length);
-
-        //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
-        if (byteArray.length > 524288){
-            for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
-                stream.reset();
-                Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
-                bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
-                byteArray = stream.toByteArray();
-                Log.d("The Jones Theory", "AFTER byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
-            }
-        }
-
-
-        Intent intent = new Intent(PostSelectedActivity.this, AnimateFullscreenActivity.class);
-        intent.putExtra("bitmap", byteArray);
-        intent.putExtra("PostImage", PostImage);
-        intent.putExtra("PostURL", PostURL);
-        intent.putExtra("PostTitle", PostTitle);
-        intent.putExtra("PostText", PostText);
-
+        final View nestedContent = findViewById(R.id.nested_content);
+        hideView(nestedContent);
         startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelectedActivity.this, imgFavorite, "photo_hero").toBundle());
     }
 

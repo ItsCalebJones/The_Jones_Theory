@@ -72,7 +72,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
             getWindow().setExitTransition(new Fade());
         }
 
-
+        Log.d("The Jones Theory", "Intent received...");
 
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_fullscreen);
@@ -160,11 +160,21 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
                                     }
                                 }
                             });
-        try {
-            bitMapToFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        Runnable r = new Runnable()
+        {
+            @Override
+            public void run()
+            {
+                try {
+                    bitMapToFile();
+                } catch (IOException e) {
+                    e.printStackTrace();
+                }
+            }
+        };
+
+        Thread t = new Thread(r);
+        t.start();
 
         getWindow().getEnterTransition().addListener(new Transition.TransitionListener() {
             @Override
