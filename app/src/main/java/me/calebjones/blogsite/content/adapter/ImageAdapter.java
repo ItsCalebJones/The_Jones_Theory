@@ -19,7 +19,7 @@ import java.util.List;
 
 import me.calebjones.blogsite.BlogsiteApplication;
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.ui.activity.PostSelectedActivity;
+import me.calebjones.blogsite.ui.activity.DetailActivity;
 import me.calebjones.blogsite.content.models.Posts;
 import me.calebjones.blogsite.util.BlipUtils;
 
@@ -110,7 +110,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         @Override
         public void onClick(View v) {
             final int position = getAdapterPosition();
-            Intent intent = new Intent(mContext, PostSelectedActivity.class);
+            Intent intent = new Intent(mContext, DetailActivity.class);
             intent.putExtra("PostTitle", imageItemList.get(position).getTitle());
             intent.putExtra("PostImage", imageItemList.get(position).getFeaturedImage());
             intent.putExtra("PostText", imageItemList.get(position).getContent());
@@ -118,7 +118,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
             intent.putExtra("PostID", imageItemList.get(position).getPostID());
             intent.putExtra("ID", imageItemList.get(position).getID());
             mContext.startActivity(intent);
-//            mContext.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelectedActivity.this, imgFavorite, "photo_hero").toBundle());
+//            mContext.startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(DetailActivity.this, imgFavorite, "photo_hero").toBundle());
         }
     }
 }

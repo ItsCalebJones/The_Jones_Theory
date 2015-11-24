@@ -13,8 +13,7 @@ import android.util.Log;
 
 import me.calebjones.blogsite.R;
 
-import me.calebjones.blogsite.ui.activity.debug.IntentLauncher;
-import me.calebjones.blogsite.ui.activity.PostSelectedActivity;
+import me.calebjones.blogsite.ui.activity.DetailActivity;
 import me.calebjones.blogsite.content.database.DatabaseManager;
 import me.calebjones.blogsite.content.models.Posts;
 import me.calebjones.blogsite.network.PostDownloader;
@@ -51,7 +50,7 @@ public class NewPostReceiver extends BroadcastReceiver {
                         bigStyle = new NotificationCompat.BigPictureStyle();
 
                 //Get information about the post that was selected and start activity.
-                Intent mainActIntent = new Intent(context, PostSelectedActivity.class);
+                Intent mainActIntent = new Intent(context, DetailActivity.class);
                 mainActIntent.putExtra("PostTitle", post.getTitle());
                 mainActIntent.putExtra("PostImage", post.getFeaturedImage());
                 mainActIntent.putExtra("PostText", post.getContent());

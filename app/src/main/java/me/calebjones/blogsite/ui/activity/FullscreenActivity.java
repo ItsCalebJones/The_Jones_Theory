@@ -72,7 +72,7 @@ public class FullscreenActivity extends AppCompatActivity {
 
         progressBar = (ProgressBar)findViewById(R.id.progress);
 
-        //Get data from PostSelectedActivity
+        //Get data from DetailActivity
         Intent intent = getIntent();
         PostTitle = intent.getExtras().getString("PostTitle");
         PostImage = intent.getExtras().getString("PostImage");

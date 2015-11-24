@@ -16,7 +16,7 @@ import java.util.List;
 
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.models.Posts;
-import me.calebjones.blogsite.ui.activity.PostSelectedActivity;
+import me.calebjones.blogsite.ui.activity.DetailActivity;
 import me.calebjones.blogsite.ui.fragments.FeedFragment;
 
 public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
@@ -124,7 +124,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 case R.id.title:
                     break;
                 case R.id.thumbnail:
-                    Intent intent = new Intent(mContext, PostSelectedActivity.class);
+                    Intent intent = new Intent(mContext, DetailActivity.class);
                     intent.putExtra("PostCat", feedItemList.get(position).getCategories());
                     intent.putExtra("PostTitle", feedItemList.get(position).getTitle());
                     intent.putExtra("PostImage", feedItemList.get(position).getFeaturedImage());

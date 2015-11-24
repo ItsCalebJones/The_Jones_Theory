@@ -22,7 +22,7 @@ import com.koushikdutta.ion.Ion;
 import java.util.List;
 
 import me.calebjones.blogsite.R;
-import me.calebjones.blogsite.ui.activity.PostSelectedActivity;
+import me.calebjones.blogsite.ui.activity.DetailActivity;
 import me.calebjones.blogsite.content.database.DatabaseManager;
 import me.calebjones.blogsite.content.models.FeedItem;
 import me.calebjones.blogsite.content.models.Posts;
@@ -128,7 +128,7 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
     //React to click events.
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(getActivity(), PostSelectedActivity.class);
+        Intent intent = new Intent(getActivity(), DetailActivity.class);
         intent.putExtra("PostTitle", post.getTitle());
         intent.putExtra("PostImage", post.getFeaturedImage());
         intent.putExtra("PostText", post.getContent());
