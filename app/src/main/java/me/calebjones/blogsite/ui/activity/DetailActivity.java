@@ -10,7 +10,6 @@ import android.content.Intent;
 import android.content.res.ColorStateList;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
-import android.graphics.Color;
 import android.media.browse.MediaBrowser;
 import android.net.Uri;
 import android.os.Build;
@@ -21,8 +20,6 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
-import android.support.v4.view.ViewCompat;
-import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -40,8 +37,6 @@ import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
 import android.view.animation.AccelerateInterpolator;
-import android.view.animation.Animation;
-import android.view.animation.AnimationUtils;
 import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
@@ -65,17 +60,16 @@ import me.calebjones.blogsite.content.models.FeedItem;
 import me.calebjones.blogsite.content.models.Posts;
 import me.calebjones.blogsite.network.PostLoader;
 import me.calebjones.blogsite.util.customtab.CustomTabActivityHelper;
-import me.calebjones.blogsite.util.customtab.CustomTabsHelper;
+import me.calebjones.blogsite.util.customtab.WebViewFallback;
 import me.calebjones.blogsite.util.images.ImageUtils;
 import me.calebjones.blogsite.util.images.URLImageParser;
-import me.calebjones.blogsite.util.customtab.WebViewFallback;
 import rx.Subscriber;
 import rx.android.schedulers.AndroidSchedulers;
 import rx.schedulers.Schedulers;
 import rx.subscriptions.CompositeSubscription;
 
 
-public class PostSelectedActivity extends AppCompatActivity {
+public class DetailActivity extends AppCompatActivity {
 
 
     private Toolbar mToolbar;
@@ -164,7 +158,12 @@ public class PostSelectedActivity extends AppCompatActivity {
         fullscreenFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (PostImage != null) {
-                    fabSlideOut();
+                    myView.postDelayed(new Runnable() {
+                        @Override
+                        public void run() {
+                            fabSlideOut();
+                        }
+                    }, 150);
                     if (android.os.Build.VERSION.SDK_INT >= 21) {
                         try {
                             LollipopTransition(v);
@@ -177,12 +176,11 @@ public class PostSelectedActivity extends AppCompatActivity {
                 }
             }
         });
-        fullscreenFab.animate().translationX(fullscreenFab.getWidth() +250).setInterpolator(new AccelerateInterpolator(2)).start();
 
         commentFab = (FloatingActionButton) findViewById(R.id.commentFab);
         commentFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
-                Intent commentIntent = new Intent(PostSelectedActivity.this, PostCommentsActivity.class);
+                Intent commentIntent = new Intent(DetailActivity.this, CommentActivity.class);
                 commentIntent.putExtra("PostID", PostID.toString());
                 commentIntent.putExtra("PostURL", PostURL);
                 if (mPalette != null) {
@@ -191,7 +189,9 @@ public class PostSelectedActivity extends AppCompatActivity {
                 startActivity(commentIntent);
             }
         });
-        commentFab.animate().translationX(commentFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
+
+        fullscreenFab.setTranslationX(fullscreenFab.getWidth() + 250);
+        commentFab.setTranslationX(commentFab.getWidth() + 250);
 
         //Replace the content_header image with the Feature Image
         if (PostImage == null){
@@ -204,14 +204,6 @@ public class PostSelectedActivity extends AppCompatActivity {
                     @Override
                     public void run() {
                         revealView(myView);
-                        if (commentFab.getVisibility() == View.INVISIBLE) {
-                            commentFab.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
-                                    revealView(commentFab);
-                                }
-                            }, 500);
-                        }
                     }
                 }, 100);
             }
@@ -431,7 +423,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         BitmapInfo bi = Ion.with(imgFavorite)
                 .getBitmapInfo();
 
-        Intent intent = new Intent(PostSelectedActivity.this, FullscreenActivity.class);
+        Intent intent = new Intent(DetailActivity.this, FullscreenActivity.class);
         intent.putExtra("bitmapInfo", bi.key);
         intent.putExtra("PostImage", PostImage);
         intent.putExtra("PostURL", PostURL);
@@ -497,22 +489,21 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         LoginStatus = SharedPrefs.getInstance().getLoginStatus();
 
-        //Animate the FAB's loading
-        myView.postDelayed(new Runnable() {
-            @Override
-            public void run() {
-                fabSlideIn();
-            }
-        }, 750);
-
         if (nestedContent.getVisibility() == View.INVISIBLE) {
             nestedContent.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     revealView(nestedContent);
                 }
-            }, 100);
+            }, 0);
         }
+        //Animate the FAB's loading
+        myView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fabSlideIn();
+            }
+        }, 800);
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
             CommentTextLoggedOut.setVisibility(View.GONE);
@@ -599,7 +590,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                     }
                 }
 
-                intent = new Intent(PostSelectedActivity.this, AnimateFullscreenActivity.class);
+                intent = new Intent(DetailActivity.this, AnimateFullscreenActivity.class);
                 intent.putExtra("bitmap", byteArray);
                 intent.putExtra("PostImage", PostImage);
                 intent.putExtra("PostURL", PostURL);
@@ -620,19 +611,19 @@ public class PostSelectedActivity extends AppCompatActivity {
         final View nestedContent = findViewById(R.id.nested_content);
 
 
-//        final Handler hideHandler = new Handler();
-//        hideHandler.postDelayed(new Runnable() {
-//            public void run() {
-//                hideView(nestedContent);
-//            }
-//        }, 350);
+        final Handler hideHandler = new Handler();
+        hideHandler.postDelayed(new Runnable() {
+            public void run() {
+                hideView(nestedContent);
+            }
+        }, 350);
 
         final Handler intentHandler = new Handler();
         intentHandler.postDelayed(new Runnable() {
             public void run() {
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelectedActivity.this, imgFavorite, "photo_hero").toBundle());
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(DetailActivity.this, imgFavorite, "photo_hero").toBundle());
             }
-        }, 350);
+        }, 750);
     }
 
     public String stripHtml(String html) {
@@ -682,7 +673,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 final Handler intentHandler = new Handler();
                 intentHandler.postDelayed(new Runnable() {
                     public void run() {
-                        NavUtils.navigateUpFromSameTask(PostSelectedActivity.this);
+                        NavUtils.navigateUpFromSameTask(DetailActivity.this);
                     }
                 }, 700);
                 return true;
@@ -765,12 +756,12 @@ public class PostSelectedActivity extends AppCompatActivity {
     }
 
     private void fabSlideOut(){
-        fullscreenFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
+        fullscreenFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(1)).start();
         commentFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
     }
 
     private void fabSlideIn(){
-        fullscreenFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(2)).start();
-        commentFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(2)).start();
+        fullscreenFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(4)).start();
+        commentFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(3)).start();
     }
 }

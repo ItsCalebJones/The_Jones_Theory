@@ -36,7 +36,7 @@ import me.calebjones.blogsite.content.adapter.CommentAdapter;
 import me.calebjones.blogsite.content.models.CommentItem;
 import me.calebjones.blogsite.network.CommentsLoader;
 
-public class PostCommentsActivity extends AppCompatActivity {
+public class CommentActivity extends AppCompatActivity {
 
     private RecyclerView commentRecyclerView;
     private LinearLayoutManager mLayoutManager;
@@ -50,7 +50,7 @@ public class PostCommentsActivity extends AppCompatActivity {
     public List<CommentItem> commentItemList;
     public String PostTitle, PostImage, PostText, PostURL, PostID;
     public EditText CommentEditText;
-    public PostCommentsActivity() {
+    public CommentActivity() {
 
     }
 
