@@ -15,11 +15,14 @@ import android.media.browse.MediaBrowser;
 import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
+import android.os.Handler;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
+import android.support.v4.view.ViewCompat;
+import android.support.v4.view.ViewPropertyAnimatorListener;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -36,6 +39,10 @@ import android.view.MenuItem;
 import android.view.View;
 import android.view.ViewAnimationUtils;
 import android.view.Window;
+import android.view.animation.AccelerateInterpolator;
+import android.view.animation.Animation;
+import android.view.animation.AnimationUtils;
+import android.view.animation.DecelerateInterpolator;
 import android.widget.Button;
 import android.widget.EditText;
 import android.widget.ImageView;
@@ -88,6 +95,7 @@ public class PostSelectedActivity extends AppCompatActivity {
     private CompositeSubscription mSubscriptions;
     private Intent intent;
     private ImageView imageView;
+    private View myView;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
@@ -122,7 +130,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         Bundle bundle = getIntent().getExtras();
 
         final ImageView imgFavorite = (ImageView)findViewById(R.id.header);
-        final View myView = findViewById(R.id.main_content);
+        myView = findViewById(R.id.main_content);
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             myView.setVisibility(View.INVISIBLE);
@@ -156,6 +164,7 @@ public class PostSelectedActivity extends AppCompatActivity {
         fullscreenFab.setOnClickListener(new View.OnClickListener() {
             public void onClick(View v) {
                 if (PostImage != null) {
+                    fabSlideOut();
                     if (android.os.Build.VERSION.SDK_INT >= 21) {
                         try {
                             LollipopTransition(v);
@@ -168,6 +177,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 }
             }
         });
+        fullscreenFab.animate().translationX(fullscreenFab.getWidth() +250).setInterpolator(new AccelerateInterpolator(2)).start();
 
         commentFab = (FloatingActionButton) findViewById(R.id.commentFab);
         commentFab.setOnClickListener(new View.OnClickListener() {
@@ -181,6 +191,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 startActivity(commentIntent);
             }
         });
+        commentFab.animate().translationX(commentFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
 
         //Replace the content_header image with the Feature Image
         if (PostImage == null){
@@ -461,9 +472,22 @@ public class PostSelectedActivity extends AppCompatActivity {
 
     @Override
     public void onBackPressed() {
-        exitReveal();
-        super.onBackPressed();
+        fabSlideOut();
+
+        final Handler backHandler = new Handler();
+        backHandler.postDelayed(new Runnable() {
+            public void run() {
+                finish();
+            }
+        }, 400);
     }
+
+    @Override
+    public void onPause() {
+        fabSlideOut();
+        super.onPause();
+    }
+
 
     @Override
     public void onResume(){
@@ -473,13 +497,21 @@ public class PostSelectedActivity extends AppCompatActivity {
 
         LoginStatus = SharedPrefs.getInstance().getLoginStatus();
 
+        //Animate the FAB's loading
+        myView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                fabSlideIn();
+            }
+        }, 750);
+
         if (nestedContent.getVisibility() == View.INVISIBLE) {
             nestedContent.postDelayed(new Runnable() {
                 @Override
                 public void run() {
                     revealView(nestedContent);
                 }
-            }, 500);
+            }, 100);
         }
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
@@ -573,6 +605,7 @@ public class PostSelectedActivity extends AppCompatActivity {
                 intent.putExtra("PostURL", PostURL);
                 intent.putExtra("PostTitle", PostTitle);
                 intent.putExtra("PostText", PostText);
+
             }
         };
 
@@ -583,10 +616,23 @@ public class PostSelectedActivity extends AppCompatActivity {
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
     public void LollipopTransition(View v) throws IOException {
         Log.d("The Jones Theory", "LollipopTransition...");
-        ImageView imgFavorite = (ImageView) findViewById(R.id.header);
+        final ImageView imgFavorite = (ImageView) findViewById(R.id.header);
         final View nestedContent = findViewById(R.id.nested_content);
-        hideView(nestedContent);
-        startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelectedActivity.this, imgFavorite, "photo_hero").toBundle());
+
+
+//        final Handler hideHandler = new Handler();
+//        hideHandler.postDelayed(new Runnable() {
+//            public void run() {
+//                hideView(nestedContent);
+//            }
+//        }, 350);
+
+        final Handler intentHandler = new Handler();
+        intentHandler.postDelayed(new Runnable() {
+            public void run() {
+                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(PostSelectedActivity.this, imgFavorite, "photo_hero").toBundle());
+            }
+        }, 350);
     }
 
     public String stripHtml(String html) {
@@ -625,8 +671,20 @@ public class PostSelectedActivity extends AppCompatActivity {
         // Handle item selection
         switch (item.getItemId()) {
             case android.R.id.home:
-                exitReveal();
-                NavUtils.navigateUpFromSameTask(this);
+                fabSlideOut();
+                final Handler hideHandler = new Handler();
+                hideHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        exitReveal();
+                    }
+                }, 400);
+
+                final Handler intentHandler = new Handler();
+                intentHandler.postDelayed(new Runnable() {
+                    public void run() {
+                        NavUtils.navigateUpFromSameTask(PostSelectedActivity.this);
+                    }
+                }, 700);
                 return true;
             case R.id.menuShare:
                 shareIntent();
@@ -704,5 +762,15 @@ public class PostSelectedActivity extends AppCompatActivity {
         PostImage = savedInstanceState.getString("PostImage");
         PostURL = savedInstanceState.getString("PostURL");
         PostID = savedInstanceState.getInt("PostID");
+    }
+
+    private void fabSlideOut(){
+        fullscreenFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
+        commentFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
+    }
+
+    private void fabSlideIn(){
+        fullscreenFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(2)).start();
+        commentFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(2)).start();
     }
 }
