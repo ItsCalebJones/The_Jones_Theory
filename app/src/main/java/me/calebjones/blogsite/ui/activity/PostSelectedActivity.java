@@ -447,7 +447,6 @@ public class PostSelectedActivity extends AppCompatActivity {
         }
     }
 
-<<<<<<< HEAD
     public void LollipopTransition(View v) throws IOException {
         Log.d("The Jones Theory", "Sending Intent...");
         startActivity(intent);
