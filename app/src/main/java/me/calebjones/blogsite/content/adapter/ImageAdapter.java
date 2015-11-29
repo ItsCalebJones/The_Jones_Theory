@@ -11,6 +11,7 @@ import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
 
+import com.bumptech.glide.Glide;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -72,10 +73,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
         position = i;
 
-        Picasso.with(mContext)
+        Glide.with(mContext)
                 .load(imageItem.getFeaturedImage())
-                .error(R.drawable.placeholder)
+                .centerCrop()
+                .placeholder(R.drawable.placeholder)
+                .crossFade()
                 .into(imageRowHolder.thumbnail);
+
+//        Picasso.with(mContext)
+//                .load(imageItem.getFeaturedImage())
+//                .error(R.drawable.placeholder)
+//                .into(imageRowHolder.thumbnail);
 
         imageRowHolder.title.setText(Html.fromHtml(imageItem.getTitle()));
         }

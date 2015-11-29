@@ -28,6 +28,7 @@ import android.text.Html;
 import android.transition.Fade;
 import android.transition.Transition;
 import android.util.Log;
+import android.view.MenuItem;
 import android.view.View;
 import android.view.Window;
 import android.widget.ImageView;
@@ -85,6 +86,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         PostImage = intent.getExtras().getString("PostImage");
         PostText = intent.getExtras().getString("PostText");
         PostURL = intent.getExtras().getString("PostURL");
+        int PostBG = intent.getExtras().getInt("PostBG");
 
 
         stripHtml(PostTitle);
@@ -102,6 +104,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         final ImageView downloadView = (ImageView)findViewById(R.id.downloadFooter);
         final ImageView browserView = (ImageView)findViewById(R.id.browserFooter);
         final ImageView copyView = (ImageView)findViewById(R.id.copyFooter);
+        photoView.setBackgroundColor(PostBG);
 
         //OnClick listeners for the icons
         View.OnClickListener sClickListener = new View.OnClickListener() {
@@ -151,15 +154,6 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         photoView.setImageBitmap(bitmap);
         photoView.setMaximumScale(16);
 
-        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
-                                public void onGenerated(Palette palette) {
-                                    Palette.Swatch Swatch = palette.getDarkMutedSwatch();
-                                    if (Swatch != null) {
-                                        photoView.setBackgroundColor(Swatch.getRgb());
-
-                                    }
-                                }
-                            });
         Runnable r = new Runnable()
         {
             @Override
@@ -205,6 +199,9 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
 
             }
         });
+        //Setup the Action Bar back button and elevation
+        getSupportActionBar().setDisplayHomeAsUpEnabled(true);
+        getSupportActionBar().setElevation(25);
     }
 
     private void clipboardAdd() {
@@ -405,5 +402,19 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         sendIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
         sendIntent.setType("image/*");
         startActivity(sendIntent);
+    }
+
+    public boolean onOptionsItemSelected(MenuItem item)
+    {
+        switch(item.getItemId())
+        {
+            case android.R.id.home:
+                //User clicked home, do whatever you want
+                this.onBackPressed();
+                return true;
+            default:
+
+                return super.onOptionsItemSelected(item);
+        }
     }
 }

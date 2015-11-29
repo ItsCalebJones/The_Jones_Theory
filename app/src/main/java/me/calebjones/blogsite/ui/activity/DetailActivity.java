@@ -45,6 +45,7 @@ import android.widget.LinearLayout;
 import android.widget.TextView;
 import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
@@ -87,7 +88,7 @@ public class DetailActivity extends AppCompatActivity {
     private MediaBrowser.ConnectionCallback mConnectionCallback;
     private Bitmap mCloseButtonBitmap;
     private CompositeSubscription mSubscriptions;
-    private Intent intent;
+    private Intent animateIntent;
     private ImageView imageView;
     private View myView;
 
@@ -120,10 +121,9 @@ public class DetailActivity extends AppCompatActivity {
 
         super.onCreate(savedInstanceState);
 
-        setContentView(R.layout.activity_selected);
+        setContentView(R.layout.activity_detail);
         Bundle bundle = getIntent().getExtras();
 
-        final ImageView imgFavorite = (ImageView)findViewById(R.id.header);
         myView = findViewById(R.id.main_content);
 
         if (android.os.Build.VERSION.SDK_INT >= 21) {
@@ -131,7 +131,7 @@ public class DetailActivity extends AppCompatActivity {
         }
 
         defaultColor = getResources().getColor(R.color.icons);
-
+        Log.v("The Jones Theory", "OnCreate: ");
         if (bundle != null){
             //Get information about the post that was selected from BlogFragment
             Intent intent = getIntent();
@@ -147,6 +147,12 @@ public class DetailActivity extends AppCompatActivity {
         if (savedInstanceState != null) {
             Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
         }
+
+        animateIntent = new Intent(DetailActivity.this, AnimateFullscreenActivity.class);
+        animateIntent.putExtra("PostImage", PostImage);
+        animateIntent.putExtra("PostURL", PostURL);
+        animateIntent.putExtra("PostTitle", PostTitle);
+        animateIntent.putExtra("PostText", PostText);
 
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
@@ -208,43 +214,7 @@ public class DetailActivity extends AppCompatActivity {
                 }, 100);
             }
         }
-        Ion.with(getApplicationContext())
-                .load(PostImage)
-                .withBitmap()
-                .placeholder(R.drawable.placeholder)
-                .error(R.drawable.placeholder)
-                .asBitmap()
-                .setCallback(new FutureCallback<Bitmap>() {
-                    @Override
-                    public void onCompleted(Exception e, Bitmap result) {
-                        imgFavorite.setImageBitmap(result);
-                        bitmap = result;
-                        if (bitmap != null) {
-                            setUpCompressedBitmap();
-                            mPalette = Palette.generate(bitmap);
-                            final View mainView = findViewById(R.id.main_content);
-                            commentFab.setVisibility(View.INVISIBLE);
-                            fullscreenFab.setVisibility(View.INVISIBLE);
-                            if (mainView.getVisibility() == View.INVISIBLE) {
-                                mainView.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mApplyPalette(mPalette);
-                                        revealView(mainView);
-                                        if (commentFab.getVisibility() == View.INVISIBLE) {
-                                            revealView(commentFab);
-                                        }
-                                        if (fullscreenFab.getVisibility() == View.INVISIBLE) {
-                                            revealView(fullscreenFab);
-                                        }
-                                    }
-                                }, 100);
-                            }
-                            Log.d("The Jones Theory", "Result: " + result.toString() + " Bitmap: " + bitmap.toString());
-                        }
-                    }
-                });
-
+        setUpFeatureImage();
         //Removes HTML artifcats
 
         //Skipping this for now trying to get images to load
@@ -303,6 +273,7 @@ public class DetailActivity extends AppCompatActivity {
                 @Override
                 public void onTransitionEnd(Transition transition) {
                     getWindow().getEnterTransition().removeListener(this);
+                    ImageView imgFavorite = (ImageView)findViewById(R.id.header);
 
                     // load the full version, crossfading from the thumbnail image
                     Ion.with(imgFavorite)
@@ -312,6 +283,56 @@ public class DetailActivity extends AppCompatActivity {
                 }
             });
         }
+    }
+
+    private void setUpFeatureImage() {
+        final ImageView imgFavorite = (ImageView)findViewById(R.id.header);
+        Ion.with(getApplicationContext())
+                .load(PostImage)
+                .withBitmap()
+                .placeholder(R.drawable.placeholder)
+                .error(R.drawable.placeholder)
+                .asBitmap()
+                .setCallback(new FutureCallback<Bitmap>() {
+                    @Override
+                    public void onCompleted(Exception e, Bitmap result) {
+                        final View mainView = findViewById(R.id.main_content);
+                        final Bitmap resultBitmap = result;
+
+                        commentFab.setVisibility(View.INVISIBLE);
+                        fullscreenFab.setVisibility(View.INVISIBLE);
+                        bitmap = result;
+
+                        if (bitmap != null) {
+                            mainView.postDelayed(new Runnable() {
+                                @Override
+                                public void run() {
+
+                                    imgFavorite.setImageBitmap(resultBitmap);
+                                    setUpCompressedBitmap();
+                                }
+                            }, 0);
+                            if (mainView.getVisibility() == View.INVISIBLE) {
+                                mainView.postDelayed(new Runnable() {
+                                    @Override
+                                    public void run() {
+                                        mPalette = Palette.generate(bitmap);
+                                        mApplyPalette(mPalette);
+                                        revealView(mainView);
+                                        if (commentFab.getVisibility() == View.INVISIBLE) {
+                                            revealView(commentFab);
+                                        }
+                                        if (fullscreenFab.getVisibility() == View.INVISIBLE) {
+                                            revealView(fullscreenFab);
+                                        }
+                                    }
+                                }, 100);
+                            }
+                            Log.d("The Jones Theory", "Result: " + result.toString() + " Bitmap: " + bitmap.toString());
+                        }
+                    }
+                });
+
     }
 
     @Override
@@ -398,19 +419,12 @@ public class DetailActivity extends AppCompatActivity {
 
     //PalLete bugs here where swatches are empty
     public void mApplyPalette(Palette mPalette){
-//        getWindow().setBackgroundDrawable(new ColorDrawable(mPalette.getDarkMutedColor(defaultColor)));
-
         collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
         collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-//        collapsingToolbar.setExpandedTitleTextAppearance(R.style.ExpandedAppBarPlus);
-//        collapsingToolbar.setExpandedTitleColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryLight)));
-
-
-//        CommentBox.setBackgroundColor(mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
-//        mText.setBackgroundColor(mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
-
         fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(getResources().getColor(R.color.myAccentColor))));
         commentFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getDarkVibrantColor(getResources().getColor(R.color.myPrimaryDarkColor))));
+
+        animateIntent.putExtra("PostBG", mPalette.getDarkMutedColor(getResources().getColor(R.color.myPrimaryDarkColor)));
 
 //        if (mPalette.getDarkMutedSwatch() != null){
 //            mTextView.setTextColor(defaultColor);
@@ -497,13 +511,14 @@ public class DetailActivity extends AppCompatActivity {
                 }
             }, 0);
         }
+
         //Animate the FAB's loading
         myView.postDelayed(new Runnable() {
             @Override
             public void run() {
                 fabSlideIn();
             }
-        }, 800);
+        }, 1000);
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
             CommentTextLoggedOut.setVisibility(View.GONE);
@@ -518,8 +533,9 @@ public class DetailActivity extends AppCompatActivity {
 
     private void revealView(View view) {
         if (android.os.Build.VERSION.SDK_INT >= 21) {
-            int cx = (view.getLeft() + view.getRight()) / 2;
-            int cy = (view.getTop() + view.getBottom()) / 2;
+            int cx = (myView.getLeft() + myView.getRight()) / 2;
+            int cy = (myView.getTop() + myView.getBottom()) / 2;
+
 
             // get the final radius for the clipping circle
             int finalRadius = Math.max(view.getWidth(), view.getHeight() / 2);
@@ -589,13 +605,7 @@ public class DetailActivity extends AppCompatActivity {
                         Log.d("The Jones Theory", "AFTER byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
                     }
                 }
-
-                intent = new Intent(DetailActivity.this, AnimateFullscreenActivity.class);
-                intent.putExtra("bitmap", byteArray);
-                intent.putExtra("PostImage", PostImage);
-                intent.putExtra("PostURL", PostURL);
-                intent.putExtra("PostTitle", PostTitle);
-                intent.putExtra("PostText", PostText);
+                animateIntent.putExtra("bitmap", byteArray);
 
             }
         };
@@ -608,22 +618,13 @@ public class DetailActivity extends AppCompatActivity {
     public void LollipopTransition(View v) throws IOException {
         Log.d("The Jones Theory", "LollipopTransition...");
         final ImageView imgFavorite = (ImageView) findViewById(R.id.header);
-        final View nestedContent = findViewById(R.id.nested_content);
-
-
-        final Handler hideHandler = new Handler();
-        hideHandler.postDelayed(new Runnable() {
-            public void run() {
-                hideView(nestedContent);
-            }
-        }, 350);
 
         final Handler intentHandler = new Handler();
         intentHandler.postDelayed(new Runnable() {
             public void run() {
-                startActivity(intent, ActivityOptions.makeSceneTransitionAnimation(DetailActivity.this, imgFavorite, "photo_hero").toBundle());
+                startActivity(animateIntent, ActivityOptions.makeSceneTransitionAnimation(DetailActivity.this, imgFavorite, "photo_hero").toBundle());
             }
-        }, 750);
+        }, 1000);
     }
 
     public String stripHtml(String html) {
