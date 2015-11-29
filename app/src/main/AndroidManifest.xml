@@ -75,6 +75,11 @@
             android:label=""
             android:parentActivityName=".MainActivity" />
 
+        <activity
+            android:name=".ui.activity.WebViewActivity"
+            android:label=""
+            android:parentActivityName=".ui.activity.DetailActivity" />
+
         <service
             android:name=".network.PostDownloader"
             android:enabled="true"
