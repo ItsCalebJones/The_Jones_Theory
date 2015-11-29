@@ -43,7 +43,7 @@ public class BlogsiteApplication extends Application {
         super.onCreate();
         mInstance = this;
 
-        int cacheSize = 10 * 1024 * 1024;
+        int cacheSize = 50 * 1024 * 1024;
         Cache cache = new Cache(getCacheDir(), cacheSize);
         client.setCache(cache);
 
