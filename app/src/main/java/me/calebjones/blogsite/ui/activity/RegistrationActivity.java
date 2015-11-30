@@ -73,7 +73,6 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 
     int showPbar = 0;
 
-    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=blog&number=15";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,15 +82,12 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
         getNonceTask = new getNonce();
         getNonceTask.execute();
 
-        new PostLoader().execute(mURL);
-
         // Initializing Toolbar and setting it as the actionbar
         toolbar = (Toolbar) findViewById(R.id.regi_toolbar);
         setSupportActionBar(toolbar);
 
         usernameTextView = (AutoCompleteTextView) findViewById(R.id.registerEmail);
         loadAutoComplete();
-
 
 
         confirmUserTextView = (EditText) findViewById(R.id.registerUsername);

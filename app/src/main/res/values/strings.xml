@@ -70,5 +70,7 @@ Donec in mauris sit amet magna maximus facilisis ac in dolor. Cras fermentum arc
     <string name="loggedout_comment_message">Thanks for reading! Tell me your thoughts?</string>
     <string name="title_activity_intent_launcher">IntentLauncher</string>
     <string name="content_Description">Feature Image</string>
+    <string name="permission_contact_rationale">Contacts permissions are needed to create an account.</string>
+    <string name="permission_negative">No thanks.</string>
 
 </resources>

@@ -1,18 +1,21 @@
 package me.calebjones.blogsite.ui.activity;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.annotation.TargetApi;
+import android.Manifest;
+import android.app.ProgressDialog;
 import android.content.Context;
+import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.content.pm.PackageManager;
 import android.os.AsyncTask;
-import android.os.Build;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.annotation.NonNull;
+import android.support.annotation.StringRes;
 import android.support.design.widget.AppBarLayout;
-import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.CoordinatorLayout;
+import android.support.v4.content.ContextCompat;
+import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
@@ -28,7 +31,7 @@ import android.widget.EditText;
 import android.widget.TextView;
 import android.widget.Toast;
 
-import com.facebook.*;
+import com.facebook.AccessToken;
 import com.facebook.CallbackManager;
 import com.facebook.FacebookCallback;
 import com.facebook.FacebookException;
@@ -52,7 +55,13 @@ import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.database.SharedPrefs;
 import me.calebjones.blogsite.util.auth.AuthValidate;
 import me.calebjones.blogsite.util.auth.FBConnect;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
 
+@RuntimePermissions
 public class LoginActivity extends AppCompatActivity {
 
     private static final String DUMMY_CREDENTIALS = "user@test.com:hello";
@@ -64,12 +73,11 @@ public class LoginActivity extends AppCompatActivity {
     private Toolbar toolbar;
     private View loginFormView;
     private View progressView;
-    private EditText usernameTextView;
-    private EditText passwordTextView;
+    private EditText usernameTextView, passwordTextView;
     private TextView signupButton;
+    private ProgressDialog progressDialog;
     public Button loginButton;
     public LoginButton FaceBookButton;
-    public final CollapsingToolbarLayout collapsingToolbar = null;
     public AppBarLayout appBarLayout;
     public CoordinatorLayout coordinatorLayout;
     public Context context;
@@ -80,7 +88,23 @@ public class LoginActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(LoginActivity.this,
+                Manifest.permission.READ_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.d("The Jones Theory", "Error with Read Contacts permission.");
+        }
+
+        // Here, thisActivity is the current activity
+        if (ContextCompat.checkSelfPermission(LoginActivity.this,
+                Manifest.permission.WRITE_CONTACTS)
+                != PackageManager.PERMISSION_GRANTED) {
+            Log.d("The Jones Theory", "Error with Write Contacts permission.");
+        }
+
         setContentView(R.layout.activity_login);
+
+        progressDialog = new ProgressDialog(LoginActivity.this);
 
         callbackManager = CallbackManager.Factory.create();
 
@@ -148,24 +172,18 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
-        final CollapsingToolbarLayout collapsingToolbar =
-                (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
-
-        collapsingToolbar.setTitle("Sign In");
-
-        coordinatorLayout = (CoordinatorLayout) findViewById(R.id.main_content);
-        appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-
         // Initializing Toolbar and setting it as the actionbar
-        toolbar = (Toolbar) findViewById(R.id.login_toolbar);
+        toolbar = (Toolbar) findViewById(R.id.toolbar);
+        toolbar.setTitle("");
         setSupportActionBar(toolbar);
+
 
         usernameTextView = (EditText) findViewById(R.id.email);
         usernameTextView.setOnFocusChangeListener(new View.OnFocusChangeListener() {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    collapseToolbar();
+
                 }
 
             }
@@ -177,7 +195,7 @@ public class LoginActivity extends AppCompatActivity {
             @Override
             public void onFocusChange(View v, boolean hasFocus) {
                 if (hasFocus) {
-                    collapseToolbar();
+
                 }
 
             }
@@ -219,7 +237,7 @@ public class LoginActivity extends AppCompatActivity {
             public void onClick(View v) {
                 Log.i(TAG, "Sign Up Activity activated.");
                 // this is where you should start the signup Activity
-                LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
+                LoginActivityPermissionsDispatcher.showContactsWithCheck(LoginActivity.this);
             }
         });
 
@@ -245,6 +263,49 @@ public class LoginActivity extends AppCompatActivity {
             doAuth.execute();
         }
 
+    }
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        LoginActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @NeedsPermission({Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS})
+    void showContacts(){
+        LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
+
+    }
+
+    // Option
+    @OnShowRationale({Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS})
+    void showRationaleForContact(PermissionRequest request) {
+        showRationaleDialog(R.string.permission_contact_rationale, request);
+    }
+
+    // Option
+    @OnPermissionDenied({Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS})
+    void onContactDenied() {
+        Toast.makeText(this, "Feel free to register at http://calebjones.me", Toast.LENGTH_SHORT).show();
+    }
+
+    private void showRationaleDialog(@StringRes int messageResId, final PermissionRequest request) {
+        AlertDialog.Builder builder = new AlertDialog.Builder(this);
+        builder.setPositiveButton("Sure!", new DialogInterface.OnClickListener() {
+            @Override
+            public void onClick(@NonNull DialogInterface dialog, int which) {
+                request.proceed();
+            }
+        })
+        .setNegativeButton(R.string.permission_negative, new DialogInterface.OnClickListener() {
+                    @Override
+                    public void onClick(@NonNull DialogInterface dialog, int which) {
+                        request.cancel();
+                    }
+                })
+        .setCancelable(false)
+        .setMessage(messageResId)
+        .show();
     }
 
     @Override
@@ -279,13 +340,6 @@ public class LoginActivity extends AppCompatActivity {
         callbackManager.onActivityResult(requestCode, resultCode, data);
     }
 
-    public void collapseToolbar(){
-        CoordinatorLayout.LayoutParams params = (CoordinatorLayout.LayoutParams) appBarLayout.getLayoutParams();
-        AppBarLayout.Behavior behavior = (AppBarLayout.Behavior) params.getBehavior();
-        if (behavior != null) {
-            behavior.onNestedFling(coordinatorLayout, appBarLayout, null, 0, 15000, true);
-        }
-    }
 
     /**
      * Validate Login form and authenticate.
@@ -344,36 +398,13 @@ public class LoginActivity extends AppCompatActivity {
     /**
      * Shows the progress UI and hides the activity_login form.
      */
-    @TargetApi(Build.VERSION_CODES.HONEYCOMB_MR2)
     public void showProgress(final boolean show) {
-        // On Honeycomb MR2 we have the ViewPropertyAnimator APIs, which allow
-        // for very easy animations. If available, use these APIs to fade-in
-        // the progress spinner.
-        if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.HONEYCOMB_MR2) {
-            int shortAnimTime = getResources().getInteger(android.R.integer.config_shortAnimTime);
-
-            loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-            loginFormView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 0 : 1).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
-                }
-            });
-
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            progressView.animate().setDuration(shortAnimTime).alpha(
-                    show ? 1 : 0).setListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-                }
-            });
+        if (show == true){
+            progressDialog.setIndeterminate(true);
+            progressDialog.setMessage("Authenticating...");
+            progressDialog.show();
         } else {
-            // The ViewPropertyAnimator APIs are not available, so simply show
-            // and hide the relevant UI components.
-            progressView.setVisibility(show ? View.VISIBLE : View.GONE);
-            loginFormView.setVisibility(show ? View.GONE : View.VISIBLE);
+            progressDialog.dismiss();
         }
     }
 
@@ -515,6 +546,8 @@ public class LoginActivity extends AppCompatActivity {
         // automatically handle clicks on the Home/Up button, so long
         // as you specify a parent activity in AndroidManifest.xml.
         int id = item.getItemId();
+
+        Log.d("The Jones Theory", "Menu item: " + id);
 
         //noinspection SimplifiableIfStatement
         if (id == R.id.action_skip) {

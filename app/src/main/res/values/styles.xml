@@ -3,14 +3,24 @@
     <style name="Theme.BlogSite" parent="Base.Theme.BlogSite">
     </style>
 
+    <style name="Theme.BlogSite_White" parent="Base.Theme.BlogSite_Accent_White">
+    </style>
+
     <!-- Base application theme. -->
     <style name="Base.Theme.BlogSite" parent="Theme.AppCompat.Light.NoActionBar">
         <item name="colorPrimary">@color/myPrimaryColor</item>
         <item name="colorPrimaryDark">@color/myPrimaryDarkColor</item>
         <item name="colorAccent">@color/myAccentColor</item>
-
         <item name="windowActionBar">false</item>
         <item name="windowActionModeOverlay">true</item>
+        <!--<item name="android:windowBackground">@color/myPrimaryColor</item>-->
+        <!--<item name="windowDrawsSystemBarBackgrounds">true</item>-->
+        <!-- Customize your theme here. -->
+    </style>
+
+    <!-- Base application theme. -->
+    <style name="Base.Theme.BlogSite_Accent_White" parent="Base.Theme.BlogSite">
+        <item name="colorAccent">#ffffff</item>
         <!--<item name="android:windowBackground">@color/myPrimaryColor</item>-->
         <!--<item name="windowDrawsSystemBarBackgrounds">true</item>-->
         <!-- Customize your theme here. -->
@@ -37,6 +47,14 @@
 
     <style name="TransparentText" parent="@android:style/TextAppearance">
         <item name="android:textColor">#00000000</item>
+    </style>
+
+    <style name="MyEditTextTheme" parent="Widget.AppCompat.EditText">
+        <item name="colorControlNormal">#ffffff</item> <!-- Used for the underline when not selected -->
+        <item name="colorControlActivated">#ffffff</item> <!-- Underline and floating text when active -->
+        <item name="colorControlHighlight">@color/myAccentColor</item>
+        <item name="android:textColorHint">#ffffff</item>
+        <item name="android:textColorSecondary">#ffff</item>
     </style>
 
 </resources>

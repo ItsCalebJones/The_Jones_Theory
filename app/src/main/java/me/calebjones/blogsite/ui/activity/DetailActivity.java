@@ -94,7 +94,7 @@ public class DetailActivity extends AppCompatActivity {
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
-    public String PostTitle, PostImage, PostText, PostURL, PostCat;
+    public String PostTitle, PostImage, PostText, PostURL, PostCat, PostExcerpt;
     public Integer PostID;
     public Bitmap bitmap;
     public List<FeedItem> feedItemList;
@@ -143,6 +143,8 @@ public class DetailActivity extends AppCompatActivity {
             PostText = post.getContent();
             PostTitle = post.getTitle();
             PostURL = post.getURL();
+            PostExcerpt = post.getExcerpt();
+
         }
         if (savedInstanceState != null) {
             Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
@@ -152,7 +154,7 @@ public class DetailActivity extends AppCompatActivity {
         animateIntent.putExtra("PostImage", PostImage);
         animateIntent.putExtra("PostURL", PostURL);
         animateIntent.putExtra("PostTitle", PostTitle);
-        animateIntent.putExtra("PostText", PostText);
+        animateIntent.putExtra("PostText", PostExcerpt);
 
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);

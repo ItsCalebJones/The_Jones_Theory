@@ -1,5 +1,6 @@
 package me.calebjones.blogsite.ui.activity;
 
+import android.Manifest;
 import android.annotation.TargetApi;
 import android.app.Notification;
 import android.app.PendingIntent;
@@ -19,6 +20,7 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Environment;
+import android.support.annotation.NonNull;
 import android.support.v4.app.NotificationCompat;
 import android.support.v4.app.NotificationManagerCompat;
 import android.support.v7.app.AppCompatActivity;
@@ -45,13 +47,21 @@ import java.io.IOException;
 import java.util.Date;
 
 import me.calebjones.blogsite.R;
+import me.calebjones.blogsite.content.database.DatabaseManager;
+import permissions.dispatcher.NeedsPermission;
+import permissions.dispatcher.OnPermissionDenied;
+import permissions.dispatcher.OnShowRationale;
+import permissions.dispatcher.PermissionRequest;
+import permissions.dispatcher.RuntimePermissions;
 import uk.co.senab.photoview.PhotoView;
 
+@RuntimePermissions
 @TargetApi(Build.VERSION_CODES.LOLLIPOP)
 public class AnimateFullscreenActivity extends AppCompatActivity {
 
     private Toolbar mToolbar;
     private ProgressDialog dialog;
+    private File file;
 
     ProgressBar progressBar;
     public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
@@ -69,6 +79,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         getWindow().requestFeature(Window.FEATURE_CONTENT_TRANSITIONS);
+
         if (android.os.Build.VERSION.SDK_INT >= 21) {
             getWindow().setExitTransition(new Fade());
         }
@@ -86,8 +97,12 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         PostImage = intent.getExtras().getString("PostImage");
         PostText = intent.getExtras().getString("PostText");
         PostURL = intent.getExtras().getString("PostURL");
+
         int PostBG = intent.getExtras().getInt("PostBG");
 
+        if (PostText.length() > 3){
+            PostText = PostText.replaceAll("\\]", "").replaceAll("\\[", "");
+        }
 
         stripHtml(PostTitle);
 
@@ -110,14 +125,18 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         View.OnClickListener sClickListener = new View.OnClickListener() {
             public void onClick(View v) {
                 if (v.equals(shareView)) {
-                    shareIntent();
+                    try {
+                        shareIntent(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
         View.OnClickListener dClickListener = new View.OnClickListener() {
             public void onClick(View v) {
                 if (v.equals(downloadView)) {
-                    downloadFile();
+                    AnimateFullscreenActivityPermissionsDispatcher.getWritePermissionWithCheck(AnimateFullscreenActivity.this);
                 }
             }
         };
@@ -154,22 +173,6 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         photoView.setImageBitmap(bitmap);
         photoView.setMaximumScale(16);
 
-        Runnable r = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    bitMapToFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        Thread t = new Thread(r);
-        t.start();
-
         getWindow().getEnterTransition().addListener(new Transition.TransitionListener() {
             @Override
             public void onTransitionStart(Transition transition) {
@@ -202,6 +205,40 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         //Setup the Action Bar back button and elevation
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(25);
+
+//        Runnable r = new Runnable()
+//        {
+//            @Override
+//            public void run()
+//            {
+//                try {
+//                    bitMapToFile(bitmap);
+//                } catch (IOException e) {
+//                    e.printStackTrace();
+//                }
+//            }
+//        };
+//
+//        Thread t = new Thread(r);
+//        t.start();
+    }
+
+    @Override
+    public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
+        super.onRequestPermissionsResult(requestCode, permissions, grantResults);
+        // NOTE: delegate the permission handling to generated method
+        AnimateFullscreenActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+    }
+
+    @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    void getWritePermission(){
+        downloadFile();
+    }
+
+    // Option
+    @OnPermissionDenied(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+    void onContactDenied() {
+        Toast.makeText(this, "Unable to download file without permissions.", Toast.LENGTH_SHORT).show();
     }
 
     private void clipboardAdd() {
@@ -213,6 +250,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         // Set the clipboard's primary clip.
         clipboard.setPrimaryClip(clip);
         Toast.makeText(AnimateFullscreenActivity.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
+
 
     }
 
@@ -314,9 +352,6 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
 
                 .setStyle(bNoti);
 
-//        noti.flags |= Notification.FLAG_AUTO_CANCEL;
-//        NotificationManager notificationManager = (NotificationManager) getSystemService(NOTIFICATION_SERVICE);
-//        notificationManager.notify(0, notificationBuilder);
         // Get an instance of the NotificationManager service
         NotificationManagerCompat notificationManager =
                 NotificationManagerCompat.from(mContext);
@@ -328,6 +363,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
     void resetDownload() {
             progressBar.setProgress(0);
         }
+
     public Bitmap getCroppedBitmap(Bitmap bitmap) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -355,20 +391,15 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         return Html.fromHtml(html).toString();
     }
 
-    private void bitMapToFile() throws IOException {
-        File dir = new File(file_path);
-        if(!dir.exists()){
-            dir.mkdirs();
-        } else {
-            deleteDir(dir);
-            dir.mkdirs();
-        }
-        File file = new File(dir, "temp.png");
+    private File bitMapToFile(Bitmap mBitmap) throws IOException {
+        file = new File(getApplicationContext().getCacheDir(), "temp.png");
         FileOutputStream fOut = new FileOutputStream(file);
 
-        bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+        mBitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
         fOut.flush();
         fOut.close();
+        file.setReadable(true, false);
+        return file;
     }
 
     public static boolean deleteDir(File dir) {
@@ -395,11 +426,11 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         AnimateFullscreenActivity.this.finish();
     }
 
-    public void shareIntent() {
+    public void shareIntent(Bitmap mBitmap) throws IOException {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/temp/temp.png")));
-        sendIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitMapToFile(mBitmap)));
+        sendIntent.putExtra(Intent.EXTRA_TEXT, Html.fromHtml(PostText) + " \n\n Find more content here: " + PostURL);
         sendIntent.setType("image/*");
         startActivity(sendIntent);
     }

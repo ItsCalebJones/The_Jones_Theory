@@ -2,6 +2,11 @@ package me.calebjones.blogsite.content.adapter;
 
 import android.content.Context;
 import android.content.Intent;
+import android.content.res.Resources;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.graphics.Color;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.util.Log;
@@ -10,8 +15,12 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.util.DisplayMetrics;
 
 import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
+import com.bumptech.glide.request.target.SimpleTarget;
 import com.squareup.okhttp.OkHttpClient;
 import com.squareup.picasso.OkHttpDownloader;
 import com.squareup.picasso.Picasso;
@@ -30,6 +39,7 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
 
     private List<Posts> imageItemList;
     private Context mContext;
+    private DisplayMetrics metrics;
     public int position;
 
 
@@ -38,6 +48,8 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
         OkHttpClient picassoClient = BlogsiteApplication.getInstance().client.clone();
         picassoClient.interceptors().add(BlipUtils.REWRITE_CACHE_CONTROL_INTERCEPTOR);
         new Picasso.Builder(context).downloader(new OkHttpDownloader(picassoClient)).build();
+        new DisplayMetrics();
+        metrics = Resources.getSystem().getDisplayMetrics();
     }
 
     public void addItems(List<Posts> imageItemList) {
@@ -71,19 +83,17 @@ public class ImageAdapter extends RecyclerView.Adapter<ImageAdapter.ViewHolder> 
     public void onBindViewHolder(final ViewHolder imageRowHolder, int i) {
         final Posts imageItem = imageItemList.get(i);
 
+        int width = metrics.widthPixels;
+        int height = metrics.heightPixels / 3;
+
         position = i;
 
         Glide.with(mContext)
                 .load(imageItem.getFeaturedImage())
+                .asBitmap()
                 .centerCrop()
                 .placeholder(R.drawable.placeholder)
-                .crossFade()
                 .into(imageRowHolder.thumbnail);
-
-//        Picasso.with(mContext)
-//                .load(imageItem.getFeaturedImage())
-//                .error(R.drawable.placeholder)
-//                .into(imageRowHolder.thumbnail);
 
         imageRowHolder.title.setText(Html.fromHtml(imageItem.getTitle()));
         }
