@@ -29,8 +29,8 @@
     <style name="Widget.CardContent" parent="android:Widget">
         <item name="android:paddingLeft">8dp</item>
         <item name="android:paddingRight">8dp</item>
-        <item name="android:paddingTop">24dp</item>
-        <item name="android:paddingBottom">24dp</item>
+        <item name="android:paddingTop">20dp</item>
+        <item name="android:paddingBottom">8dp</item>
         <item name="android:orientation">vertical</item>
     </style>
 
@@ -55,6 +55,14 @@
         <item name="colorControlHighlight">@color/myAccentColor</item>
         <item name="android:textColorHint">#ffffff</item>
         <item name="android:textColorSecondary">#ffff</item>
+    </style>
+
+    <style name="ListItemText" parent="android:Widget.Holo.Light.TextView">
+        <item name="android:gravity">center</item>
+        <item name="android:layout_margin">5dip</item>
+        <item name="android:minLines">3</item>
+        <item name="android:textSize">14sp</item>
+        <item name="android:textStyle">bold</item>
     </style>
 
 </resources>

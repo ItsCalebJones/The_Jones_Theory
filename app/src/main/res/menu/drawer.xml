@@ -26,39 +26,40 @@
             android:id="@+id/navigation_sub"
             android:title="Categories">
             <menu>
-                <item
-                    android:id="@+id/blog"
-                    android:checked="false"
-                    android:icon="@drawable/ic_about"
-                    android:title="Blog" />
+                <group android:checkableBehavior="single">
+                    <item
+                        android:id="@+id/blog"
+                        android:checked="false"
+                        android:icon="@drawable/ic_about"
+                        android:title="Blog" />
 
-                <item
-                    android:id="@+id/science"
-                    android:checked="false"
-                    android:icon="@drawable/ic_science"
-                    android:title="Science" />
+                    <item
+                        android:id="@+id/science"
+                        android:checked="false"
+                        android:icon="@drawable/ic_science"
+                        android:title="Science" />
 
-                <item
-                    android:id="@+id/parenting"
-                    android:checked="false"
-                    android:icon="@drawable/ic_parenting"
-                    android:title="Parenting" />
-                <item
-                    android:id="@+id/android"
-                    android:checked="false"
-                    android:icon="@drawable/ic_android"
-                    android:title="Android" />
-                <item
-                    android:id="@+id/technology"
-                    android:checked="false"
-                    android:icon="@drawable/ic_tech"
-                    android:title="Technology" />
-                <item
-                    android:title=""
-                    android:checkable="false"
-                    android:visible="false"
-                    android:orderInCategory="200"/>
-
+                    <item
+                        android:id="@+id/parenting"
+                        android:checked="false"
+                        android:icon="@drawable/ic_parenting"
+                        android:title="Parenting" />
+                    <item
+                        android:id="@+id/android"
+                        android:checked="false"
+                        android:icon="@drawable/ic_android"
+                        android:title="Android" />
+                    <item
+                        android:id="@+id/technology"
+                        android:checked="false"
+                        android:icon="@drawable/ic_tech"
+                        android:title="Technology" />
+                    <item
+                        android:checkable="false"
+                        android:orderInCategory="200"
+                        android:title=""
+                        android:visible="false" />
+                </group>
             </menu>
         </item>
     </group>

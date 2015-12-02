@@ -216,7 +216,6 @@ public class MainActivity extends AppCompatActivity {
                     default:
                         return true;
 
-
                 }
             }
         });
@@ -245,7 +244,6 @@ public class MainActivity extends AppCompatActivity {
         actionBarDrawerToggle.syncState();
 
         setUpViews();
-
 
     }
 

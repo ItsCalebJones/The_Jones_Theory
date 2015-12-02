@@ -72,5 +72,12 @@ Donec in mauris sit amet magna maximus facilisis ac in dolor. Cras fermentum arc
     <string name="content_Description">Feature Image</string>
     <string name="permission_contact_rationale">Contacts permissions are needed to create an account.</string>
     <string name="permission_negative">No thanks.</string>
+    <string name="tags_example">Tag: NASA, IFTT, Two Worlds</string>
+    <string name="excerpt_example">This cosmic expanse of dust, gas, and stars covers some 6 degrees on the sky in the heroic constellation Perseus.</string>
+    <string name="explore">Explore</string>
+    <string name="share">Share</string>
+    <string name="reply">Reply</string>
+    <string name="favorite">Favorite</string>
+    <string name="author">The Jones Theory</string>
 
 </resources>
