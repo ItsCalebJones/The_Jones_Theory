@@ -206,21 +206,6 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayHomeAsUpEnabled(true);
         getSupportActionBar().setElevation(25);
 
-//        Runnable r = new Runnable()
-//        {
-//            @Override
-//            public void run()
-//            {
-//                try {
-//                    bitMapToFile(bitmap);
-//                } catch (IOException e) {
-//                    e.printStackTrace();
-//                }
-//            }
-//        };
-//
-//        Thread t = new Thread(r);
-//        t.start();
     }
 
     @Override

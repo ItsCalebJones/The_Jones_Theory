@@ -392,9 +392,7 @@ public class DetailActivity extends AppCompatActivity {
                 // Do something with span.getURL() to handle the link click...
                 Context context = getApplicationContext();
                 CharSequence text = "Hello toast!" + span.getURL();
-                int duration = Toast.LENGTH_SHORT;
 
-                Toast.makeText(context, text, duration).show();
                 if (Patterns.WEB_URL.matcher(span.getURL()).matches()){
                     Log.d("The Jones Theory", span.getURL());
                     openCustomTab(span.getURL());
@@ -637,11 +635,13 @@ public class DetailActivity extends AppCompatActivity {
 
         //Remove Styling from Text
         PostText = PostText.replaceAll("<style>.*?</style>", "");
-        //Remove Styling from Text
-        int index = PostText.indexOf("<img");
-        PostText = PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length());
-        Log.d("The Jones Theory", PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length()));
 
+//        if (PostText.contains("<img")){
+//            //Remove Styling from Text
+//            int index = PostText.indexOf("<img");
+//            PostText = PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length());
+//            Log.d("The Jones Theory", PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length()));
+//        }
         return PostText;
     }
 
@@ -725,8 +725,10 @@ public class DetailActivity extends AppCompatActivity {
         intentBuilder.setExitAnimations(this,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
-        CustomTabActivityHelper.openCustomTab(
-                this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
+        if (!url.matches("ap.......html")){
+            CustomTabActivityHelper.openCustomTab(
+                    this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
+        }
     }
 
     private PendingIntent createPendingShareIntent(String url) {

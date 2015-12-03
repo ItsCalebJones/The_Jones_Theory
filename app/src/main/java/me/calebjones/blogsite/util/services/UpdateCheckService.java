@@ -4,8 +4,10 @@ import android.app.AlarmManager;
 import android.app.IntentService;
 import android.app.PendingIntent;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.preference.PreferenceManager;
 import android.util.Log;
 
 import com.squareup.okhttp.Request;
@@ -199,9 +201,17 @@ public class UpdateCheckService extends IntentService {
 
         Random r = new Random();
 
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        String notificationTimer = sharedPreferences
+                .getString("notification_sync_time", "4");
+
+        //Init the calendar and calculate the wakeup time.
         Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 8);
-        calendar.add(Calendar.MINUTE, r.nextInt(240 - 1) + 1);
+        calendar.add(Calendar.HOUR, Integer.parseInt(notificationTimer));
+        calendar.add(Calendar.MINUTE, r.nextInt(30 - 1) + 1);
+        calendar.add(Calendar.SECOND, r.nextInt(60 - 1) + 1);
+
         Log.d("The Jones Theory", "UpdateCheckService init...calendar.getTimeInMillis()" + calendar.getTimeInMillis());
         alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
         super.onDestroy();

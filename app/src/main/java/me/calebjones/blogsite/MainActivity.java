@@ -7,8 +7,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.SharedPreferences;
+import android.graphics.Bitmap;
+import android.graphics.BitmapFactory;
+import android.media.Ringtone;
+import android.media.browse.MediaBrowser;
+import android.net.Uri;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
+import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.NavigationView;
 import android.support.design.widget.TabLayout;
 import android.support.v4.app.Fragment;
@@ -49,6 +55,9 @@ import me.calebjones.blogsite.ui.fragments.RandomFragment;
 import me.calebjones.blogsite.network.PostDownloader;
 import me.calebjones.blogsite.util.auth.AuthValidate;
 import me.calebjones.blogsite.util.auth.FBConnect;
+import me.calebjones.blogsite.util.customtab.CustomTabActivityHelper;
+import me.calebjones.blogsite.util.customtab.WebViewFallback;
+import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -61,6 +70,10 @@ public class MainActivity extends AppCompatActivity {
     private NavigationView navigationView;
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
+    private CustomTabActivityHelper customTabActivityHelper;
+    private MediaBrowser.ConnectionCallback mConnectionCallback;
+    private Bitmap mCloseButtonBitmap;
+    private CompositeSubscription mSubscriptions;
     private static final int DOWNLOAD_REQUEST = 1045;
     private TabLayout tabLayout;
     private DatabaseManager databaseManager;
@@ -85,24 +98,34 @@ public class MainActivity extends AppCompatActivity {
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
 
-        //Set up Alarm Manager and Pending Intent to wake the UpdateServiceCheck
-        AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
-        Intent intent = new Intent(this, getClass());
-        PendingIntent pendingIntent = PendingIntent.getService(this, RESTART_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
+        SharedPreferences sharedPreferences = PreferenceManager
+                .getDefaultSharedPreferences(this);
+        Boolean notificationCheckBox = sharedPreferences
+                .getBoolean("notifications_new_message", false);
+        String notificationTimer = sharedPreferences
+                .getString("notification_sync_time", "4");
 
-        alarmManager.cancel(pendingIntent);
+        if (notificationCheckBox == true){
+            //Set up Alarm Manager and Pending Intent to wake the UpdateServiceCheck
+            AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
+            Intent intent = new Intent(this, getClass());
+            PendingIntent pendingIntent = PendingIntent.getService(this, RESTART_CODE, intent, PendingIntent.FLAG_UPDATE_CURRENT);
 
-        //Use a RNG to offset server load
-        Random r = new Random();
+            alarmManager.cancel(pendingIntent);
 
-        //Init the calendar and calculate the wakeup time.
-        Calendar calendar = Calendar.getInstance();
-        calendar.add(Calendar.HOUR, 1);
-        calendar.add(Calendar.MINUTE, r.nextInt(240 - 1) + 1);
+            //Use a RNG to offset server load
+            Random r = new Random();
 
-        //Log the time and start the intent.
-        Log.d("The Jones Theory", "UpdateCheckService init...calendar.getTimeInMillis() " + calendar.getTimeInMillis());
-        alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+            //Init the calendar and calculate the wakeup time.
+            Calendar calendar = Calendar.getInstance();
+            calendar.add(Calendar.HOUR, Integer.parseInt(notificationTimer));
+            calendar.add(Calendar.MINUTE, r.nextInt(30 - 1) + 1);
+            calendar.add(Calendar.SECOND, r.nextInt(60 - 1) + 1);
+
+            //Log the time and start the intent.
+            Log.d("The Jones Theory", "MainActivity starting service init...calendar.getTimeInMillis() " + calendar.getTimeInMillis());
+            alarmManager.set(AlarmManager.RTC, calendar.getTimeInMillis(), pendingIntent);
+        }
 
         //Set ContentView to Activity Main
         setContentView(R.layout.activity_main);
@@ -423,6 +446,34 @@ public class MainActivity extends AppCompatActivity {
     private void showDownload() {
         Intent loginIntent = new Intent(this, DownloadActivity.class);
         startActivity(loginIntent);
+    }
+
+    public void openCustomTab(String url) {
+        CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
+
+        intentBuilder.setShowTitle(true);
+
+        PendingIntent actionPendingIntent = createPendingShareIntent(url);
+        intentBuilder.setActionButton(BitmapFactory.decodeResource(getResources(),
+                R.drawable.ic_action_share), "Share", actionPendingIntent);
+
+        intentBuilder.setCloseButtonIcon(
+                BitmapFactory.decodeResource(getResources(), R.drawable.ic_back_arrow));
+
+        intentBuilder.setStartAnimations(this,
+                R.anim.slide_in_right, R.anim.slide_out_left);
+        intentBuilder.setExitAnimations(this,
+                android.R.anim.slide_in_left, android.R.anim.slide_out_right);
+
+        CustomTabActivityHelper.openCustomTab(
+                this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
+    }
+
+    private PendingIntent createPendingShareIntent(String url) {
+        Intent actionIntent = new Intent(Intent.ACTION_SEND);
+        actionIntent.setType("text/plain");
+        actionIntent.putExtra(Intent.EXTRA_TEXT, url);
+        return PendingIntent.getActivity(getApplicationContext(), 0, actionIntent, 0);
     }
 
     @Override

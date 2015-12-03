@@ -5,11 +5,16 @@ import android.app.PendingIntent;
 import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
+import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
+import android.net.Uri;
+import android.preference.PreferenceManager;
 import android.support.v7.app.NotificationCompat;
 import android.text.Html;
 import android.util.Log;
+
+import java.net.URI;
 
 import me.calebjones.blogsite.R;
 
@@ -30,8 +35,25 @@ public class NewPostReceiver extends BroadcastReceiver {
     private Posts post;
 
         public void onReceive(Context context, Intent intent){
+
+            //GetNotification preferences
+            SharedPreferences sharedPreferences = PreferenceManager
+                    .getDefaultSharedPreferences(context);
+            Boolean notificationCheckBox = sharedPreferences
+                    .getBoolean("notifications_new_message", false);
+            Boolean vibrateCheckBox = sharedPreferences
+                    .getBoolean("notifications_new_message_vibrate", false);
+            String ringtoneBox = sharedPreferences
+                    .getString("notifications_new_message_ringtone", "default ringtone");
+            int priority;
+            if (vibrateCheckBox){
+                priority = 1;
+            } else {
+                priority = -1;
+            }
+
             Log.d("The Jones Theory", "NewPost - Hello World!");
-            if (intent.getAction().equals(PostDownloader.NEW_POST)){
+            if (intent.getAction().equals(PostDownloader.NEW_POST) && notificationCheckBox){
 
                 //Init a DB connection
                 DatabaseManager databaseManager = new DatabaseManager(context);
@@ -73,13 +95,14 @@ public class NewPostReceiver extends BroadcastReceiver {
                         .setContentText(post.getTitle())
                         .setContentIntent(clickIntent)
                         .setSmallIcon(R.drawable.ic_notificaiton)
+                        .setSound(Uri.parse(ringtoneBox))
                         .setLargeIcon(BitmapFactory
                                 .decodeResource(context.getResources(), R.mipmap.ic_launcher))
                         .setStyle(bigStyle
                                 .bigPicture(bitmap)
                                 .setSummaryText(Html.fromHtml(post.getExcerpt()))
                                 .setBigContentTitle(post.getTitle()))
-                        .setPriority(1)
+                        .setPriority(priority)
                         .addAction(R.drawable.ic_action_share, "Share", sharePendingIntent)
                         .setAutoCancel(true);
 

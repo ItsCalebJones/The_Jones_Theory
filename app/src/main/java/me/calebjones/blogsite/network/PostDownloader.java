@@ -232,6 +232,7 @@ public class PostDownloader extends IntentService {
         }
     }
 
+    //TODO make this more effecient
     private void getPostMissing(){
         notificationService();
         SharedPrefs.getInstance().setDownloading(true);
