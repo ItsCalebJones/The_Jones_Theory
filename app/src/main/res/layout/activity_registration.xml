@@ -200,7 +200,7 @@
                             android:orientation="horizontal"
                             android:weightSum="1">
 
-                            <Button
+                            <android.support.v7.widget.AppCompatButton
                                 android:id="@+id/submit_button"
                                 style="@style/Base.Widget.AppCompat.Button"
                                 android:layout_width="wrap_content"
@@ -214,7 +214,7 @@
                                 android:textStyle="bold"
                                 />
 
-                            <Button
+                            <android.support.v7.widget.AppCompatButton
                                 android:id="@+id/email_forgot"
                                 style="@style/Base.Widget.AppCompat.Button"
                                 android:layout_width="wrap_content"

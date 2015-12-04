@@ -54,6 +54,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.database.DatabaseManager;
 import me.calebjones.blogsite.content.database.SharedPrefs;
@@ -88,7 +89,7 @@ public class DetailActivity extends AppCompatActivity {
     private MediaBrowser.ConnectionCallback mConnectionCallback;
     private Bitmap mCloseButtonBitmap;
     private CompositeSubscription mSubscriptions;
-    private Intent animateIntent;
+    private Intent animateIntent, preIntent;
     private ImageView imageView;
     private View myView;
 
@@ -156,9 +157,14 @@ public class DetailActivity extends AppCompatActivity {
         animateIntent.putExtra("PostTitle", PostTitle);
         animateIntent.putExtra("PostText", PostExcerpt);
 
+        preIntent = new Intent(DetailActivity.this, FullscreenActivity.class);
+        preIntent.putExtra("PostImage", PostImage);
+        preIntent.putExtra("PostURL", PostURL);
+        preIntent.putExtra("PostTitle", PostTitle);
+        preIntent.putExtra("PostText", PostExcerpt);
+
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-
 
         collapsingToolbar.setTitle(PostCat.replaceAll(",", " |"));
 
@@ -432,19 +438,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void Transition(View v){
-        ImageView imgFavorite = (ImageView) findViewById(R.id.header);
-
-        BitmapInfo bi = Ion.with(imgFavorite)
-                .getBitmapInfo();
-
-        Intent intent = new Intent(DetailActivity.this, FullscreenActivity.class);
-        intent.putExtra("bitmapInfo", bi.key);
-        intent.putExtra("PostImage", PostImage);
-        intent.putExtra("PostURL", PostURL);
-        intent.putExtra("PostTitle", PostTitle);
-        intent.putExtra("PostText", PostText);
-
-        startActivity(intent);
+        startActivity(preIntent);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -479,7 +473,6 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         fabSlideOut();
-
         final Handler backHandler = new Handler();
         backHandler.postDelayed(new Runnable() {
             public void run() {
@@ -583,11 +576,10 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setUpCompressedBitmap(){
-        Runnable r = new Runnable()
-        {
+    private void setUpCompressedBitmap() {
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 //Convert to byte array
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -596,7 +588,7 @@ public class DetailActivity extends AppCompatActivity {
                 Log.d("The Jones Theory", "byteLength: " + byteArray.length);
 
                 //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
-                if (byteArray.length > 524288){
+                if (byteArray.length > 524288) {
                     for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
                         stream.reset();
                         Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
@@ -606,12 +598,10 @@ public class DetailActivity extends AppCompatActivity {
                     }
                 }
                 animateIntent.putExtra("bitmap", byteArray);
+                preIntent.putExtra("bitmap", byteArray);
 
             }
-        };
-
-        Thread t = new Thread(r);
-        t.start();
+        }, 0);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)

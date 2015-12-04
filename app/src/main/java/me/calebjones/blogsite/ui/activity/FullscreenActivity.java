@@ -47,16 +47,12 @@ public class FullscreenActivity extends AppCompatActivity {
     private static final String TAG = "The Jones Theory - F";
     private Toolbar mToolbar;
     private ProgressDialog dialog;
+    private Bitmap bitmap;
+    private File file;
     ProgressBar progressBar;
     public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
             "/TheJonesTheory/temp";
-    public String mfile_path;
-    public String mPostTitle;
-    public String bitmapKey;
-    public String PostTitle;
-    public String PostImage;
-    public String PostText;
-    public String PostURL;
+    public String mfile_path, mPostTitle, bitmapKey, PostTitle, PostImage, PostText, PostURL;
     public BitmapInfo bi;
 
     @Override
@@ -100,7 +96,11 @@ public class FullscreenActivity extends AppCompatActivity {
         View.OnClickListener sClickListener = new View.OnClickListener() {
             public void onClick(View v) {
                 if (v.equals(shareView)) {
-                    shareIntent();
+                    try {
+                        shareIntent(bitmap);
+                    } catch (IOException e) {
+                        e.printStackTrace();
+                    }
                 }
             }
         };
@@ -133,16 +133,14 @@ public class FullscreenActivity extends AppCompatActivity {
         copyView.setOnClickListener(cClickListener);
 
         // Load the bitmap from the intent
-        bitmapKey = getIntent().getStringExtra("bitmapInfo");
+        byte[] byteArray = getIntent().getByteArrayExtra("bitmap");
+        bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
         PostURL = getIntent().getStringExtra("PostURL");
 
         //Downloads bitmap to cache
-        bi = Ion.getDefault(this)
-                .getBitmapCache()
-                .get(bitmapKey);
-        photoView.setImageBitmap(bi.bitmap);
+        photoView.setImageBitmap(bitmap);
 
-        Palette.from(bi.bitmap).generate(new Palette.PaletteAsyncListener() {
+        Palette.from(bitmap).generate(new Palette.PaletteAsyncListener() {
             public void onGenerated(Palette palette) {
                 Palette.Swatch Swatch = palette.getDarkMutedSwatch();
                 if (Swatch != null) {
@@ -151,22 +149,6 @@ public class FullscreenActivity extends AppCompatActivity {
                 }
             }
         });
-
-        Runnable r = new Runnable()
-        {
-            @Override
-            public void run()
-            {
-                try {
-                    bitMapToFile();
-                } catch (IOException e) {
-                    e.printStackTrace();
-                }
-            }
-        };
-
-        Thread t = new Thread(r);
-        t.start();
 
         // load the full version, crossfading from the thumbnail image
         Ion.with(photoView)
@@ -183,7 +165,8 @@ public class FullscreenActivity extends AppCompatActivity {
 
         // Set the clipboard's primary clip.
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(FullscreenActivity.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
+        Toast.makeText(FullscreenActivity.this, "Text copied to clipboard.",
+                Toast.LENGTH_LONG).show();
 
     }
 
@@ -208,7 +191,8 @@ public class FullscreenActivity extends AppCompatActivity {
                                 resetDownload();
                                 if (e != null) {
                                     Log.e(TAG, "Error downloading " + mPostTitle + " - " + e);
-                                    Toast.makeText(FullscreenActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                                    Toast.makeText(FullscreenActivity.this, "Error downloading file"
+                                            , Toast.LENGTH_LONG).show();
                                     return;
                                 }
                                 NotfifyDownload();
@@ -233,14 +217,17 @@ public class FullscreenActivity extends AppCompatActivity {
 
         //Set up the PendingIntent for the Open File action button
         Intent fileIntent = new Intent(Intent.ACTION_VIEW);
-        fileIntent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/")), "file/*");
+        fileIntent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/TheJonesTheory/")), "file/*");
         fileIntent.setAction(Intent.ACTION_GET_CONTENT);
         PendingIntent filePendingIntent = PendingIntent.getActivity(this, 0, fileIntent, 0);
 
         //Set up the PendingIntent for the Share action button
         Intent sendThisIntent = new Intent();
         sendThisIntent.setAction(Intent.ACTION_SEND);
-        sendThisIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/" + mPostTitle + ".png")));
+        sendThisIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment
+                .getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/"
+                + mPostTitle + ".png")));
         sendThisIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
         sendThisIntent.setType("image/*");
 
@@ -252,7 +239,7 @@ public class FullscreenActivity extends AppCompatActivity {
         File file = new File(dir, mPostTitle + ".png");
         intent.setDataAndType(Uri.fromFile(file), "image/*");
 
-        Bitmap mBitmap = getCroppedBitmap(bi.bitmap);
+        Bitmap mBitmap = getCroppedBitmap(bitmap);
 
         PendingIntent pIntent = PendingIntent.getActivity(this, 0, intent, 0);
         NotificationCompat.BigPictureStyle bNoti = new NotificationCompat.BigPictureStyle();
@@ -266,7 +253,7 @@ public class FullscreenActivity extends AppCompatActivity {
                 R.mipmap.ic_launcher);
 
         bNoti.setBigContentTitle("Download Completed")
-                .bigPicture(bi.bitmap)
+                .bigPicture(bitmap)
                 .bigLargeIcon(srcBitmapLocal)
                 .setSummaryText(mPostTitle);
 
@@ -299,6 +286,7 @@ public class FullscreenActivity extends AppCompatActivity {
     void resetDownload() {
             progressBar.setProgress(0);
         }
+
     public Bitmap getCroppedBitmap(Bitmap bitmap) {
         Bitmap output = Bitmap.createBitmap(bitmap.getWidth(),
                 bitmap.getHeight(), Bitmap.Config.ARGB_8888);
@@ -326,35 +314,17 @@ public class FullscreenActivity extends AppCompatActivity {
         return Html.fromHtml(html).toString();
     }
 
-    private void bitMapToFile() throws IOException {
-        File dir = new File(file_path);
-        if(!dir.exists()){
-            dir.mkdirs();
-        } else {
-            deleteDir(dir);
-            dir.mkdirs();
-        }
-        File file = new File(dir, "temp.png");
+    private File bitMapToFile(Bitmap mBitmap) throws IOException {
+        file = new File(getApplicationContext().getCacheDir(), "temp.png");
         FileOutputStream fOut = new FileOutputStream(file);
 
-        bi.bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
+        bitmap.compress(Bitmap.CompressFormat.PNG, 85, fOut);
         fOut.flush();
         fOut.close();
+        file.setReadable(true, false);
+        return file;
     }
 
-    public static boolean deleteDir(File dir) {
-        if (dir != null && dir.isDirectory()) {
-            String[] children = dir.list();
-            for (int i = 0; i < children.length; i++) {
-                boolean success = deleteDir(new File(dir, children[i]));
-                if (!success) {
-                    return false;
-                }
-            }
-        }
-
-        return dir.delete();
-    }
     private void browserIntent() {
         String url = PostURL;
         Intent sendIntent = new Intent(Intent.ACTION_VIEW);
@@ -366,10 +336,10 @@ public class FullscreenActivity extends AppCompatActivity {
         FullscreenActivity.this.finish();
     }
 
-    public void shareIntent() {
+    public void shareIntent(Bitmap mBitmap) throws IOException {
         Intent sendIntent = new Intent();
         sendIntent.setAction(Intent.ACTION_SEND);
-        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/temp/temp.png")));
+        sendIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(bitMapToFile(mBitmap)));
         sendIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
         sendIntent.setType("image/*");
         startActivity(sendIntent);

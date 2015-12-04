@@ -7,7 +7,7 @@ android {
 
     defaultConfig {
         applicationId "me.calebjones.blogsite"
-        minSdkVersion 16
+        minSdkVersion 15
         targetSdkVersion 23
         versionCode 16
         versionName "3.0"
@@ -49,4 +49,5 @@ dependencies {
     compile 'com.balysv:material-ripple:1.0.2'
     compile 'jp.wasabeef:glide-transformations:1.3.1'
     compile 'jp.co.cyberagent.android.gpuimage:gpuimage-library:1.3.0'
+    compile 'com.google.android.gms:play-services-appindexing:8.1.0'
 }

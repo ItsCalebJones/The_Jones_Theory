@@ -10,6 +10,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -18,6 +19,7 @@ import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -169,6 +171,15 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
                 }
             }
         });
+
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP){
+            AppCompatButton signIn = (AppCompatButton) findViewById(R.id.submit_button);
+            AppCompatButton signUp = (AppCompatButton) findViewById(R.id.email_forgot);
+            ColorStateList csl = new ColorStateList(new int[][]{new int[0]}, new int[]{0xffffcc00});
+            signIn.setSupportBackgroundTintList(csl);
+            signUp.setSupportBackgroundTintList(csl);
+        }
 
         regiFormView = findViewById(R.id.email_register_form);
         progressView = findViewById(R.id.register_progress);

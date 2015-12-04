@@ -125,7 +125,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
 
         Glide.with(mContext)
                 .load(feedItem.getFeaturedImage())
-                .bitmapTransform(new BlurTransformation(mContext, 25, 1), new CropCircleTransformation(mContext))
+                .bitmapTransform(new BlurTransformation(mContext, 25, 2), new CropCircleTransformation(mContext))
                 .into(holder.headerIcon);
 
         Glide.with(mContext)
@@ -221,6 +221,14 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
         public void onClick(View v) {
 
             final int position = getAdapterPosition();
+            Intent detailIntent = new Intent(mContext, DetailActivity.class)
+                    .putExtra("PostCat", feedItemList.get(position).getCategories())
+                    .putExtra("PostTitle", feedItemList.get(position).getTitle())
+                    .putExtra("PostImage", feedItemList.get(position).getFeaturedImage())
+                    .putExtra("PostText", feedItemList.get(position).getContent())
+                    .putExtra("PostURL", feedItemList.get(position).getURL())
+                    .putExtra("PostID", feedItemList.get(position).getPostID())
+                    .putExtra("ID", feedItemList.get(position).getID());
             switch (v.getId()) {
                 case R.id.shareButton:
                     //Set up the PendingIntent for the Share action button
@@ -232,29 +240,19 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     mContext.startActivity(Intent.createChooser(sendThisIntent, "Share"));
                     break;
                 case R.id.thumbnail:
-                    FeedFragment.exitReveal(tMainView);
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        FeedFragment.exitReveal(tMainView);
+                    }
                     //Setup Intent mContext
-                    Intent thumbnailIntent = new Intent(mContext, DetailActivity.class)
-                            .putExtra("PostCat", feedItemList.get(position).getCategories())
-                            .putExtra("PostTitle", feedItemList.get(position).getTitle())
-                            .putExtra("PostImage", feedItemList.get(position).getFeaturedImage())
-                            .putExtra("PostText", feedItemList.get(position).getContent())
-                            .putExtra("PostURL", feedItemList.get(position).getURL())
-                            .putExtra("PostID", feedItemList.get(position).getPostID())
-                            .putExtra("ID", feedItemList.get(position).getID());
-                    mContext.startActivity(thumbnailIntent);
+                    mContext.startActivity(detailIntent);
+                    break;
                 case R.id.exploreButton:
+                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
+                        FeedFragment.exitReveal(tMainView);
+                    }
                     FeedFragment.exitReveal(tMainView);
                     //Setup Intent mContext
-                    Intent exploreIntent = new Intent(mContext, DetailActivity.class)
-                            .putExtra("PostCat", feedItemList.get(position).getCategories())
-                            .putExtra("PostTitle", feedItemList.get(position).getTitle())
-                            .putExtra("PostImage", feedItemList.get(position).getFeaturedImage())
-                            .putExtra("PostText", feedItemList.get(position).getContent())
-                            .putExtra("PostURL", feedItemList.get(position).getURL())
-                            .putExtra("PostID", feedItemList.get(position).getPostID())
-                            .putExtra("ID", feedItemList.get(position).getID());
-                    mContext.startActivity(exploreIntent);
+                    mContext.startActivity(detailIntent);
                     break;
                 case R.id.web_launcher:
                     String url = feedItemList.get(position).getURL();
@@ -275,46 +273,6 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     }
                     break;
             }
-        }
-    }
-
-    public static class CircleTransform extends BitmapTransformation {
-        public CircleTransform(Context context) {
-            super(context);
-        }
-
-        @Override
-        protected Bitmap transform(BitmapPool pool, Bitmap toTransform, int outWidth, int outHeight) {
-            return circleCrop(pool, toTransform);
-        }
-
-        private static Bitmap circleCrop(BitmapPool pool, Bitmap source) {
-            if (source == null) return null;
-
-            int size = Math.min(source.getWidth(), source.getHeight());
-            int x = (source.getWidth() - size) / 2;
-            int y = (source.getHeight() - size) / 2;
-
-            // TODO this could be acquired from the pool too
-            Bitmap squared = Bitmap.createBitmap(source, x, y, size, size);
-
-            Bitmap result = pool.get(size, size, Bitmap.Config.ARGB_8888);
-            if (result == null) {
-                result = Bitmap.createBitmap(size, size, Bitmap.Config.ARGB_8888);
-            }
-
-            Canvas canvas = new Canvas(result);
-            Paint paint = new Paint();
-            paint.setShader(new BitmapShader(squared, BitmapShader.TileMode.CLAMP, BitmapShader.TileMode.CLAMP));
-            paint.setAntiAlias(true);
-            float r = size / 2f;
-            canvas.drawCircle(r, r, r, paint);
-            return result;
-        }
-
-        @Override
-        public String getId() {
-            return getClass().getName();
         }
     }
 

@@ -7,6 +7,8 @@ import android.content.DialogInterface;
 import android.content.Intent;
 import android.content.SharedPreferences;
 import android.content.pm.PackageManager;
+import android.content.res.ColorStateList;
+import android.net.Uri;
 import android.os.AsyncTask;
 import android.os.Bundle;
 import android.preference.PreferenceManager;
@@ -17,6 +19,7 @@ import android.support.design.widget.CoordinatorLayout;
 import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AlertDialog;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -38,6 +41,9 @@ import com.facebook.FacebookException;
 import com.facebook.login.LoginManager;
 import com.facebook.login.LoginResult;
 import com.facebook.login.widget.LoginButton;
+import com.google.android.gms.appindexing.Action;
+import com.google.android.gms.appindexing.AppIndex;
+import com.google.android.gms.common.api.GoogleApiClient;
 
 import org.json.JSONObject;
 
@@ -120,7 +126,7 @@ public class LoginActivity extends AppCompatActivity {
 
 
                 //If first run set to false.
-                if(SharedPrefs.getInstance().getFirstRun()){
+                if (SharedPrefs.getInstance().getFirstRun()) {
                     SharedPrefs.getInstance().setFirstRun(false);
                 }
 
@@ -215,6 +221,15 @@ public class LoginActivity extends AppCompatActivity {
             }
         });
 
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP){
+            AppCompatButton signIn = (AppCompatButton) findViewById(R.id.email_sign_in_button);
+            AppCompatButton signUp = (AppCompatButton) findViewById(R.id.email_register);
+            ColorStateList csl = new ColorStateList(new int[][]{new int[0]}, new int[]{0xffffcc00});
+            signIn.setSupportBackgroundTintList(csl);
+            signUp.setSupportBackgroundTintList(csl);
+        }
+
         loginButton = (Button) findViewById(R.id.email_sign_in_button);
         loginButton.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -262,8 +277,8 @@ public class LoginActivity extends AppCompatActivity {
             };
             doAuth.execute();
         }
-
     }
+
     @Override
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
@@ -272,7 +287,7 @@ public class LoginActivity extends AppCompatActivity {
     }
 
     @NeedsPermission({Manifest.permission.READ_CONTACTS, Manifest.permission.WRITE_CONTACTS})
-    void showContacts(){
+    void showContacts() {
         LoginActivity.this.startActivity(new Intent(LoginActivity.this, RegistrationActivity.class));
 
     }
@@ -297,15 +312,15 @@ public class LoginActivity extends AppCompatActivity {
                 request.proceed();
             }
         })
-        .setNegativeButton(R.string.permission_negative, new DialogInterface.OnClickListener() {
+                .setNegativeButton(R.string.permission_negative, new DialogInterface.OnClickListener() {
                     @Override
                     public void onClick(@NonNull DialogInterface dialog, int which) {
                         request.cancel();
                     }
                 })
-        .setCancelable(false)
-        .setMessage(messageResId)
-        .show();
+                .setCancelable(false)
+                .setMessage(messageResId)
+                .show();
     }
 
     @Override
@@ -399,7 +414,7 @@ public class LoginActivity extends AppCompatActivity {
      * Shows the progress UI and hides the activity_login form.
      */
     public void showProgress(final boolean show) {
-        if (show == true){
+        if (show == true) {
             progressDialog.setIndeterminate(true);
             progressDialog.setMessage("Authenticating...");
             progressDialog.show();
@@ -478,8 +493,7 @@ public class LoginActivity extends AppCompatActivity {
                 error = response.optString("error");
 
 
-
-                if (!TextUtils.isEmpty(cookie)){
+                if (!TextUtils.isEmpty(cookie)) {
                     Log.i(TAG, "Cookie: " + cookie);
 
                     SharedPreferences prefs = getApplicationContext().getSharedPreferences("MyPref", 4);
@@ -487,10 +501,9 @@ public class LoginActivity extends AppCompatActivity {
                     edit.putString("AUTH_COOKIE", cookie);
                     edit.apply();
                 }
-            }catch( Exception e) {
+            } catch (Exception e) {
                 e.printStackTrace();
-            }
-            finally {
+            } finally {
                 Log.v(TAG, "doInBg: urlConnection.disconnect();");
                 urlConnection.disconnect();
             }
@@ -511,7 +524,7 @@ public class LoginActivity extends AppCompatActivity {
                 boolean previouslyStarted = SharedPrefs.getInstance().getFirstRun();
 
                 //If first run set to false.
-                if(previouslyStarted){
+                if (previouslyStarted) {
                     SharedPrefs.getInstance().setFirstRun(false);
                 }
 

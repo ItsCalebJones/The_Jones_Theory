@@ -212,7 +212,8 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
     public void onRequestPermissionsResult(int requestCode, @NonNull String[] permissions, @NonNull int[] grantResults) {
         super.onRequestPermissionsResult(requestCode, permissions, grantResults);
         // NOTE: delegate the permission handling to generated method
-        AnimateFullscreenActivityPermissionsDispatcher.onRequestPermissionsResult(this, requestCode, grantResults);
+        AnimateFullscreenActivityPermissionsDispatcher.onRequestPermissionsResult(this,
+                requestCode, grantResults);
     }
 
     @NeedsPermission(Manifest.permission.WRITE_EXTERNAL_STORAGE)
@@ -223,7 +224,8 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
     // Option
     @OnPermissionDenied(Manifest.permission.WRITE_EXTERNAL_STORAGE)
     void onContactDenied() {
-        Toast.makeText(this, "Unable to download file without permissions.", Toast.LENGTH_SHORT).show();
+        Toast.makeText(this, "Unable to download file without permissions.",
+                Toast.LENGTH_SHORT).show();
     }
 
     private void clipboardAdd() {
@@ -234,7 +236,8 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
 
         // Set the clipboard's primary clip.
         clipboard.setPrimaryClip(clip);
-        Toast.makeText(AnimateFullscreenActivity.this, "Text copied to clipboard.", Toast.LENGTH_LONG).show();
+        Toast.makeText(AnimateFullscreenActivity.this, "Text copied to clipboard.",
+                Toast.LENGTH_LONG).show();
 
 
     }
@@ -259,8 +262,10 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
                             public void onCompleted(Exception e, File result) {
                                 resetDownload();
                                 if (e != null) {
-                                    Log.e("The Jones Theory", "Error downloading " + mPostTitle + " - " + e);
-                                    Toast.makeText(AnimateFullscreenActivity.this, "Error downloading file", Toast.LENGTH_LONG).show();
+                                    Log.e("The Jones Theory", "Error downloading "
+                                            + mPostTitle + " - " + e);
+                                    Toast.makeText(AnimateFullscreenActivity.this,
+                                            "Error downloading file", Toast.LENGTH_LONG).show();
                                     return;
                                 }
                                 NotfifyDownload();
@@ -285,14 +290,17 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
 
         //Set up the PendingIntent for the Open File action button
         Intent fileIntent = new Intent(Intent.ACTION_VIEW);
-        fileIntent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/")), "file/*");
+        fileIntent.setDataAndType(Uri.fromFile(new File(Environment.getExternalStorageDirectory()
+                .getAbsolutePath() + "/TheJonesTheory/")), "file/*");
         fileIntent.setAction(Intent.ACTION_GET_CONTENT);
         PendingIntent filePendingIntent = PendingIntent.getActivity(this, 0, fileIntent, 0);
 
         //Set up the PendingIntent for the Share action button
         Intent sendThisIntent = new Intent();
         sendThisIntent.setAction(Intent.ACTION_SEND);
-        sendThisIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment.getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/" + mPostTitle + ".png")));
+        sendThisIntent.putExtra(Intent.EXTRA_STREAM, Uri.fromFile(new File(Environment
+                .getExternalStorageDirectory().getAbsolutePath() + "/TheJonesTheory/"
+                + mPostTitle + ".png")));
         sendThisIntent.putExtra(Intent.EXTRA_TEXT, PostURL);
         sendThisIntent.setType("image/*");
 
@@ -371,7 +379,6 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         return output;
     }
 
-
     public String stripHtml(String html) {
         return Html.fromHtml(html).toString();
     }
@@ -400,6 +407,7 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
 
         return dir.delete();
     }
+
     private void browserIntent() {
         String url = PostURL;
         Intent sendIntent = new Intent(Intent.ACTION_VIEW);

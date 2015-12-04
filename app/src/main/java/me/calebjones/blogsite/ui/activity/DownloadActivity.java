@@ -4,11 +4,13 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Handler;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -101,11 +103,18 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
                 .setColorFilter(getResources()
                         .getColor(R.color.myPrimaryDarkColor), PorterDuff.Mode.SRC_IN);
 
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP){
+            AppCompatButton signIn = (AppCompatButton) findViewById(R.id.start_download);
+            ColorStateList csl = new ColorStateList(new int[][]{new int[0]}, new int[]{0xffffcc00});
+            signIn.setSupportBackgroundTintList(csl);
+        }
+
 
         downloadUI.setVisibility(View.GONE);
         pageTitle.setText("Download the Science!");
         caption.setText("About ~2MB of text data needs to be downloaded to make the app experience fluid and support the search functionality.");
-                button.setOnClickListener(this);
+        button.setOnClickListener(this);
 
 
         if (savedInstanceState != null || SharedPrefs.getInstance().isDownloading()) {
