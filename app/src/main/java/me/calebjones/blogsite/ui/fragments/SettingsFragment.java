@@ -18,9 +18,9 @@ public class SettingsFragment extends PreferenceFragment {
         addPreferencesFromResource(R.xml.pref_general);
 
         // Add 'notifications' preferences, and a corresponding content_header.
-        PreferenceCategory fakeHeader = new PreferenceCategory(getActivity());
-        fakeHeader.setTitle(R.string.pref_header_notifications);
-        getPreferenceScreen().addPreference(fakeHeader);
+        PreferenceCategory notificationPreference = new PreferenceCategory(getActivity());
+        notificationPreference.setTitle(R.string.pref_header_notifications);
+        getPreferenceScreen().addPreference(notificationPreference);
         addPreferencesFromResource(R.xml.pref_notification);
 
         // Add 'data and sync' preferences, and a corresponding content_header.

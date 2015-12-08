@@ -3,9 +3,13 @@ package me.calebjones.blogsite.ui.fragments;
 import android.app.Activity;
 import android.content.Context;
 import android.content.Intent;
+import android.graphics.Bitmap;
+import android.graphics.Color;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.v4.app.Fragment;
 import android.support.v4.widget.SwipeRefreshLayout;
+import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
 import android.view.LayoutInflater;
@@ -16,11 +20,17 @@ import android.view.View;
 import android.view.ViewGroup;
 import android.widget.ImageView;
 import android.widget.TextView;
+import android.widget.Toast;
 
+import com.bumptech.glide.Glide;
+import com.bumptech.glide.request.animation.GlideAnimation;
+import com.bumptech.glide.request.target.BitmapImageViewTarget;
 import com.koushikdutta.ion.Ion;
 
 import java.util.List;
 
+import jp.wasabeef.glide.transformations.BlurTransformation;
+import jp.wasabeef.glide.transformations.CropCircleTransformation;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.ui.activity.DetailActivity;
 import me.calebjones.blogsite.content.database.DatabaseManager;
@@ -37,15 +47,10 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
     private DatabaseManager databaseManager;
     private RecyclerView mRecyclerView;
 
-    public ImageView thumbnail;
-    public TextView title;
-    public TextView content;
-    public TextView excerpt;
-    public TextView category;
-    public TextView tags;
-    public FeedItem feed;
-    public TextView ID;
+    public ImageView thumbnail, headerIcon, categoryIcon, favorite, browser;
+    public TextView title, content, excerpt, category, tags, feed, ID;
     public Integer mPosition;
+    public android.support.v7.widget.AppCompatButton shareButton, exploreButton;
     private Context context;
     private Posts post;
     private View noPost;
@@ -70,16 +75,26 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
         View view = lf.inflate(R.layout.fragment_random, container, false);
 
         thumbnail = (ImageView) view.findViewById(R.id.thumbnail);
+        categoryIcon = (ImageView) view.findViewById(R.id.categoryIcon);
+        favorite = (ImageView) view.findViewById(R.id.favorite);
+        browser = (ImageView) view.findViewById(R.id.web_launcher);
+        headerIcon = (ImageView) view.findViewById(R.id.imageIcon);
         title = (TextView) view.findViewById(R.id.title);
         excerpt = (TextView) view.findViewById(R.id.excerpt);
         tags = (TextView) view.findViewById(R.id.tags);
+        shareButton = (android.support.v7.widget.AppCompatButton)
+                view.findViewById(R.id.shareButton);
+        exploreButton = (android.support.v7.widget.AppCompatButton)
+                view.findViewById(R.id.exploreButton);
 
         noPost = view.findViewById(R.id.no_Post);
         item = view.findViewById(R.id.Random_posts);
 
-        excerpt.setOnClickListener(this);
+        favorite.setOnClickListener(this);
+        browser.setOnClickListener(this);
         thumbnail.setOnClickListener(this);
-        title.setOnClickListener(this);
+        shareButton.setOnClickListener(this);
+        exploreButton.setOnClickListener(this);
 
         databaseManager = new DatabaseManager(getActivity());
 
@@ -117,25 +132,112 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
         excerpt.setText(Html.fromHtml(post.getExcerpt()));
         tags.setText(Html.fromHtml(post.getTags()));
 
-        Ion.with(thumbnail)
-                .placeholder(R.drawable.placeholder)
-                .centerCrop()
-                .error(R.drawable.placeholder)
-                .load(post.getFeaturedImage());
+//        Ion.with(thumbnail)
+//                .placeholder(R.drawable.placeholder)
+//                .centerCrop()
+//                .error(R.drawable.placeholder)
+//                .load(post.getFeaturedImage());
+
+        //Setup the category icon
+        String cat = post.getCategories().toLowerCase();
+        if (cat.contains("blog")) {
+            categoryIcon.setImageResource(R.drawable.ic_about);
+        } else if (cat.contains("parent")) {
+            categoryIcon.setImageResource(R.drawable.ic_parenting);
+        } else if (cat.contains("tech")) {
+            categoryIcon.setImageResource(R.drawable.ic_tech);
+        } else if (cat.contains("android")) {
+            categoryIcon.setImageResource(R.drawable.ic_android);
+        } else if (cat.contains("science")) {
+            categoryIcon.setImageResource(R.drawable.ic_science);
+        }
+
+        //Setup the Favorite Icon
+        if (post.isFavourite()) {
+            favorite.setColorFilter(Color.RED);
+        } else {
+            favorite.setColorFilter(Color.BLACK);
+        }
+        browser.setColorFilter(Color.BLACK);
+
+        Glide.with(getActivity())
+                .load(post.getFeaturedImage())
+                .bitmapTransform(new BlurTransformation(getActivity(), 25, 2),
+                        new CropCircleTransformation(getActivity()))
+                .into(headerIcon);
+
+        Glide.with(getActivity())
+                .load(post.getFeaturedImage())
+                .asBitmap()
+                .into(new BitmapImageViewTarget(thumbnail) {
+                    @Override
+                    public void onResourceReady(final Bitmap bitmap, GlideAnimation anim) {
+                        super.onResourceReady(bitmap, anim);
+                        Palette.generateAsync(bitmap, new Palette.PaletteAsyncListener() {
+                            @Override
+                            public void onGenerated(Palette palette) {
+                                // Here's your generated palette
+                                categoryIcon.setColorFilter(palette
+                                        .getLightMutedColor(Color.BLACK));
+                                exploreButton.setTextColor(palette
+                                        .getVibrantColor(Color.BLACK));
+                                shareButton.setTextColor(palette
+                                        .getVibrantColor(Color.BLACK));
+
+                            }
+                        });
+                    }
+                });
 
     }
 
     //React to click events.
     @Override
     public void onClick(View v) {
-        Intent intent = new Intent(getActivity(), DetailActivity.class);
-        intent.putExtra("PostTitle", post.getTitle());
-        intent.putExtra("PostImage", post.getFeaturedImage());
-        intent.putExtra("PostText", post.getContent());
-        intent.putExtra("PostURL", post.getURL());
-        intent.putExtra("PostID", post.getPostID());
-        intent.putExtra("ID", post.getID());
-        startActivity(intent);
+        Intent detailIntent = new Intent(getActivity(), DetailActivity.class)
+                .putExtra("PostTitle", post.getTitle())
+                .putExtra("PostImage", post.getFeaturedImage())
+                .putExtra("PostText", post.getContent())
+                .putExtra("PostURL", post.getURL())
+                .putExtra("PostID", post.getPostID())
+                .putExtra("ID", post.getID());
+
+        switch (v.getId()) {
+            case R.id.shareButton:
+                //Set up the PendingIntent for the Share action button
+                Intent sendThisIntent = new Intent();
+                sendThisIntent.setAction(Intent.ACTION_SEND);
+                sendThisIntent.putExtra(Intent.EXTRA_SUBJECT, post.getTitle());
+                sendThisIntent.putExtra(Intent.EXTRA_TEXT, post.getURL());
+                sendThisIntent.setType("text/plain");
+                getActivity().startActivity(Intent.createChooser(sendThisIntent, "Share"));
+                break;
+            case R.id.thumbnail:
+                //Setup Intent mContext
+                getActivity().startActivity(detailIntent);
+                break;
+            case R.id.exploreButton:
+                //Setup Intent mContext
+                getActivity().startActivity(detailIntent);
+                break;
+            case R.id.web_launcher:
+                String url = post.getURL();
+                Intent sendIntent = new Intent(Intent.ACTION_VIEW);
+                sendIntent.setData(Uri.parse(url));
+                getActivity().startActivity(sendIntent);
+                break;
+            case R.id.favorite:
+                boolean fav = post.isFavourite();
+                post.setFavourite(!fav);
+                databaseManager.setFavourite(post.getID(), !fav);
+                if (fav) {
+                    favorite.setColorFilter(Color.BLACK);
+                } else {
+                    //make fav
+                    favorite.setColorFilter(getActivity().getColor(R.color.myAccentColor));
+                }
+                break;
+        }
     }
 
     @Override

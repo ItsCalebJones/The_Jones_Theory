@@ -19,7 +19,7 @@
     <color name="myPrimaryDarkColor">#1976D2</color>
     <color name="myPrimaryLight">#BBDEFB</color>
     <color name="myDrawerBackground">#FFFFFF</color>
-    <color name="myAccentColor">#009688</color>
+    <color name="myAccentColor">#F44336</color>
     <color name="myTextPrimaryColor">#212121</color>
     <color name="myTextSecondaryColor">#727272</color>
     <color name="icons">#FFFFFF</color>

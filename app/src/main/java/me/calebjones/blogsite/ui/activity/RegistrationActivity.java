@@ -10,6 +10,7 @@ import android.content.CursorLoader;
 import android.content.Intent;
 import android.content.Loader;
 import android.content.SharedPreferences;
+import android.content.res.ColorStateList;
 import android.database.Cursor;
 import android.net.Uri;
 import android.os.AsyncTask;
@@ -17,7 +18,9 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
+import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
 import android.text.TextUtils;
 import android.text.method.PasswordTransformationMethod;
@@ -73,7 +76,6 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
 
     int showPbar = 0;
 
-    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?category=blog&number=15";
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
@@ -83,15 +85,12 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
         getNonceTask = new getNonce();
         getNonceTask.execute();
 
-        new PostLoader().execute(mURL);
-
         // Initializing Toolbar and setting it as the actionbar
         toolbar = (Toolbar) findViewById(R.id.regi_toolbar);
         setSupportActionBar(toolbar);
 
         usernameTextView = (AutoCompleteTextView) findViewById(R.id.registerEmail);
         loadAutoComplete();
-
 
 
         confirmUserTextView = (EditText) findViewById(R.id.registerUsername);
@@ -174,6 +173,15 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             }
         });
 
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP){
+            AppCompatButton signIn = (AppCompatButton) findViewById(R.id.submit_button);
+            AppCompatButton signUp = (AppCompatButton) findViewById(R.id.email_forgot);
+            ColorStateList csl = new ColorStateList(new int[][]{new int[0]}, new int[]{0xffffcc00});
+            signIn.setSupportBackgroundTintList(csl);
+            signUp.setSupportBackgroundTintList(csl);
+        }
+
         regiFormView = findViewById(R.id.email_register_form);
         progressView = findViewById(R.id.register_progress);
 
@@ -181,7 +189,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(getResources().getColor(R.color.myPrimaryDarkColor));
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.myPrimaryDarkColor));
         }
 
 
@@ -387,14 +395,9 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             sEdit.putBoolean("prompt_logged_out", false);
             sEdit.apply();
 
-            SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-            boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-            Log.d("The Jones Theory-D", "Skip = " + Boolean.toString(previouslyStarted));
-            if(!previouslyStarted){
-                SharedPreferences.Editor edit = prefs.edit();
+
+            if(SharedPrefs.getInstance().getFirstRun()){
                 SharedPrefs.getInstance().setFirstRun(false);
-                edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
-                edit.apply();
             }
             Intent intent = new Intent(this, DownloadActivity.class);
             intent.putExtra("Category", "blog");

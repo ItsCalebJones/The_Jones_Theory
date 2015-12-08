@@ -22,4 +22,18 @@
         <item>Random</item>
     </string-array>
 
+    <string-array name="sync_timer">
+        <item>Four Hours</item>
+        <item>Eight Hours</item>
+        <item>One Day</item>
+        <item>Three Days</item>
+        <item>One Week</item>
+    </string-array>
+    <string-array name="sync_timer_values">
+        <item>4</item>
+        <item>8</item>
+        <item>24</item>
+        <item>72</item>
+        <item>168</item>
+    </string-array>
 </resources>

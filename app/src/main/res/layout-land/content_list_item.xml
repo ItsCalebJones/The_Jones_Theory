@@ -13,8 +13,7 @@
         android:layout_marginLeft="@dimen/card_margin"
         android:layout_marginRight="@dimen/card_margin"
         android:animateLayoutChanges="true"
-        card_view:cardCornerRadius="0dp"
-        card_view:cardElevation="4dp"
+        card_view:cardElevation="8dp"
         card_view:cardPreventCornerOverlap="true"
         card_view:cardUseCompatPadding="true">
 
@@ -101,14 +100,15 @@
                 android:layout_width="match_parent"
                 android:layout_height="match_parent">
 
-            <TextView
-                android:id="@+id/excerpt"
-                android:layout_width="match_parent"
-                android:layout_height="wrap_content"
-                android:textColor="@color/myTextPrimaryColor"
-                android:text="@string/excerpt_example"
-                android:paddingLeft="16dp"
-                android:paddingRight="16dp" />
+                <TextView
+                    android:id="@+id/excerpt"
+                    android:layout_width="match_parent"
+                    android:layout_height="wrap_content"
+                    android:textColor="@color/myTextPrimaryColor"
+                    android:text="@string/excerpt_example"
+                    android:paddingLeft="16dp"
+                    android:paddingRight="16dp"
+                    android:paddingTop="16dp" />
                 <View
                     android:id="@+id/separator"
                     android:layout_width="match_parent"

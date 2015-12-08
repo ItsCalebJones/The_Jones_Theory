@@ -4,11 +4,14 @@ import android.content.BroadcastReceiver;
 import android.content.Context;
 import android.content.Intent;
 import android.content.IntentFilter;
+import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
+import android.support.v7.widget.AppCompatButton;
 import android.text.Html;
 import android.util.Log;
 import android.view.Menu;
@@ -76,7 +79,10 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPrefs.getInstance().setFirstRun(false);
+        //If first run set to false.
+        if (SharedPrefs.getInstance().getFirstRun()) {
+            SharedPrefs.getInstance().setFirstRun(false);
+        }
         setContentView(R.layout.activity_download);
 
         Log.d("The Jones Theory", "Downloading = " + SharedPrefs.getInstance().isDownloading());
@@ -95,17 +101,22 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
         button = (Button) findViewById(R.id.start_download);
         downloadUI = findViewById(R.id.download_ui);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.getIndeterminateDrawable().setColorFilter(getResources()
-                .getColor(R.color.myPrimaryDarkColor), PorterDuff.Mode.SRC_IN);
+        progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.myPrimaryColor), PorterDuff.Mode.SRC_IN);
         progressBar.getProgressDrawable()
-                .setColorFilter(getResources()
-                        .getColor(R.color.myPrimaryDarkColor), PorterDuff.Mode.SRC_IN);
+                .setColorFilter(ContextCompat.getColor(this, R.color.myPrimaryColor), PorterDuff.Mode.SRC_IN);
+
+        int currentapiVersion = android.os.Build.VERSION.SDK_INT;
+        if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP){
+            AppCompatButton signIn = (AppCompatButton) findViewById(R.id.start_download);
+            ColorStateList csl = new ColorStateList(new int[][]{new int[0]}, new int[]{0xffffcc00});
+            signIn.setSupportBackgroundTintList(csl);
+        }
 
 
         downloadUI.setVisibility(View.GONE);
         pageTitle.setText("Download the Science!");
         caption.setText("About ~2MB of text data needs to be downloaded to make the app experience fluid and support the search functionality.");
-                button.setOnClickListener(this);
+        button.setOnClickListener(this);
 
 
         if (savedInstanceState != null || SharedPrefs.getInstance().isDownloading()) {
@@ -126,6 +137,12 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         Log.d("The Jones Theory", "DownloadActivity - onClick - Doing the download thing.");
+
+        //If first run set to false.
+        if (SharedPrefs.getInstance().getFirstRun()) {
+            SharedPrefs.getInstance().setFirstRun(false);
+            SharedPrefs.getInstance().setDownloadChecked(true);
+        }
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PostDownloader.DOWNLOAD_PROGRESS);

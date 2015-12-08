@@ -2,7 +2,9 @@
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
+    xmlns:style="http://schemas.android.com/apk/res-auto"
     tools:context="me.calebjones.blogsite.ui.activity.DownloadActivity"
+    android:background="@color/myAccentColor"
     android:fitsSystemWindows="true"
     android:orientation="vertical">
 
@@ -10,7 +12,6 @@
         android:layout_width="match_parent"
         android:layout_height="match_parent"
         android:orientation="vertical"
-        android:background="@color/myAccentColor"
         android:gravity="center">
 
 
@@ -84,16 +85,16 @@
 
         </LinearLayout>
 
-        <Button
+        <android.support.v7.widget.AppCompatButton
             android:id="@+id/start_download"
+            style="@style/Base.Widget.AppCompat.Button"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:layout_gravity="center"
-            android:text="Start Download!"
+            android:text="Start Download"
             android:textAppearance="@style/TextAppearance.AppCompat.Button"
-            android:backgroundTint="@color/myPrimaryDarkColor"
-            android:textColor="@android:color/white"
-            style="@style/Base.Widget.AppCompat.Button" />
+            android:backgroundTint="@color/myPrimaryColor"
+            android:textColor="@android:color/white" />
         </FrameLayout>
     </LinearLayout>
 </LinearLayout>

@@ -20,6 +20,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -54,6 +55,7 @@ import java.io.ByteArrayOutputStream;
 import java.io.IOException;
 import java.util.List;
 
+import me.calebjones.blogsite.MainActivity;
 import me.calebjones.blogsite.R;
 import me.calebjones.blogsite.content.database.DatabaseManager;
 import me.calebjones.blogsite.content.database.SharedPrefs;
@@ -88,13 +90,13 @@ public class DetailActivity extends AppCompatActivity {
     private MediaBrowser.ConnectionCallback mConnectionCallback;
     private Bitmap mCloseButtonBitmap;
     private CompositeSubscription mSubscriptions;
-    private Intent animateIntent;
+    private Intent animateIntent, preIntent;
     private ImageView imageView;
     private View myView;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
-    public String PostTitle, PostImage, PostText, PostURL, PostCat;
+    public String PostTitle, PostImage, PostText, PostURL, PostCat, PostExcerpt;
     public Integer PostID;
     public Bitmap bitmap;
     public List<FeedItem> feedItemList;
@@ -130,7 +132,7 @@ public class DetailActivity extends AppCompatActivity {
             myView.setVisibility(View.INVISIBLE);
         }
 
-        defaultColor = getResources().getColor(R.color.icons);
+        defaultColor = ContextCompat.getColor(this, R.color.icons);
         Log.v("The Jones Theory", "OnCreate: ");
         if (bundle != null){
             //Get information about the post that was selected from BlogFragment
@@ -143,6 +145,8 @@ public class DetailActivity extends AppCompatActivity {
             PostText = post.getContent();
             PostTitle = post.getTitle();
             PostURL = post.getURL();
+            PostExcerpt = post.getExcerpt();
+
         }
         if (savedInstanceState != null) {
             Log.v("The Jones Theory", "Saved Instance: " + savedInstanceState.getString("PostTitle"));
@@ -152,11 +156,16 @@ public class DetailActivity extends AppCompatActivity {
         animateIntent.putExtra("PostImage", PostImage);
         animateIntent.putExtra("PostURL", PostURL);
         animateIntent.putExtra("PostTitle", PostTitle);
-        animateIntent.putExtra("PostText", PostText);
+        animateIntent.putExtra("PostText", PostExcerpt);
+
+        preIntent = new Intent(DetailActivity.this, FullscreenActivity.class);
+        preIntent.putExtra("PostImage", PostImage);
+        preIntent.putExtra("PostURL", PostURL);
+        preIntent.putExtra("PostTitle", PostTitle);
+        preIntent.putExtra("PostText", PostExcerpt);
 
         collapsingToolbar = (CollapsingToolbarLayout) findViewById(R.id.collapsing_toolbar);
         appBarLayout = (AppBarLayout) findViewById(R.id.appbar);
-
 
         collapsingToolbar.setTitle(PostCat.replaceAll(",", " |"));
 
@@ -190,7 +199,7 @@ public class DetailActivity extends AppCompatActivity {
                 commentIntent.putExtra("PostID", PostID.toString());
                 commentIntent.putExtra("PostURL", PostURL);
                 if (mPalette != null) {
-                    commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
+                    commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(ContextCompat.getColor(mContext, R.color.icons)));
                 }
                 startActivity(commentIntent);
             }
@@ -390,9 +399,7 @@ public class DetailActivity extends AppCompatActivity {
                 // Do something with span.getURL() to handle the link click...
                 Context context = getApplicationContext();
                 CharSequence text = "Hello toast!" + span.getURL();
-                int duration = Toast.LENGTH_SHORT;
 
-                Toast.makeText(context, text, duration).show();
                 if (Patterns.WEB_URL.matcher(span.getURL()).matches()){
                     Log.d("The Jones Theory", span.getURL());
                     openCustomTab(span.getURL());
@@ -419,12 +426,12 @@ public class DetailActivity extends AppCompatActivity {
 
     //PalLete bugs here where swatches are empty
     public void mApplyPalette(Palette mPalette){
-        collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-        collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-        fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(getResources().getColor(R.color.myAccentColor))));
-        commentFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getDarkVibrantColor(getResources().getColor(R.color.myPrimaryDarkColor))));
+        collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryColor)));
+        collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryColor)));
+        fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(ContextCompat.getColor(this, R.color.myAccentColor))));
+        commentFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getDarkVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryDarkColor))));
 
-        animateIntent.putExtra("PostBG", mPalette.getDarkMutedColor(getResources().getColor(R.color.myPrimaryDarkColor)));
+        animateIntent.putExtra("PostBG", mPalette.getDarkMutedColor(ContextCompat.getColor(this, R.color.myPrimaryDarkColor)));
 
 //        if (mPalette.getDarkMutedSwatch() != null){
 //            mTextView.setTextColor(defaultColor);
@@ -432,19 +439,7 @@ public class DetailActivity extends AppCompatActivity {
     }
 
     public void Transition(View v){
-        ImageView imgFavorite = (ImageView) findViewById(R.id.header);
-
-        BitmapInfo bi = Ion.with(imgFavorite)
-                .getBitmapInfo();
-
-        Intent intent = new Intent(DetailActivity.this, FullscreenActivity.class);
-        intent.putExtra("bitmapInfo", bi.key);
-        intent.putExtra("PostImage", PostImage);
-        intent.putExtra("PostURL", PostURL);
-        intent.putExtra("PostTitle", PostTitle);
-        intent.putExtra("PostText", PostText);
-
-        startActivity(intent);
+        startActivity(preIntent);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -479,7 +474,6 @@ public class DetailActivity extends AppCompatActivity {
     @Override
     public void onBackPressed() {
         fabSlideOut();
-
         final Handler backHandler = new Handler();
         backHandler.postDelayed(new Runnable() {
             public void run() {
@@ -583,11 +577,10 @@ public class DetailActivity extends AppCompatActivity {
         }
     }
 
-    private void setUpCompressedBitmap(){
-        Runnable r = new Runnable()
-        {
+    private void setUpCompressedBitmap() {
+        new Handler().postDelayed(new Runnable() {
             @Override
-            public void run(){
+            public void run() {
                 //Convert to byte array
                 ByteArrayOutputStream stream = new ByteArrayOutputStream();
                 bitmap.compress(Bitmap.CompressFormat.PNG, 100, stream);
@@ -596,7 +589,7 @@ public class DetailActivity extends AppCompatActivity {
                 Log.d("The Jones Theory", "byteLength: " + byteArray.length);
 
                 //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
-                if (byteArray.length > 524288){
+                if (byteArray.length > 524288) {
                     for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
                         stream.reset();
                         Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
@@ -606,12 +599,10 @@ public class DetailActivity extends AppCompatActivity {
                     }
                 }
                 animateIntent.putExtra("bitmap", byteArray);
+                preIntent.putExtra("bitmap", byteArray);
 
             }
-        };
-
-        Thread t = new Thread(r);
-        t.start();
+        }, 0);
     }
 
     @TargetApi(Build.VERSION_CODES.LOLLIPOP)
@@ -635,11 +626,13 @@ public class DetailActivity extends AppCompatActivity {
 
         //Remove Styling from Text
         PostText = PostText.replaceAll("<style>.*?</style>", "");
-        //Remove Styling from Text
-        int index = PostText.indexOf("<img");
-        PostText = PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length());
-        Log.d("The Jones Theory", PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length()));
 
+//        if (PostText.contains("<img")){
+//            //Remove Styling from Text
+//            int index = PostText.indexOf("<img");
+//            PostText = PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length());
+//            Log.d("The Jones Theory", PostText.substring(0, index - 4) + "<br> <br>" + PostText.substring(index, PostText.length()));
+//        }
         return PostText;
     }
 
@@ -723,8 +716,10 @@ public class DetailActivity extends AppCompatActivity {
         intentBuilder.setExitAnimations(this,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
-        CustomTabActivityHelper.openCustomTab(
-                this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
+        if (!url.matches("ap.......html")){
+            CustomTabActivityHelper.openCustomTab(
+                    this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
+        }
     }
 
     private PendingIntent createPendingShareIntent(String url) {

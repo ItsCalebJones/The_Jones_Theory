@@ -291,7 +291,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
         if (databaseManager.getCount() > 0){
             refreshPost();
-        } else {
+        } else if (SharedPrefs.getInstance().getDownloadChecked()) {
             Log.d("The Jones Theory", "Feed - onRefresh - Doing the download thing.");
             Intent intent = new Intent(getActivity(), PostDownloader.class);
             intent.setAction(PostDownloader.DOWNLOAD_ALL);
