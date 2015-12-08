@@ -93,6 +93,7 @@ public class LoginActivity extends AppCompatActivity {
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
+        Log.d("The Jones Theory", "LoginActivity onCreate...");
 
         // Here, thisActivity is the current activity
         if (ContextCompat.checkSelfPermission(LoginActivity.this,
@@ -521,10 +522,9 @@ public class LoginActivity extends AppCompatActivity {
 
             if (TextUtils.isEmpty(error) && !TextUtils.isEmpty(cookie)) {
                 //  activity_login success and move to main Activity here.
-                boolean previouslyStarted = SharedPrefs.getInstance().getFirstRun();
 
                 //If first run set to false.
-                if (previouslyStarted) {
+                if (SharedPrefs.getInstance().getFirstRun()) {
                     SharedPrefs.getInstance().setFirstRun(false);
                 }
 
@@ -570,7 +570,10 @@ public class LoginActivity extends AppCompatActivity {
             sEdit.putBoolean("prompt_logged_out", false);
             sEdit.apply();
 
-            SharedPrefs.getInstance().setFirstRun(false);
+            //If first run set to false.
+            if (SharedPrefs.getInstance().getFirstRun()) {
+                SharedPrefs.getInstance().setFirstRun(false);
+            }
 
             //Start activity
             Intent intent = new Intent(this, DownloadActivity.class);

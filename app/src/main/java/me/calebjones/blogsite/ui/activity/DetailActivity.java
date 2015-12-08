@@ -20,6 +20,7 @@ import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
 import android.support.design.widget.FloatingActionButton;
 import android.support.v4.app.NavUtils;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.Toolbar;
@@ -131,7 +132,7 @@ public class DetailActivity extends AppCompatActivity {
             myView.setVisibility(View.INVISIBLE);
         }
 
-        defaultColor = getResources().getColor(R.color.icons);
+        defaultColor = ContextCompat.getColor(this, R.color.icons);
         Log.v("The Jones Theory", "OnCreate: ");
         if (bundle != null){
             //Get information about the post that was selected from BlogFragment
@@ -198,7 +199,7 @@ public class DetailActivity extends AppCompatActivity {
                 commentIntent.putExtra("PostID", PostID.toString());
                 commentIntent.putExtra("PostURL", PostURL);
                 if (mPalette != null) {
-                    commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(getResources().getColor(R.color.icons)));
+                    commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(ContextCompat.getColor(mContext, R.color.icons)));
                 }
                 startActivity(commentIntent);
             }
@@ -425,12 +426,12 @@ public class DetailActivity extends AppCompatActivity {
 
     //PalLete bugs here where swatches are empty
     public void mApplyPalette(Palette mPalette){
-        collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-        collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(getResources().getColor(R.color.myPrimaryColor)));
-        fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(getResources().getColor(R.color.myAccentColor))));
-        commentFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getDarkVibrantColor(getResources().getColor(R.color.myPrimaryDarkColor))));
+        collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryColor)));
+        collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryColor)));
+        fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(ContextCompat.getColor(this, R.color.myAccentColor))));
+        commentFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getDarkVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryDarkColor))));
 
-        animateIntent.putExtra("PostBG", mPalette.getDarkMutedColor(getResources().getColor(R.color.myPrimaryDarkColor)));
+        animateIntent.putExtra("PostBG", mPalette.getDarkMutedColor(ContextCompat.getColor(this, R.color.myPrimaryDarkColor)));
 
 //        if (mPalette.getDarkMutedSwatch() != null){
 //            mTextView.setTextColor(defaultColor);

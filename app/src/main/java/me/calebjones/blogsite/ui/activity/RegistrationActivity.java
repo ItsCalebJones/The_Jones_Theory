@@ -18,6 +18,7 @@ import android.os.Build;
 import android.preference.PreferenceManager;
 import android.provider.ContactsContract;
 import android.os.Bundle;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.app.AppCompatActivity;
 import android.support.v7.widget.AppCompatButton;
 import android.support.v7.widget.Toolbar;
@@ -188,7 +189,7 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             Window window = getWindow();
             window.addFlags(WindowManager.LayoutParams.FLAG_DRAWS_SYSTEM_BAR_BACKGROUNDS);
             window.clearFlags(WindowManager.LayoutParams.FLAG_TRANSLUCENT_STATUS);
-            window.setStatusBarColor(getResources().getColor(R.color.myPrimaryDarkColor));
+            window.setStatusBarColor(ContextCompat.getColor(this, R.color.myPrimaryDarkColor));
         }
 
 
@@ -394,14 +395,9 @@ public class RegistrationActivity extends AppCompatActivity implements LoaderMan
             sEdit.putBoolean("prompt_logged_out", false);
             sEdit.apply();
 
-            SharedPreferences prefs = this.getSharedPreferences("MyPref", 4);
-            boolean previouslyStarted = prefs.getBoolean("PREVIOUSLY_STARTED_KEY", false);
-            Log.d("The Jones Theory-D", "Skip = " + Boolean.toString(previouslyStarted));
-            if(!previouslyStarted){
-                SharedPreferences.Editor edit = prefs.edit();
+
+            if(SharedPrefs.getInstance().getFirstRun()){
                 SharedPrefs.getInstance().setFirstRun(false);
-                edit.putBoolean("PREVIOUSLY_STARTED_KEY", Boolean.TRUE);
-                edit.apply();
             }
             Intent intent = new Intent(this, DownloadActivity.class);
             intent.putExtra("Category", "blog");

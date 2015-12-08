@@ -15,6 +15,7 @@ import android.graphics.PorterDuff;
 import android.graphics.drawable.BitmapDrawable;
 import android.net.Uri;
 import android.os.Environment;
+import android.support.v4.content.ContextCompat;
 import android.support.v7.graphics.Palette;
 import android.support.v7.widget.RecyclerView;
 import android.text.Html;
@@ -269,7 +270,7 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     } else {
                         //make fav
                         Toast.makeText(mContext, "Favorite set!", Toast.LENGTH_LONG).show();
-                        favorite.setColorFilter(mContext.getColor(R.color.myAccentColor));
+                        favorite.setColorFilter(ContextCompat.getColor(mContext, R.color.myAccentColor));
                     }
                     break;
             }

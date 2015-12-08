@@ -62,19 +62,12 @@ import rx.subscriptions.CompositeSubscription;
 public class MainActivity extends AppCompatActivity {
 
     //Defining Variables
-    private String pURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=20";
-    public static String mURL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts?number=30";
     private String[] titles;
     private AuthValidate doAuth = null;
     private Toolbar toolbar;
     private NavigationView navigationView;
     private ViewPager viewPager;
     private DrawerLayout drawerLayout;
-    private CustomTabActivityHelper customTabActivityHelper;
-    private MediaBrowser.ConnectionCallback mConnectionCallback;
-    private Bitmap mCloseButtonBitmap;
-    private CompositeSubscription mSubscriptions;
-    private static final int DOWNLOAD_REQUEST = 1045;
     private TabLayout tabLayout;
     private DatabaseManager databaseManager;
     private BroadcastReceiver downloadReceiver = new BroadcastReceiver() {
@@ -89,9 +82,7 @@ public class MainActivity extends AppCompatActivity {
     public static final String TAG = "The Jones Theory - M";
     public Context context;
     public ProgressBar progressBar;
-    public String mCategory;
 
-    int i = 0;
     int mCurCheckPosition = 0;
 
     @Override
@@ -105,7 +96,7 @@ public class MainActivity extends AppCompatActivity {
         String notificationTimer = sharedPreferences
                 .getString("notification_sync_time", "4");
 
-        if (notificationCheckBox == true){
+        if (notificationCheckBox){
             //Set up Alarm Manager and Pending Intent to wake the UpdateServiceCheck
             AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
             Intent intent = new Intent(this, getClass());
@@ -134,24 +125,20 @@ public class MainActivity extends AppCompatActivity {
         FacebookSdk.sdkInitialize(getApplicationContext());
         Log.d("The Jones Theory", "Downloading: " + String.valueOf(SharedPrefs.getInstance().isDownloading()));
 
+        Log.d("The Jones Theory", "MainActivity...getInstance()..." + SharedPrefs.getInstance().getFirstRun());
         //Check to see if the app is loading for the first time.
         if(SharedPrefs.getInstance().getFirstRun()){
-            SharedPrefs.getInstance().setFirstDownload(true);
-            if (databaseManager == null) {
-                databaseManager = new DatabaseManager(this);
-            }
-//            Log.d("The Jones Theory", "DB Size = " + String.valueOf(databaseManager.getCount()));
-//            if (databaseManager.getCount() == 0){
-//                Log.d("The Jones Theory", "Main - doDownload - Doing the download thing.");
-//                SharedPrefs.getInstance().setFirstDownload(true);
-//                doDownload(PostDownloader.DOWNLOAD_ALL);
-//            }
+            Log.d("The Jones Theory", "MainActivity...showLogin() called.");
+            showLogin();
+        } else if (SharedPrefs.getInstance().getDownloadChecked()) {
+            Log.d("The Jones Theory", "MainActivity...validateLoginStatus()...called");
+            validateLoginStatus();
         } else if (SharedPrefs.getInstance().isDownloading()){
             if (!isPostDownloaderRunning(PostDownloader.class)){
                 SharedPrefs.getInstance().setDownloading(false);
                 Log.d("The Jones Theory", "Setting Download: " + String.valueOf(SharedPrefs.getInstance().isDownloading()));
             }
-        } else if (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime() > 172800000) {
+        } else if (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime() > 172800000 & SharedPrefs.getInstance().getDownloadChecked()) {
             Log.d("The Jones Theory", "Doing the download thing its been " + (System.currentTimeMillis() - SharedPrefs.getInstance().getLastRedownloadTime()) + " milliseconds.");
             doDownload(PostDownloader.DOWNLOAD_MISSING);
         }
@@ -346,7 +333,7 @@ public class MainActivity extends AppCompatActivity {
         //Check to see if the app is loading for the first time.
         if(SharedPrefs.getInstance().getFirstRun()){
             showLogin();
-        } else if (SharedPrefs.getInstance().isFirstDownload()){
+        } else if (!SharedPrefs.getInstance().getDownloadChecked()){
             showDownload();
         }
 
@@ -439,6 +426,7 @@ public class MainActivity extends AppCompatActivity {
     }
 
     private void showLogin() {
+        Log.d("The Jones Theory", "MainActivity...showLogin()");
         Intent loginIntent = new Intent(this, LoginActivity.class);
         startActivity(loginIntent);
     }

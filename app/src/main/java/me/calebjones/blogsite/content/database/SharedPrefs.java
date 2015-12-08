@@ -45,6 +45,15 @@ public class SharedPrefs {
     public void setFirstRun(boolean firstRun) {
         sharedPreferences.edit().putBoolean("FIRST_RUN", firstRun).apply();
     }
+
+    public boolean getDownloadChecked() {
+        return sharedPreferences.getBoolean("DOWNLOAD_CHECKED", true);
+    }
+
+    public void setDownloadChecked(boolean downloadChecked) {
+        sharedPreferences.edit().putBoolean("DOWNLOAD_CHECKED", downloadChecked).apply();
+    }
+
     public boolean getLoginStatus() {
         return sharedPreferences.getBoolean("LOGIN_STATUS", false);
     }

@@ -7,6 +7,7 @@ import android.content.IntentFilter;
 import android.content.res.ColorStateList;
 import android.graphics.PorterDuff;
 import android.os.Handler;
+import android.support.v4.content.ContextCompat;
 import android.support.v4.content.LocalBroadcastManager;
 import android.support.v7.app.ActionBarActivity;
 import android.os.Bundle;
@@ -78,7 +79,10 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     @Override
     protected void onCreate(Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        SharedPrefs.getInstance().setFirstRun(false);
+        //If first run set to false.
+        if (SharedPrefs.getInstance().getFirstRun()) {
+            SharedPrefs.getInstance().setFirstRun(false);
+        }
         setContentView(R.layout.activity_download);
 
         Log.d("The Jones Theory", "Downloading = " + SharedPrefs.getInstance().isDownloading());
@@ -97,11 +101,9 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
         button = (Button) findViewById(R.id.start_download);
         downloadUI = findViewById(R.id.download_ui);
         progressBar = (ProgressBar) findViewById(R.id.progressBar);
-        progressBar.getIndeterminateDrawable().setColorFilter(getResources()
-                .getColor(R.color.myPrimaryDarkColor), PorterDuff.Mode.SRC_IN);
+        progressBar.getIndeterminateDrawable().setColorFilter(ContextCompat.getColor(this, R.color.myPrimaryColor), PorterDuff.Mode.SRC_IN);
         progressBar.getProgressDrawable()
-                .setColorFilter(getResources()
-                        .getColor(R.color.myPrimaryDarkColor), PorterDuff.Mode.SRC_IN);
+                .setColorFilter(ContextCompat.getColor(this, R.color.myPrimaryColor), PorterDuff.Mode.SRC_IN);
 
         int currentapiVersion = android.os.Build.VERSION.SDK_INT;
         if (currentapiVersion < android.os.Build.VERSION_CODES.LOLLIPOP){
@@ -135,6 +137,12 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
     @Override
     public void onClick(View v) {
         Log.d("The Jones Theory", "DownloadActivity - onClick - Doing the download thing.");
+
+        //If first run set to false.
+        if (SharedPrefs.getInstance().getFirstRun()) {
+            SharedPrefs.getInstance().setFirstRun(false);
+            SharedPrefs.getInstance().setDownloadChecked(true);
+        }
 
         IntentFilter intentFilter = new IntentFilter();
         intentFilter.addAction(PostDownloader.DOWNLOAD_PROGRESS);
