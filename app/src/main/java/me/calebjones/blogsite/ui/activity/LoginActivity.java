@@ -317,6 +317,20 @@ public class LoginActivity extends AppCompatActivity {
                     @Override
                     public void onClick(@NonNull DialogInterface dialog, int which) {
                         request.cancel();
+                        SharedPreferences sharedPerf = PreferenceManager.getDefaultSharedPreferences(LoginActivity.this);
+
+                        SharedPreferences.Editor sEdit = sharedPerf.edit();
+                        sEdit.putBoolean("prompt_logged_out", false);
+                        sEdit.apply();
+
+                        //If first run set to false.
+                        if (SharedPrefs.getInstance().getFirstRun()) {
+                            SharedPrefs.getInstance().setFirstRun(false);
+                        }
+
+                        //Start activity
+                        Intent intent = new Intent(LoginActivity.this, DownloadActivity.class);
+                        startActivity(intent);
                     }
                 })
                 .setCancelable(false)

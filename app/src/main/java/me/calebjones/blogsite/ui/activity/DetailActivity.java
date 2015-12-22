@@ -230,13 +230,10 @@ public class DetailActivity extends AppCompatActivity {
         mTitle.setText(Html.fromHtml(PostTitle));
         mTextView = (TextView) findViewById(R.id.PostTextPara);
 
-//            mTextView.setText(htmlSpan);
-//        runOnUiThread(new Runnable() {
-//            public void run() {
-//                setTextViewHTML(mTextView, PostText);
-//            }
-//        });
-        setTextViewHTML(mTextView, PostText);
+//      mTextView.setText(PostText);
+      setTextViewHTML(mTextView, PostText);
+
+//        mTextView.setText(Html.fromHtml(PostText, new URLImageParser(mTextView, mContext), null));
         customTabActivityHelper.mayLaunchUrl(Uri.parse(PostURL), null, null);
 
 //        mTextView.setText(Html.fromHtml(PostText));
@@ -256,39 +253,39 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
 
-//        if (android.os.Build.VERSION.SDK_INT >= 21) {
-//
-//            getWindow().getEnterTransition().addListener(new Transition.TransitionListener() {
-//                @Override
-//                public void onTransitionStart(Transition transition) {
-//                }
-//
-//                @Override
-//                public void onTransitionCancel(Transition transition) {
-//                }
-//
-//                @Override
-//                public void onTransitionPause(Transition transition) {
-//                }
-//
-//                @Override
-//                public void onTransitionResume(Transition transition) {
-//                }
-//
-//                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-//                @Override
-//                public void onTransitionEnd(Transition transition) {
-//                    getWindow().getEnterTransition().removeListener(this);
-//                    ImageView imgFavorite = (ImageView) findViewById(R.id.header);
-//
-//                    // load the full version, crossfading from the thumbnail image
-//                    Ion.with(imgFavorite)
-//                            .crossfade(true)
-//                            .deepZoom()
-//                            .load(PostImage);
-//                }
-//            });
-//        }
+        if (android.os.Build.VERSION.SDK_INT >= 21) {
+
+            getWindow().getEnterTransition().addListener(new Transition.TransitionListener() {
+                @Override
+                public void onTransitionStart(Transition transition) {
+                }
+
+                @Override
+                public void onTransitionCancel(Transition transition) {
+                }
+
+                @Override
+                public void onTransitionPause(Transition transition) {
+                }
+
+                @Override
+                public void onTransitionResume(Transition transition) {
+                }
+
+                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+                @Override
+                public void onTransitionEnd(Transition transition) {
+                    getWindow().getEnterTransition().removeListener(this);
+                    ImageView imgFavorite = (ImageView) findViewById(R.id.header);
+
+                    // load the full version, crossfading from the thumbnail image
+                    Ion.with(imgFavorite)
+                            .crossfade(true)
+                            .deepZoom()
+                            .load(PostImage);
+                }
+            });
+        }
     }
 
     private void setUpFeatureImage() {
@@ -402,11 +399,10 @@ public class DetailActivity extends AppCompatActivity {
         URLImageParser urlImageParser = new URLImageParser(text, this);
         CharSequence sequence = Html.fromHtml(html, urlImageParser, null);
         SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
-//        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
-//        for (URLSpan span : urls) {
-//            makeLinkClickable(strBuilder, span);
-//        }
-
+        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+        for (URLSpan span : urls) {
+            makeLinkClickable(strBuilder, span);
+        }
         text.setText(strBuilder);
     }
 
@@ -464,6 +460,7 @@ public class DetailActivity extends AppCompatActivity {
                 fabSlideIn();
             }
         }, 1000);
+
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
             commentFab.setVisibility(View.VISIBLE);
@@ -595,8 +592,14 @@ public class DetailActivity extends AppCompatActivity {
     private void openCustomTab(String url) {
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
 
-        intentBuilder.setToolbarColor(mPalette.getVibrantColor(ContextCompat.getColor(
-                getBaseContext(), R.color.myPrimaryColor)));
+        if (mPalette != null){
+            intentBuilder.setToolbarColor(mPalette.getVibrantColor(ContextCompat.getColor(
+                    getBaseContext(), R.color.myPrimaryColor)));
+        } else {
+            intentBuilder.setToolbarColor(ContextCompat.getColor(
+                    getBaseContext(), R.color.myPrimaryColor));
+        }
+
         intentBuilder.setShowTitle(true);
 
         PendingIntent actionPendingIntent = createPendingShareIntent(url);
@@ -627,6 +630,7 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     public void onSaveInstanceState(Bundle savedInstanceState) {
+        bitmap = null;
         // Always call the superclass so it can save the view hierarchy state
         super.onSaveInstanceState(savedInstanceState);
         // Save the user's current game state

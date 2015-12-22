@@ -127,8 +127,13 @@ public class MainActivity extends AppCompatActivity {
         Log.d("The Jones Theory", "Downloading: " + String.valueOf(SharedPrefs.getInstance().isDownloading()));
 
         Log.d("The Jones Theory", "MainActivity...getInstance()..." + SharedPrefs.getInstance().getFirstRun());
+
+        if (databaseManager == null) {
+            databaseManager = new DatabaseManager(this);
+        }
+
         //Check to see if the app is loading for the first time.
-        if(SharedPrefs.getInstance().getFirstRun()){
+        if(SharedPrefs.getInstance().getFirstRun() || databaseManager.getCount() <= 10){
             Log.d("The Jones Theory", "MainActivity...showLogin() called.");
             showLogin();
         } else if (SharedPrefs.getInstance().getDownloadChecked()) {
