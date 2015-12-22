@@ -163,4 +163,14 @@ public class PhotoFragment extends Fragment {
     public void onSaveInstanceState(Bundle outState) {
         super.onSaveInstanceState(outState);
     }
+
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if (databaseManager != null)
+        {
+            databaseManager.close();
+        }
+    }
+
 }

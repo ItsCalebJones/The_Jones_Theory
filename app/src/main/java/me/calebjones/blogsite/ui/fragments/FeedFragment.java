@@ -94,22 +94,15 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     @Override
     public void onCreate(Bundle savedInstanceState) {
         mCategory = SharedPrefs.getInstance().getCategory();
-        Log.d("The Jones Theory", "FeedFragment: -onCreate " + mCategory);
-
-//        refreshPost();
 
         setHasOptionsMenu(true);
-
         this.setRetainInstance(true);
-
         super.onCreate(savedInstanceState);
     }
 
     @Override
     public View onCreateView(LayoutInflater inflater, ViewGroup container,
                              Bundle savedInstanceState) {
-
-        final Activity c = getActivity();
         super.onCreateView(inflater, container, savedInstanceState);
         LayoutInflater lf = getActivity().getLayoutInflater();
 
@@ -181,6 +174,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
 
     @Override
     public void onResume() {
+        Log.d("The Jones Theory", "FeedFragment: -onResume Start");
         super.onResume();
         if (databaseManager == null) {
             databaseManager = new DatabaseManager(getActivity());
@@ -199,7 +193,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
             mRecyclerView.setVisibility(View.GONE);
             noPost.setVisibility(View.VISIBLE);
         }
-        revealView();
     }
 
     public void changeFeed(String category){
@@ -223,58 +216,6 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         }, delay);
 
     }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void revealView() {
-        final View mainView = getView().findViewById(R.id.fragment_feed_content);
-        if (mainView.getVisibility() == View.INVISIBLE){
-            int cx = (mainView.getLeft() + mainView.getRight()) / 2;
-            int cy = (mainView.getTop() + mainView.getBottom()) / 2;
-
-            // get the final radius for the clipping circle
-            int finalRadius = Math.max(mainView.getWidth(), mainView.getHeight());
-
-            // create the animator for this view (the start radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(mainView, cx, cy, 0, finalRadius);
-
-            // make the view visible and start the animation
-            mainView.setVisibility(View.VISIBLE);
-
-            anim.start();
-        }
-
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    public static void exitReveal(View view) {
-        final View tMainView = view;
-
-        // get the center for the clipping circle
-        int cx = tMainView.getMeasuredWidth() / 2;
-        int cy = tMainView.getMeasuredHeight() / 2;
-
-        // get the initial radius for the clipping circle
-        int initialRadius = tMainView.getWidth() / 2;
-
-        // create the animation (the final radius is zero)
-        Animator anim =
-                ViewAnimationUtils.createCircularReveal(tMainView, cx, cy, initialRadius, 0);
-
-        // make the view invisible when the animation is done
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                tMainView.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        // start the animation
-        anim.start();
-
-    }
-
 
     @Override
     public void onRefresh() {
@@ -306,7 +247,7 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
         LocalBroadcastManager.getInstance(getActivity()).registerReceiver(receiver, intentFilter);
 
         Intent intent = new Intent(getActivity(), PostDownloader.class);
-        intent.setAction(PostDownloader.DOWNLOAD_MISSING);
+        intent.setAction(PostDownloader.DOWNLOAD_ALL);
         getActivity().startService(intent);
     }
 
@@ -319,6 +260,15 @@ public class FeedFragment extends Fragment implements SwipeRefreshLayout.OnRefre
     public void stopRefreshing() {
         if (mSwipeRefreshLayout != null) {
                 mSwipeRefreshLayout.setRefreshing(false);
+        }
+    }
+
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if (databaseManager != null)
+        {
+            databaseManager.close();
         }
     }
 }

@@ -8,6 +8,7 @@ import android.content.SharedPreferences;
 import android.graphics.Bitmap;
 import android.graphics.BitmapFactory;
 import android.preference.PreferenceManager;
+import android.provider.ContactsContract;
 import android.util.Log;
 
 import com.squareup.okhttp.Request;
@@ -58,11 +59,13 @@ public class UpdateCheckService extends IntentService {
         super(name);
     }
 
+    private DatabaseManager databaseManager;
+
     //TODO sleep during the hours of 10pm and 8am
 
     @Override
     protected void onHandleIntent(Intent intent) {
-        DatabaseManager databaseManager = new DatabaseManager(this);
+        databaseManager = new DatabaseManager(this);
         Request request = new Request.Builder().url(LATEST_URL).build();
         Log.d("The Jones Theory", "UpdateCheckService init...");
         try{
@@ -86,6 +89,18 @@ public class UpdateCheckService extends IntentService {
                             ByteArrayOutputStream stream = new ByteArrayOutputStream();
                             bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
                             byte[] bytes = stream.toByteArray();
+                            Log.d("The Jones Theory", "byteLength: " + bytes.length);
+
+                            //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
+                            if (bytes.length > 524288) {
+                                for (int count = 95; (bytes.length > 524288 && count >= 20); count = count - 5) {
+                                    stream.reset();
+                                    Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + count + " - " + bytes.length + " stream " + stream.size());
+                                    bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
+                                    bytes = stream.toByteArray();
+                                    Log.d("The Jones Theory", "AFTER byteLength - Compression: " + count + " - " + bytes.length + " stream " + stream.size());
+                                }
+                            }
                             notifIntent.putExtra("BitmapImage", bytes);
                         }
                         notifIntent.putExtra(EXTRA_NUM, Integer.parseInt(post.optString("ID")));
@@ -106,7 +121,9 @@ public class UpdateCheckService extends IntentService {
             connection.setDoInput(true);
             connection.connect();
             InputStream input = connection.getInputStream();
-            return BitmapFactory.decodeStream(input);
+            BitmapFactory.Options options = new BitmapFactory.Options();
+            options.inSampleSize = 2;
+            return BitmapFactory.decodeStream(input, null, options);
         } catch (IOException e) {
             e.printStackTrace();
             return null;
@@ -114,7 +131,6 @@ public class UpdateCheckService extends IntentService {
     }
 
     private void saveToDatabase(JSONObject jObject) throws ParseException, JSONException {
-        DatabaseManager databaseManager = new DatabaseManager(this);
         post = new Posts();
 
         //If the item is not a post break out of loop and ignore it
@@ -192,6 +208,7 @@ public class UpdateCheckService extends IntentService {
 
     @Override
     public void onDestroy() {
+        databaseManager.close();
         post = null;
         AlarmManager alarmManager = (AlarmManager) getSystemService(ALARM_SERVICE);
         Intent intent = new Intent(this, getClass());

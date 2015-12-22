@@ -40,6 +40,7 @@ import android.widget.Toast;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
+import com.michaldrabik.tapbarmenulib.TapBarMenu;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -62,17 +63,12 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
     private Toolbar mToolbar;
     private ProgressDialog dialog;
     private File file;
+    private TapBarMenu tapbar;
 
     ProgressBar progressBar;
     public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
             "/TheJonesTheory/temp";
-    public String mfile_path;
-    public String mPostTitle;
-    public String bitmapKey;
-    public String PostTitle;
-    public String PostImage;
-    public String PostText;
-    public String PostURL;
+    public String mfile_path, mPostTitle, bitmapKey, PostTitle, PostImage, PostText,PostURL;
     public BitmapInfo bi;
     public Bitmap bitmap;
 
@@ -119,6 +115,14 @@ public class AnimateFullscreenActivity extends AppCompatActivity {
         final ImageView downloadView = (ImageView)findViewById(R.id.downloadFooter);
         final ImageView browserView = (ImageView)findViewById(R.id.browserFooter);
         final ImageView copyView = (ImageView)findViewById(R.id.copyFooter);
+        tapbar = (TapBarMenu)findViewById(R.id.footer);
+
+        tapbar.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                tapbar.toggle();
+            }
+        });
+
         photoView.setBackgroundColor(PostBG);
 
         //OnClick listeners for the icons

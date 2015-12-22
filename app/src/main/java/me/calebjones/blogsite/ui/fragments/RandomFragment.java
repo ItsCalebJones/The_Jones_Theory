@@ -263,5 +263,15 @@ public class RandomFragment extends Fragment implements SwipeRefreshLayout.OnRef
         loadPost(0);
     }
 
+    public void onDestroy()
+    {
+        super.onDestroy();
+        if (databaseManager != null)
+        {
+            databaseManager.close();
+        }
+    }
+
+
 
 }

@@ -28,58 +28,65 @@
         android:layout_gravity="center"
         android:layout_below="@+id/toolbar"/>
 
-    <LinearLayout android:layout_height="44dp"
+    <uk.co.senab.photoview.PhotoView
+        android:id="@+id/image"
+        android:transitionName="photo_hero"
+        android:layout_width="fill_parent"
+        android:layout_below="@id/toolbar"
+        android:layout_height="fill_parent"
+        android:background="@color/myWindowBackground"/>
+
+    <com.michaldrabik.tapbarmenulib.TapBarMenu
+        android:layout_height="56dp"
         android:elevation="10dp"
         android:layout_width="fill_parent"
         android:layout_alignParentBottom="true"
         android:id="@+id/footer"
         android:orientation="horizontal"
-        android:background="@color/myPrimaryColor"
+        android:layout_marginBottom="24dp"
+        app:tbm_backgroundColor="@color/myPrimaryColor"
+        app:tbm_buttonPosition="right"
+        app:tbm_buttonMarginRight="12dp"
         >
 
         <ImageView
             android:id="@+id/downloadFooter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:scaleType="centerInside"
-            android:onClick=""
-            android:src="@drawable/ic_action_file_download"
-            android:cropToPadding="true"
-            android:paddingLeft="8dp" />
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
+            android:src="@drawable/ic_action_file_download" />
         <ImageView
             android:id="@+id/browserFooter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:scaleType="centerInside"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:src="@drawable/ic_action_open_in_browser"/>
         <ImageView
             android:id="@+id/shareFooter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:scaleType="centerInside"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:src="@drawable/ic_action_share"/>
         <ImageView
             android:id="@+id/copyFooter"
-            android:layout_width="wrap_content"
-            android:layout_height="match_parent"
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
             android:layout_weight="1"
-            android:scaleType="centerInside"
+            android:paddingTop="10dp"
+            android:paddingBottom="10dp"
             android:paddingRight="8dp"
             android:src="@drawable/ic_content_copy"/>
-    </LinearLayout>
-
-        <uk.co.senab.photoview.PhotoView
-            android:id="@+id/image"
-            android:transitionName="photo_hero"
-            android:layout_width="fill_parent"
-            android:layout_above="@id/footer"
-            android:layout_below="@id/toolbar"
-            android:layout_height="fill_parent"
-            android:background="@color/myWindowBackground"/>
-
-
+        <Space
+            android:layout_width="0dp"
+            android:layout_height="wrap_content"
+            android:layout_weight="1"
+            />
+    </com.michaldrabik.tapbarmenulib.TapBarMenu>
 
 </RelativeLayout>

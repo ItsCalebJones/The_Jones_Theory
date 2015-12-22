@@ -92,7 +92,7 @@ public class NewPostReceiver extends BroadcastReceiver {
 
                 NotificationCompat.Builder mBuilder = new NotificationCompat.Builder(context);
                 mBuilder.setContentTitle("New " + post.getCategories() + " post available!")
-                        .setContentText(post.getTitle())
+                        .setContentText(Html.fromHtml(post.getTitle()))
                         .setContentIntent(clickIntent)
                         .setSmallIcon(R.drawable.ic_notificaiton)
                         .setSound(Uri.parse(ringtoneBox))
@@ -104,6 +104,7 @@ public class NewPostReceiver extends BroadcastReceiver {
                                 .setBigContentTitle(post.getTitle()))
                         .setPriority(priority)
                         .addAction(R.drawable.ic_action_share, "Share", sharePendingIntent)
+                        .addAction(R.drawable.ic_fullscreen, "Open", clickIntent)
                         .setAutoCancel(true);
 
                 // Issues the notification

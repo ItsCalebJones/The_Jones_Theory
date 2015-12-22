@@ -85,6 +85,7 @@ public class SharedPrefs {
     public void setCategory(String mCategory) {
         sharedPreferences.edit().putString("CATEGORY", "").apply();
     }
+
     public boolean isDownloading() {
         return sharedPreferences.getBoolean("DOWNLOADING", false);
     }

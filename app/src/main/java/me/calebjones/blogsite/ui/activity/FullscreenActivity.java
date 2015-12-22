@@ -32,6 +32,7 @@ import android.widget.Toast;
 import com.koushikdutta.async.future.FutureCallback;
 import com.koushikdutta.ion.Ion;
 import com.koushikdutta.ion.bitmap.BitmapInfo;
+import com.michaldrabik.tapbarmenulib.TapBarMenu;
 
 import java.io.File;
 import java.io.FileOutputStream;
@@ -49,6 +50,7 @@ public class FullscreenActivity extends AppCompatActivity {
     private ProgressDialog dialog;
     private Bitmap bitmap;
     private File file;
+    private TapBarMenu tapbar;
     ProgressBar progressBar;
     public String file_path = Environment.getExternalStorageDirectory().getAbsolutePath() +
             "/TheJonesTheory/temp";
@@ -91,6 +93,14 @@ public class FullscreenActivity extends AppCompatActivity {
         final ImageView downloadView = (ImageView)findViewById(R.id.downloadFooter);
         final ImageView browserView = (ImageView)findViewById(R.id.browserFooter);
         final ImageView copyView = (ImageView)findViewById(R.id.copyFooter);
+
+        tapbar = (TapBarMenu)findViewById(R.id.footer);
+
+        tapbar.setOnClickListener(new View.OnClickListener() {
+            @Override public void onClick(View v) {
+                tapbar.toggle();
+            }
+        });
 
         //OnClick listeners for the icons
         View.OnClickListener sClickListener = new View.OnClickListener() {

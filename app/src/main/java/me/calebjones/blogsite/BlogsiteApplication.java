@@ -17,6 +17,7 @@
 package me.calebjones.blogsite;
 
 import android.app.Application;
+import android.content.Intent;
 
 import com.squareup.okhttp.Cache;
 import com.squareup.okhttp.OkHttpClient;
@@ -25,6 +26,7 @@ import com.squareup.okhttp.Protocol;
 import java.util.Collections;
 
 import me.calebjones.blogsite.content.database.SharedPrefs;
+import me.calebjones.blogsite.util.services.UpdateCheckService;
 
 public class BlogsiteApplication extends Application {
 
@@ -48,6 +50,9 @@ public class BlogsiteApplication extends Application {
         client.setCache(cache);
 
         SharedPrefs.create(this);
+
+        //TODO: Test this!
+        mInstance.startService(new Intent(mInstance, UpdateCheckService.class));
     }
 
     @Override
