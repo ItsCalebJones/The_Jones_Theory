@@ -485,7 +485,8 @@ public class PostDownloader extends IntentService {
                     + SharedPrefs.getInstance().isDownloading());
 
             Intent mainActIntent = new Intent(this, MainActivity.class);
-            PendingIntent clickIntent = PendingIntent.getActivity(this, 57836, mainActIntent, PendingIntent.FLAG_UPDATE_CURRENT);
+            PendingIntent clickIntent = PendingIntent.getActivity(this, 57836,
+                    mainActIntent, PendingIntent.FLAG_UPDATE_CURRENT);
 
             LocalBroadcastManager.getInstance(this).sendBroadcast(new Intent(DOWNLOAD_SUCCESS));
             mBuilder.setContentText("Download complete")
@@ -516,7 +517,8 @@ public class PostDownloader extends IntentService {
         if (newProgress > progress) {
             progress = newProgress;
 
-            mBuilder.setProgress(100, progress, false).setContentText("Downloading Science... " + progress + "%").setNumber(number);
+            mBuilder.setProgress(100, progress, false).setContentText("Downloading Science..." +
+                    " " + progress + "%").setNumber(number);
             mNotifyManager.notify(NOTIF_ID, mBuilder.build());
         }
     }

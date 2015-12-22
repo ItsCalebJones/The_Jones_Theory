@@ -57,7 +57,6 @@ import me.calebjones.blogsite.util.auth.AuthValidate;
 import me.calebjones.blogsite.util.auth.FBConnect;
 import me.calebjones.blogsite.util.customtab.CustomTabActivityHelper;
 import me.calebjones.blogsite.util.customtab.WebViewFallback;
-import rx.subscriptions.CompositeSubscription;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -95,6 +94,8 @@ public class MainActivity extends AppCompatActivity {
                 .getBoolean("notifications_new_message", false);
         String notificationTimer = sharedPreferences
                 .getString("notification_sync_time", "4");
+
+        Log.d("The Jones Theory", "MainActivity...Notification: " + notificationCheckBox);
 
         if (notificationCheckBox){
             //Set up Alarm Manager and Pending Intent to wake the UpdateServiceCheck

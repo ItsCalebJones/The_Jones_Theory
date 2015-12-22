@@ -28,9 +28,9 @@ public class SettingsActivity extends AppCompatActivity {
         SharedPreferences sharedPreferences = PreferenceManager
                 .getDefaultSharedPreferences(this);
         Boolean notificationCheckBox = sharedPreferences
-                .getBoolean("notifications_new_message", false);
+                .getBoolean("notifications_new_message", true);
         Boolean vibrateCheckBox = sharedPreferences
-                .getBoolean("notifications_new_message_vibrate", false);
+                .getBoolean("notifications_new_message_vibrate", true);
         String ringtoneBox = sharedPreferences
                 .getString("notifications_new_message_ringtone", "default ringtone");
         String notificationTimer = sharedPreferences

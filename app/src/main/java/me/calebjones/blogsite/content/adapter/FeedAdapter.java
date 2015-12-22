@@ -153,17 +153,11 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                 });
 
 
-//        //GreyScale the HeaderIcon
-//        ColorMatrix matrix = new ColorMatrix();
-//        matrix.setSaturation(1);  //0 means grayscale
-//        ColorMatrixColorFilter cf = new ColorMatrixColorFilter(matrix);
-//        holder.headerIcon.setColorFilter(cf);
-//        holder.headerIcon.setAlpha(128);   // 128 = 0.5
+
 
         holder.title.setText(Html.fromHtml(feedItem.getTitle()));
         holder.excerpt.setText(Html.fromHtml(shorten(feedItem.getExcerpt())));
         holder.tags.setText(Html.fromHtml(feedItem.getTags()));
-//        holder.category.setText("Category: " + Html.fromHtml(feedItem.getCategories()));
     }
 
     private String shorten(String text) {
@@ -241,17 +235,10 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
                     mContext.startActivity(Intent.createChooser(sendThisIntent, "Share"));
                     break;
                 case R.id.thumbnail:
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                        FeedFragment.exitReveal(tMainView);
-                    }
                     //Setup Intent mContext
                     mContext.startActivity(detailIntent);
                     break;
                 case R.id.exploreButton:
-                    if (android.os.Build.VERSION.SDK_INT >= android.os.Build.VERSION_CODES.LOLLIPOP) {
-                        FeedFragment.exitReveal(tMainView);
-                    }
-                    FeedFragment.exitReveal(tMainView);
                     //Setup Intent mContext
                     mContext.startActivity(detailIntent);
                     break;
@@ -276,5 +263,4 @@ public class FeedAdapter extends RecyclerView.Adapter<FeedAdapter.ViewHolder> {
             }
         }
     }
-
 }

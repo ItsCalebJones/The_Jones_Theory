@@ -95,8 +95,10 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public void addPost(Posts item) {
         if (feedExists(item)) {
+            updatePost(item);
             return;
         } else if (itemExists(item)){
+            updatePost(item);
             return;
         }
 
@@ -130,6 +132,8 @@ public class DatabaseManager extends SQLiteOpenHelper {
             return;
         }
 
+        Log.d("The Jones Theory", "feedExists: Updated - " + item.getTitle());
+
         ContentValues values = new ContentValues();
         values.put(DATE, item.getDate());
         values.put(PostID, item.getPostID());
@@ -142,7 +146,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
         values.put(TITLE, item.getTitle());
         values.put(FAV, item.isFavourite() ? 1 : 0);
 
-        getWritableDatabase().update(TABLE_POST, values, ID + " = ?", new String[]{String.valueOf(item.getID())});
+        getWritableDatabase().update(TABLE_POST, values, PostID + " = ?", new String[]{String.valueOf(item.getPostID())});
     }
 
     public Posts getPost(int num) {
@@ -505,7 +509,7 @@ public class DatabaseManager extends SQLiteOpenHelper {
 
     public boolean feedExists(Posts item) {
         Cursor cursor = getReadableDatabase().rawQuery("SELECT * FROM " + TABLE_POST
-                + " WHERE " + ID + " = ?", new String[]{String.valueOf(item.getID())});
+                + " WHERE " + PostID + " = ?", new String[]{String.valueOf(item.getPostID())});
 
         boolean exists = false;
         if (cursor != null && cursor.getCount() != 0) {

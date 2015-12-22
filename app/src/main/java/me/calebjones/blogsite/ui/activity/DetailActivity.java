@@ -15,6 +15,8 @@ import android.net.Uri;
 import android.os.Build;
 import android.os.Bundle;
 import android.os.Handler;
+import android.os.Parcelable;
+import android.provider.ContactsContract;
 import android.support.customtabs.CustomTabsIntent;
 import android.support.design.widget.AppBarLayout;
 import android.support.design.widget.CollapsingToolbarLayout;
@@ -93,6 +95,7 @@ public class DetailActivity extends AppCompatActivity {
     private Intent animateIntent, preIntent;
     private ImageView imageView;
     private View myView;
+    private DatabaseManager databaseManager;
 
     public String URL = "https://public-api.wordpress.com/rest/v1.1/sites/calebjones.me/posts/";
     public static final String COMMENT_URL = "http://calebjones.me/api/user/post_comment/?";
@@ -110,7 +113,7 @@ public class DetailActivity extends AppCompatActivity {
 
     @Override
     protected void onCreate(Bundle savedInstanceState) {
-        DatabaseManager databaseManager = new DatabaseManager(this);
+        databaseManager = new DatabaseManager(this);
         customTabActivityHelper = new CustomTabActivityHelper();
         mSubscriptions = new CompositeSubscription();
 
@@ -119,6 +122,7 @@ public class DetailActivity extends AppCompatActivity {
             getWindow().setEnterTransition(new Slide());
         }
 
+        Log.v("The Jones Theory", "decodeBitmaps ");
         decodeBitmaps();
 
         super.onCreate(savedInstanceState);
@@ -128,14 +132,11 @@ public class DetailActivity extends AppCompatActivity {
 
         myView = findViewById(R.id.main_content);
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            myView.setVisibility(View.INVISIBLE);
-        }
-
         defaultColor = ContextCompat.getColor(this, R.color.icons);
         Log.v("The Jones Theory", "OnCreate: ");
-        if (bundle != null){
+        if (bundle != null) {
             //Get information about the post that was selected from BlogFragment
+            Log.v("The Jones Theory", "DB Start... ");
             Intent intent = getIntent();
             PostID = intent.getExtras().getInt("PostID");
             this.feedItemList = PostLoader.getWords();
@@ -146,6 +147,7 @@ public class DetailActivity extends AppCompatActivity {
             PostTitle = post.getTitle();
             PostURL = post.getURL();
             PostExcerpt = post.getExcerpt();
+            Log.v("The Jones Theory", "DB Stop... ");
 
         }
         if (savedInstanceState != null) {
@@ -198,9 +200,6 @@ public class DetailActivity extends AppCompatActivity {
                 Intent commentIntent = new Intent(DetailActivity.this, CommentActivity.class);
                 commentIntent.putExtra("PostID", PostID.toString());
                 commentIntent.putExtra("PostURL", PostURL);
-                if (mPalette != null) {
-                    commentIntent.putExtra("bgcolor", mPalette.getDarkMutedColor(ContextCompat.getColor(mContext, R.color.icons)));
-                }
                 startActivity(commentIntent);
             }
         });
@@ -209,20 +208,13 @@ public class DetailActivity extends AppCompatActivity {
         commentFab.setTranslationX(commentFab.getWidth() + 250);
 
         //Replace the content_header image with the Feature Image
-        if (PostImage == null){
+        if (PostImage == null) {
             if (fullscreenFab.getVisibility() == View.VISIBLE) {
                 fullscreenFab.setVisibility(View.GONE);
             }
-            commentFab.setVisibility(View.INVISIBLE);
-            if (myView.getVisibility() == View.INVISIBLE) {
-                myView.postDelayed(new Runnable() {
-                    @Override
-                    public void run() {
-                        revealView(myView);
-                    }
-                }, 100);
-            }
         }
+
+        Log.v("The Jones Theory", "setUpFeatureImage ");
         setUpFeatureImage();
         //Removes HTML artifcats
 
@@ -238,11 +230,16 @@ public class DetailActivity extends AppCompatActivity {
         mTitle.setText(Html.fromHtml(PostTitle));
         mTextView = (TextView) findViewById(R.id.PostTextPara);
 
-//        mTextView.setText(htmlSpan);
+//            mTextView.setText(htmlSpan);
+//        runOnUiThread(new Runnable() {
+//            public void run() {
+//                setTextViewHTML(mTextView, PostText);
+//            }
+//        });
         setTextViewHTML(mTextView, PostText);
         customTabActivityHelper.mayLaunchUrl(Uri.parse(PostURL), null, null);
 
-//        mTextView.setText(Html.fromHtml(PostText,new URLImageParser(mTextView, this), null));
+//        mTextView.setText(Html.fromHtml(PostText));
 
         CommentTextLoggedOut = (TextView) findViewById(R.id.CommentTextLoggedOut);
         CommentBoxTitle = (TextView) findViewById(R.id.CommentBoxTitle);
@@ -259,43 +256,43 @@ public class DetailActivity extends AppCompatActivity {
         getSupportActionBar().setDisplayShowHomeEnabled(true);
         getSupportActionBar().setElevation(25);
 
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-
-            getWindow().getEnterTransition().addListener(new Transition.TransitionListener() {
-                @Override
-                public void onTransitionStart(Transition transition) {
-                }
-
-                @Override
-                public void onTransitionCancel(Transition transition) {
-                }
-
-                @Override
-                public void onTransitionPause(Transition transition) {
-                }
-
-                @Override
-                public void onTransitionResume(Transition transition) {
-                }
-
-                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-                @Override
-                public void onTransitionEnd(Transition transition) {
-                    getWindow().getEnterTransition().removeListener(this);
-                    ImageView imgFavorite = (ImageView)findViewById(R.id.header);
-
-                    // load the full version, crossfading from the thumbnail image
-                    Ion.with(imgFavorite)
-                            .crossfade(true)
-                            .deepZoom()
-                            .load(PostImage);
-                }
-            });
-        }
+//        if (android.os.Build.VERSION.SDK_INT >= 21) {
+//
+//            getWindow().getEnterTransition().addListener(new Transition.TransitionListener() {
+//                @Override
+//                public void onTransitionStart(Transition transition) {
+//                }
+//
+//                @Override
+//                public void onTransitionCancel(Transition transition) {
+//                }
+//
+//                @Override
+//                public void onTransitionPause(Transition transition) {
+//                }
+//
+//                @Override
+//                public void onTransitionResume(Transition transition) {
+//                }
+//
+//                @TargetApi(Build.VERSION_CODES.LOLLIPOP)
+//                @Override
+//                public void onTransitionEnd(Transition transition) {
+//                    getWindow().getEnterTransition().removeListener(this);
+//                    ImageView imgFavorite = (ImageView) findViewById(R.id.header);
+//
+//                    // load the full version, crossfading from the thumbnail image
+//                    Ion.with(imgFavorite)
+//                            .crossfade(true)
+//                            .deepZoom()
+//                            .load(PostImage);
+//                }
+//            });
+//        }
     }
 
     private void setUpFeatureImage() {
-        final ImageView imgFavorite = (ImageView)findViewById(R.id.header);
+        final ImageView imgFavorite = (ImageView) findViewById(R.id.header);
         Ion.with(getApplicationContext())
                 .load(PostImage)
                 .withBitmap()
@@ -304,50 +301,40 @@ public class DetailActivity extends AppCompatActivity {
                 .asBitmap()
                 .setCallback(new FutureCallback<Bitmap>() {
                     @Override
-                    public void onCompleted(Exception e, Bitmap result) {
+                    public void onCompleted(Exception e, final Bitmap result) {
                         final View mainView = findViewById(R.id.main_content);
-                        final Bitmap resultBitmap = result;
 
-                        commentFab.setVisibility(View.INVISIBLE);
-                        fullscreenFab.setVisibility(View.INVISIBLE);
                         bitmap = result;
 
                         if (bitmap != null) {
-                            mainView.postDelayed(new Runnable() {
-                                @Override
-                                public void run() {
+                            imgFavorite.setImageBitmap(bitmap);
 
-                                    imgFavorite.setImageBitmap(resultBitmap);
-                                    setUpCompressedBitmap();
+                            new Thread(new Runnable() {
+                                public void run() {
+                                    final Bitmap bitmap = result;
+                                    mainView.post(new Runnable() {
+                                        public void run() {
+                                            mPalette = Palette.generate(bitmap);
+                                            mApplyPalette(mPalette);
+                                            setUpCompressedBitmap();
+                                        }
+                                    });
                                 }
-                            }, 0);
-                            if (mainView.getVisibility() == View.INVISIBLE) {
-                                mainView.postDelayed(new Runnable() {
-                                    @Override
-                                    public void run() {
-                                        mPalette = Palette.generate(bitmap);
-                                        mApplyPalette(mPalette);
-                                        revealView(mainView);
-                                        if (commentFab.getVisibility() == View.INVISIBLE) {
-                                            revealView(commentFab);
-                                        }
-                                        if (fullscreenFab.getVisibility() == View.INVISIBLE) {
-                                            revealView(fullscreenFab);
-                                        }
-                                    }
-                                }, 100);
-                            }
+                            }).start();
                             Log.d("The Jones Theory", "Result: " + result.toString() + " Bitmap: " + bitmap.toString());
                         }
                     }
                 });
-
+        Log.v("The Jones Theory", "Feature Image completed. ");
     }
 
     @Override
     public void onDestroy() {
         super.onDestroy();
         mSubscriptions.unsubscribe();
+        if (databaseManager != null) {
+            databaseManager.close();
+        }
     }
 
     private void decodeBitmaps() {
@@ -361,6 +348,7 @@ public class DetailActivity extends AppCompatActivity {
                 .subscribe(new Subscriber<Bitmap>() {
                     @Override
                     public void onCompleted() {
+                        Log.v("The Jones Theory", "decodeBitmaps completed");
                     }
 
                     @Override
@@ -389,8 +377,7 @@ public class DetailActivity extends AppCompatActivity {
         customTabActivityHelper.unbindCustomTabsService(this);
     }
 
-    protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span)
-    {
+    protected void makeLinkClickable(SpannableStringBuilder strBuilder, final URLSpan span) {
         int start = strBuilder.getSpanStart(span);
         int end = strBuilder.getSpanEnd(span);
         int flags = strBuilder.getSpanFlags(span);
@@ -400,7 +387,7 @@ public class DetailActivity extends AppCompatActivity {
                 Context context = getApplicationContext();
                 CharSequence text = "Hello toast!" + span.getURL();
 
-                if (Patterns.WEB_URL.matcher(span.getURL()).matches()){
+                if (Patterns.WEB_URL.matcher(span.getURL()).matches()) {
                     Log.d("The Jones Theory", span.getURL());
                     openCustomTab(span.getURL());
                 }
@@ -410,22 +397,22 @@ public class DetailActivity extends AppCompatActivity {
         strBuilder.removeSpan(span);
     }
 
-    protected void setTextViewHTML(TextView text, String html)
-    {
+
+    protected void setTextViewHTML(TextView text, String html) {
         URLImageParser urlImageParser = new URLImageParser(text, this);
         CharSequence sequence = Html.fromHtml(html, urlImageParser, null);
         SpannableStringBuilder strBuilder = new SpannableStringBuilder(sequence);
-        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
-        for(URLSpan span : urls) {
-            makeLinkClickable(strBuilder, span);
-
-        }
+//        URLSpan[] urls = strBuilder.getSpans(0, sequence.length(), URLSpan.class);
+//        for (URLSpan span : urls) {
+//            makeLinkClickable(strBuilder, span);
+//        }
 
         text.setText(strBuilder);
     }
 
     //PalLete bugs here where swatches are empty
-    public void mApplyPalette(Palette mPalette){
+    public void mApplyPalette(Palette mPalette) {
+        Log.d("The Jones Theory", "Applying Palette!");
         collapsingToolbar.setContentScrimColor(mPalette.getVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryColor)));
         collapsingToolbar.setStatusBarScrimColor(mPalette.getVibrantColor(ContextCompat.getColor(this, R.color.myPrimaryColor)));
         fullscreenFab.setBackgroundTintList(ColorStateList.valueOf(mPalette.getLightMutedColor(ContextCompat.getColor(this, R.color.myAccentColor))));
@@ -438,37 +425,8 @@ public class DetailActivity extends AppCompatActivity {
 //        }
     }
 
-    public void Transition(View v){
+    public void Transition(View v) {
         startActivity(preIntent);
-    }
-
-    @TargetApi(Build.VERSION_CODES.LOLLIPOP)
-    private void exitReveal() {
-        final View mainView = findViewById(R.id.main_content);
-
-        // get the center for the clipping circle
-        int cx = mainView.getMeasuredWidth() / 2;
-        int cy = mainView.getMeasuredHeight() / 2;
-
-        // get the initial radius for the clipping circle
-        int initialRadius = mainView.getWidth() / 2;
-
-        // create the animation (the final radius is zero)
-        Animator anim =
-                ViewAnimationUtils.createCircularReveal(mainView, cx, cy, initialRadius, 0);
-
-        // make the view invisible when the animation is done
-        anim.addListener(new AnimatorListenerAdapter() {
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                mainView.setVisibility(View.INVISIBLE);
-            }
-        });
-
-        // start the animation
-        anim.start();
-
     }
 
     @Override
@@ -490,21 +448,14 @@ public class DetailActivity extends AppCompatActivity {
 
 
     @Override
-    public void onResume(){
+    public void onResume() {
         final View nestedContent = findViewById(R.id.nested_content);
         final View commentFab = findViewById(R.id.commentFab);
         final View fullscreenFab = findViewById(R.id.postFab);
+        final View CommentBox = findViewById(R.id.CommentBox);
+        final View CommentTextLoggedOut = findViewById(R.id.CommentTextLoggedOut);
 
         LoginStatus = SharedPrefs.getInstance().getLoginStatus();
-
-        if (nestedContent.getVisibility() == View.INVISIBLE) {
-            nestedContent.postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    revealView(nestedContent);
-                }
-            }, 0);
-        }
 
         //Animate the FAB's loading
         myView.postDelayed(new Runnable() {
@@ -515,6 +466,7 @@ public class DetailActivity extends AppCompatActivity {
         }, 1000);
         if (LoginStatus) {
             CommentBox.setVisibility(View.VISIBLE);
+            commentFab.setVisibility(View.VISIBLE);
             CommentTextLoggedOut.setVisibility(View.GONE);
 
         } else {
@@ -523,58 +475,6 @@ public class DetailActivity extends AppCompatActivity {
             commentFab.setVisibility(View.GONE);
         }
         super.onResume();
-    }
-
-    private void revealView(View view) {
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            int cx = (myView.getLeft() + myView.getRight()) / 2;
-            int cy = (myView.getTop() + myView.getBottom()) / 2;
-
-
-            // get the final radius for the clipping circle
-            int finalRadius = Math.max(view.getWidth(), view.getHeight() / 2);
-
-            // create the animator for this view (the start radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(view, cx, cy, 0, finalRadius);
-
-            // make the view visible and start the animation
-            view.setVisibility(View.VISIBLE);
-            anim.start();
-        } else {
-            view.setVisibility(View.VISIBLE);
-        }
-    }
-
-    private void hideView(View view) {
-        if (android.os.Build.VERSION.SDK_INT >= 21) {
-            final View myView = view;
-
-            // get the center for the clipping circle
-            int cx = (myView.getLeft() + myView.getRight()) / 2;
-            int cy = (myView.getTop() + myView.getBottom()) / 2;
-
-            // get the initial radius for the clipping circle
-            int initialRadius = myView.getWidth() / 2;
-
-            // create the animation (the final radius is zero)
-            Animator anim =
-                    ViewAnimationUtils.createCircularReveal(myView, cx, cy, initialRadius, 0);
-
-            // make the view invisible when the animation is done
-            anim.addListener(new AnimatorListenerAdapter() {
-                @Override
-                public void onAnimationEnd(Animator animation) {
-                    super.onAnimationEnd(animation);
-                    myView.setVisibility(View.INVISIBLE);
-                }
-            });
-
-            // start the animation
-            anim.start();
-        } else {
-            view.setVisibility(View.INVISIBLE);
-        }
     }
 
     private void setUpCompressedBitmap() {
@@ -590,7 +490,7 @@ public class DetailActivity extends AppCompatActivity {
 
                 //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
                 if (byteArray.length > 524288) {
-                    for (int i = 95; (byteArray.length > 524288 && i >= 20); i = i - 5) {
+                    for (int i = 66; (byteArray.length > 524288 && i >= 20); i = i - 33) {
                         stream.reset();
                         Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
                         bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
@@ -657,17 +557,12 @@ public class DetailActivity extends AppCompatActivity {
         switch (item.getItemId()) {
             case android.R.id.home:
                 fabSlideOut();
-                final Handler hideHandler = new Handler();
-                hideHandler.postDelayed(new Runnable() {
-                    public void run() {
-                        exitReveal();
-                    }
-                }, 400);
 
                 final Handler intentHandler = new Handler();
                 intentHandler.postDelayed(new Runnable() {
                     public void run() {
-                        NavUtils.navigateUpFromSameTask(DetailActivity.this);
+                        Intent upIntent = new Intent(DetailActivity.this, MainActivity.class);
+                        NavUtils.navigateUpTo(DetailActivity.this, upIntent);
                     }
                 }, 700);
                 return true;
@@ -700,8 +595,8 @@ public class DetailActivity extends AppCompatActivity {
     private void openCustomTab(String url) {
         CustomTabsIntent.Builder intentBuilder = new CustomTabsIntent.Builder();
 
-        intentBuilder.setToolbarColor(mPalette.getVibrantColor(getResources()
-                .getColor(R.color.myPrimaryColor, null)));
+        intentBuilder.setToolbarColor(mPalette.getVibrantColor(ContextCompat.getColor(
+                getBaseContext(), R.color.myPrimaryColor)));
         intentBuilder.setShowTitle(true);
 
         PendingIntent actionPendingIntent = createPendingShareIntent(url);
@@ -716,7 +611,7 @@ public class DetailActivity extends AppCompatActivity {
         intentBuilder.setExitAnimations(this,
                 android.R.anim.slide_in_left, android.R.anim.slide_out_right);
 
-        if (!url.matches("ap.......html")){
+        if (!url.matches("ap.......html")) {
             CustomTabActivityHelper.openCustomTab(
                     this, intentBuilder.build(), Uri.parse(url), new WebViewFallback());
         }
@@ -741,6 +636,7 @@ public class DetailActivity extends AppCompatActivity {
         savedInstanceState.putString("PostURL", PostURL);
         savedInstanceState.putInt("PostID", PostID);
     }
+
     @Override
     protected void onRestoreInstanceState(Bundle savedInstanceState) {
         super.onRestoreInstanceState(savedInstanceState);
@@ -751,13 +647,14 @@ public class DetailActivity extends AppCompatActivity {
         PostID = savedInstanceState.getInt("PostID");
     }
 
-    private void fabSlideOut(){
+    private void fabSlideOut() {
         fullscreenFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(1)).start();
         commentFab.animate().translationX(fullscreenFab.getWidth() + 250).setInterpolator(new AccelerateInterpolator(2)).start();
     }
 
-    private void fabSlideIn(){
+    private void fabSlideIn() {
         fullscreenFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(4)).start();
         commentFab.animate().translationX(0).setInterpolator(new DecelerateInterpolator(3)).start();
     }
+
 }

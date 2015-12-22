@@ -91,7 +91,7 @@ public class IntentLauncher extends AppCompatActivity {
 
     private void loadPost(int num) {
         int random;
-        int max = databaseManager.getMax();
+        int max = databaseManager.getMax() - 20;
 
         if (databaseManager.getCount() != 0){
             if (max != 0 && num == 0){
