@@ -67,20 +67,20 @@ public class UpdateCheckService extends IntentService {
     protected void onHandleIntent(Intent intent) {
         databaseManager = new DatabaseManager(this);
         Request request = new Request.Builder().url(LATEST_URL).build();
-        Log.d("The Jones Theory", "UpdateCheckService init...");
-        try{
+        if (!SharedPrefs.getInstance().getFirstRun() && databaseManager.getCount() > 0) {
+            Log.d("The Jones Theory", "UpdateCheckService init...");
+            try {
+                //First make a call to see how many total posts there are and save to 'found'
+                final Response response = BlogsiteApplication.getInstance().client.newCall(request).execute();
+                if (!response.isSuccessful()) throw new IOException();
 
-            //First make a call to see how many total posts there are and save to 'found'
-            final Response response = BlogsiteApplication.getInstance().client.newCall(request).execute();
-            if (!response.isSuccessful()) throw new IOException();
+                //Take the response and parse the JSON
+                JSONObject JObject = new JSONObject(response.body().string());
+                JSONArray nPosts = JObject.optJSONArray("posts");
 
-            //Take the response and parse the JSON
-            JSONObject JObject = new JSONObject(response.body().string());
-            JSONArray nPosts = JObject.optJSONArray("posts");
-
-                for (int i = 0; i < nPosts.length(); i++){
+                for (int i = 0; i < nPosts.length(); i++) {
                     JSONObject post = nPosts.optJSONObject(i);
-                    if(!databaseManager.idExists(post.optString("ID"))){
+                    if (!databaseManager.idExists(post.optString("ID"))) {
                         Intent notifIntent = new Intent(NEW_POST);
                         saveToDatabase(post);
                         String Image_URL = post.optString("featured_image");
@@ -107,11 +107,12 @@ public class UpdateCheckService extends IntentService {
                         sendBroadcast(notifIntent);
                     }
                 }
-        } catch (IOException | JSONException | ParseException e) {
+            } catch (IOException | JSONException | ParseException e) {
+                SharedPrefs.getInstance().setDownloading(false);
+                e.printStackTrace();
+            }
             SharedPrefs.getInstance().setDownloading(false);
-            e.printStackTrace();
         }
-        SharedPrefs.getInstance().setDownloading(false);
     }
 
     public Bitmap getBitmapFromURL(String strURL) {

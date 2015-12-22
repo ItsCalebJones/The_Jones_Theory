@@ -90,7 +90,7 @@ public class DownloadActivity extends ActionBarActivity implements View.OnClickL
         if (databaseManager == null) {
             databaseManager = new DatabaseManager(this);
         }
-        if (databaseManager.getCount() > 0){
+        if (databaseManager.getCount() > 10){
             showMain();
         }
 

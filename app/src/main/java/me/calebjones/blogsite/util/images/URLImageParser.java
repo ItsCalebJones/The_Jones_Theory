@@ -15,6 +15,7 @@ import android.util.Log;
 import android.widget.TextView;
 
 
+import java.io.ByteArrayOutputStream;
 import java.io.InputStream;
 import java.net.URL;
 
@@ -81,9 +82,27 @@ public class URLImageParser implements ImageGetter {
 
                 Log.d("The Jones Theory", "getDrawable: decodeStream");
                 InputStream is = (InputStream) new URL(urlString).getContent();
-                Bitmap bmp = BitmapFactory.decodeStream(is);
-                Drawable drawable = new BitmapDrawable (context.getResources(), bmp);
-                Log.d("The Jones Theory", "getDrawable: decodeStream: " + bmp.getByteCount());
+                Bitmap bitmap = BitmapFactory.decodeStream(is);
+                ByteArrayOutputStream stream = new ByteArrayOutputStream();
+                bitmap.compress(Bitmap.CompressFormat.JPEG, 50, stream);
+                byte[] byteArray = stream.toByteArray();
+
+                Log.d("The Jones Theory", "byteLength: " + byteArray.length);
+
+                //Compress the Bitmap if its over an arbitrary size that probably could crash at a lower count.
+                if (byteArray.length > 524288) {
+                    for (int i = 66; (byteArray.length > 524288 && i >= 10); i = i - 33) {
+                        stream.reset();
+                        Log.d("The Jones Theory", "BEFORE byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
+                        bitmap.compress(Bitmap.CompressFormat.JPEG, i, stream);
+                        byteArray = stream.toByteArray();
+                        Log.d("The Jones Theory", "AFTER byteLength - Compression: " + i + " - " + byteArray.length + " stream " + stream.size());
+                    }
+                }
+                bitmap = BitmapFactory.decodeByteArray(byteArray, 0, byteArray.length);
+
+                Drawable drawable = new BitmapDrawable (context.getResources(), bitmap);
+                Log.d("The Jones Theory", "getDrawable: decodeStream: " + bitmap.getByteCount());
 
                 Log.d("The Jones Theory", "getDrawable: calculate width/height");
                 //Need logic here to calculate maximum width of image vs height so it doesnt strech
